@@ -7,6 +7,8 @@
 
 #include <memory>
 #include <string>
+#include <vector>
+
 
 class SceneStack;
 
@@ -45,5 +47,33 @@ private:
 };
 
 using ScenePtr = std::shared_ptr<Scene>;
+
+/**
+*	シーン管理クラス
+*/
+class SceneStack {
+public:
+
+	static SceneStack& Instance();
+
+	void Push(ScenePtr);
+	void Pop();
+	void Replace(ScenePtr);
+	Scene& Current();
+	const Scene& Current() const;
+	size_t Size() const;
+	bool Empty() const;
+
+	void Update(float);
+	void Render();
+
+private:
+	SceneStack();
+	SceneStack(const SceneStack&) = delete;
+	SceneStack& operator= (const SceneStack&) = delete;
+	~SceneStack() = default;
+
+	std::vector<ScenePtr> stack;
+};
 
 #endif

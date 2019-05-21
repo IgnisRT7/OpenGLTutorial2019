@@ -17,10 +17,37 @@
     <ClCompile Include="src\Scene.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\TitleScene.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainGameScene.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StatusScene.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameOverScene.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
       <Filter>Src</Filter>
     </ClInclude>
+    <ClInclude Include="src\TitleScene.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainGameScene.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameOverScene.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\StatusScene.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
