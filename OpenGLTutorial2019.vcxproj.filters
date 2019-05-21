@@ -29,6 +29,9 @@
     <ClCompile Include="src\GameOverScene.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\GLFWEW.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -44,6 +47,9 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\StatusScene.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GLFWEW.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>

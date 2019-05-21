@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\GameOverScene.cpp" />
+    <ClCompile Include="src\GLFWEW.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainGameScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
@@ -124,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GameOverScene.h" />
+    <ClInclude Include="src\GLFWEW.h" />
     <ClInclude Include="src\MainGameScene.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\StatusScene.h" />
