@@ -86,10 +86,10 @@ namespace GLFWEW {
 			return false;
 		}
 
-		const GLubyte* renderer = glGetString(GL_RENDERER);
-		std::cout << "Renderer: " << renderer << std::endl;
-		const GLubyte* version = glGetString(GL_VERSION);
-		std::cout << "Version: " << version << std::endl;
+//		const GLubyte* renderer = glGetString(GL_RENDERER);
+//		std::cout << "Renderer: " << renderer << std::endl;
+//		const GLubyte* version = glGetString(GL_VERSION);
+//		std::cout << "Version: " << version << std::endl;
 
 		return true;
 	}
@@ -97,7 +97,7 @@ namespace GLFWEW {
 	/**
 	*	ウインドウを閉じるべきか調べる
 	*
-	*	retval trueu 閉じる
+	*	retval true 閉じる
 	*	retval false 閉じない
 	*/
 	bool Window::ShouldClose() const {
@@ -253,36 +253,5 @@ namespace GLFWEW {
 		gamepad.buttonDown = gamepad.buttons & ~prevButtons;
 	}
 
-	/**
-	*	マウスホイールの値の更新処理
-	*
-	*	@param x	ホイールXの回転量
-	*	@param y	ホイールYの回転量
-	*/
-	void Window::UpdateMouseWheel(float x, float y){
-
-		static glm::vec2 prev = glm::vec2(0);
-
-		gamepad.mouseWheelY = y - prev.y;
-
-		prev = glm::vec2(x, y);
-
-	}
-
-	/**
-	*	キーのマッピングの設定
-	*
-	*	@param k キーマッピングのデータ
-	*/
-	void Window::SetKeyMap(std::vector<stKeyMap>& k){
-
-		keyMap.clear();
-
-		for (stKeyMap& keyValue : k) {
-			
-			keyMap[keyValue.glfwCode] = keyValue.keyCode;
-		}
-		
-	}
 
 } //namespace GLFWEW
