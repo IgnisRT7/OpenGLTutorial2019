@@ -129,7 +129,7 @@ void VertexArrayObject::Destroy() {
 void VertexArrayObject::Bind() const {
 
 	glBindVertexArray(id);
-	glBindBuffer(GL_ARRAY_BUFFER);
+	glBindBuffer(GL_ARRAY_BUFFER,id);
 }
 
 /**
