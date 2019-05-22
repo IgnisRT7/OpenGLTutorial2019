@@ -28,7 +28,7 @@ Scene::~Scene() {
 */
 void Scene::Play() {
 
-	isActive;
+	isActive = true;
 	std::cout << "Scene Play: " << name << "\n";
 }
 
@@ -67,6 +67,11 @@ void Scene::Hide() {
 const std::string& Scene::Name() const {
 
 	return name;
+}
+
+bool Scene::IsActive() const
+{
+	return isActive;
 }
 
 /*
@@ -212,7 +217,9 @@ void SceneStack::Update(float deltaTime) {
 
 	for (ScenePtr& e : stack) {
 
-		e->ProcessInput();
+		if(e->IsActive()) {
+			e->ProcessInput();
+		}
 	}
 	for (ScenePtr& e : stack) {
 
