@@ -35,6 +35,9 @@
     <ClCompile Include="src\BufferObject.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -56,6 +59,9 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\BufferObject.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>
