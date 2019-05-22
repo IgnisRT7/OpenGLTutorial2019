@@ -396,10 +396,10 @@ TexturePtr Texture::LoadFromFile(const char* filename) {
 *
 *	@param id	テクスチャID
 */
-void Texture::Reset(GLuint texId){
+void Texture::Reset(GLuint id){
 
-	glDeleteTextures(1, &id);
-	id = texId;
+	glDeleteTextures(1, &texId);
+	texId = id;
 	if (id) {
 		//テクスチャの幅と高さを調節する
 		glBindTexture(GL_TEXTURE_2D, id);
