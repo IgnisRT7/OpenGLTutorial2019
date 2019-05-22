@@ -38,6 +38,12 @@
     <ClCompile Include="src\Texture.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -62,6 +68,12 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\Texture.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>

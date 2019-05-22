@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\GLMathematics.0.9.5.4\build\native\GLMathematics.props" Condition="Exists('packages\GLMathematics.0.9.5.4\build\native\GLMathematics.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -123,22 +124,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="src\BufferObject.cpp" />
     <ClCompile Include="src\GameOverScene.cpp" />
     <ClCompile Include="src\GLFWEW.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainGameScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\StatusScene.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sprite.h" />
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\GameOverScene.h" />
     <ClInclude Include="src\GLFWEW.h" />
     <ClInclude Include="src\MainGameScene.h" />
     <ClInclude Include="src\Scene.h" />
+    <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\StatusScene.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\TitleScene.h" />
@@ -157,5 +162,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
     <Error Condition="!Exists('packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
+    <Error Condition="!Exists('packages\GLMathematics.0.9.5.4\build\native\GLMathematics.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\GLMathematics.0.9.5.4\build\native\GLMathematics.props'))" />
   </Target>
 </Project>
