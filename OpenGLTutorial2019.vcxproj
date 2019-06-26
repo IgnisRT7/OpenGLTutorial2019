@@ -125,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\BufferObject.cpp" />
+    <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\GameOverScene.cpp" />
     <ClCompile Include="src\GLFWEW.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -138,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BufferObject.h" />
+    <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\GameOverScene.h" />
     <ClInclude Include="src\GLFWEW.h" />
     <ClInclude Include="src\MainGameScene.h" />

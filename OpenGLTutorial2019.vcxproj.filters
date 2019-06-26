@@ -44,6 +44,9 @@
     <ClCompile Include="src\Sprite.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Font.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -74,6 +77,9 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\Sprite.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Font.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>
