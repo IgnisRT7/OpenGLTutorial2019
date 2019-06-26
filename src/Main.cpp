@@ -8,13 +8,14 @@
 //エントリーポイント
 int main() {
 
-	SceneStack& sceneStack = SceneStack::Instance();
-	sceneStack.Push(std::make_shared<TitleScene>());
 	auto& window = GLFWEW::Window::Instance();
 
 	if (!window.Init(800,600,"title")) {
 		return 0;
 	}
+
+	SceneStack& sceneStack = SceneStack::Instance();
+	sceneStack.Push(std::make_shared<TitleScene>());
 
 	for (;!window.ShouldClose();) {
 
