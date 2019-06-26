@@ -27,15 +27,17 @@ namespace Shader {
 
 		bool UniformBlockBinding(const char* blocblockName, GLuint bindingPoint);
 		void UseProgram();
-		void BindTexture(GLenum unit, GLenum type, GLuint texture);
+		void BindTexture(GLenum unit, GLenum type, GLuint texture=0);
+
+
 		void BindShadowTexture(GLenum type, GLuint texture);
 		void SetViewIndex(int index);
 
-		void SetViewProjectionMatrix(const glm::mat4& matVP) const;
+		void SetViewProjectionMatrix(const glm::mat4& matVP);
 		void SetVectorParameter(glm::vec3 p, std::string name);
 		void SetBoolParameter(bool b, std::string name);
 		void SetFloatParameter(float f, std::string name);
-
+		bool IsNull() { return program == 0; }
 
 	private:
 		Program() = default;

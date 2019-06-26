@@ -126,7 +126,7 @@ namespace Shader {
 	*	@param type		割り当てるテクスチャの種類(GL_TEXTURE_1D,GLTEXTURE_2D,etc)
 	*	@param texure	割り当てるテクスチャオブジェクト
 	*/
-	void Program::BindTexture(GLenum unit, GLenum type, GLuint texture) {
+	void Program::BindTexture(GLenum unit, GLuint texture, GLenum type ) {
 
 		if (unit >= GL_TEXTURE0 && unit < static_cast<GLenum>(GL_TEXTURE0 + samperCount)) {
 
@@ -161,9 +161,9 @@ namespace Shader {
 	/**
 	*	ビュー射影変換行列を設定する
 	*/
-	void Program::SetViewProjectionMatrix(const glm::mat4& matVP) const{
+	void Program::SetViewProjectionMatrix(const glm::mat4& matVP) {
 
-		//this->matVP =  matVP;
+		this->matVP =  matVP;
 		if (matVPLocation >= 0) {
 			glUniformMatrix4fv(matVPLocation, 1, GL_FALSE, &matVP[0][0]);
 		}
