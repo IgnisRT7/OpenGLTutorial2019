@@ -55,7 +55,7 @@ namespace Shader {
 
 		p->viewIndexLocation = glGetUniformLocation(p->program, "viewIndex");
 		p->depthSamplerLocation = glGetUniformLocation(p->program, "depthSampler");
-		p->matVPLocation = glGetUniformLocation(p->program, "matVP");
+		p->matVPLocation = glGetUniformLocation(p->program, "matMVP");
 
 		auto result = glGetError();
 
@@ -122,7 +122,7 @@ namespace Shader {
 	/**
 	*	テクスチャをテクスチャ・イメージユニットに割り当てる
 	*
-	*	@param unit		割当先のテクスチャ・イメージ・ユニット番号(GL_TExTURE0～)
+	*	@param unit		割当先のテクスチャ・イメージ・ユニット番号(GL_TEXTURE0～)
 	*	@param type		割り当てるテクスチャの種類(GL_TEXTURE_1D,GLTEXTURE_2D,etc)
 	*	@param texure	割り当てるテクスチャオブジェクト
 	*/

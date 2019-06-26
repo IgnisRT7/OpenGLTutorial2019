@@ -27,7 +27,7 @@ namespace Shader {
 
 		bool UniformBlockBinding(const char* blocblockName, GLuint bindingPoint);
 		void UseProgram();
-		void BindTexture(GLenum unit, GLenum type, GLuint texture=0);
+		void BindTexture(GLenum unit, GLenum texture, GLuint type = GL_TEXTURE_2D);
 
 
 		void BindShadowTexture(GLenum type, GLuint texture);
