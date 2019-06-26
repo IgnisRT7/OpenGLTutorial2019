@@ -86,10 +86,8 @@ namespace GLFWEW {
 			return false;
 		}
 
-//		const GLubyte* renderer = glGetString(GL_RENDERER);
-//		std::cout << "Renderer: " << renderer << std::endl;
-//		const GLubyte* version = glGetString(GL_VERSION);
-//		std::cout << "Version: " << version << std::endl;
+		width = w;
+		height = h;
 
 		return true;
 	}

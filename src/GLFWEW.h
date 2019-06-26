@@ -24,6 +24,9 @@ namespace GLFWEW {
 		const GamePad& GetGamePad() const;
 		void UpdateGamePad();
 
+		int Width() const { return width; }
+		int Height() const { return height; }
+
 	private:
 
 		Window();
@@ -31,11 +34,13 @@ namespace GLFWEW {
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
 
-		bool isGLFWInitialized;
-		bool isInitialized;
-		GLFWwindow* window;
+		bool isGLFWInitialized = false;
+		bool isInitialized = false;
+		GLFWwindow* window = nullptr;
 		GamePad gamepad;
 
+		int width = 0;
+		int height = 0;
 	};
 
 
