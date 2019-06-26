@@ -21,7 +21,8 @@ public:
 	bool Create(GLenum target, GLsizeiptr size, const GLvoid* data = nullptr, GLenum usage = GL_STATIC_DRAW);
 	bool BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data);
 	void Destroy();
-	GLuint Id() const { return size; }
+	GLuint Id() const { return id; }
+	size_t Size() const { return size; }
 
 private:
 
@@ -47,7 +48,7 @@ public:
 	void ResetVertexAttribPointer() const;
 	void Bind() const;
 	void UnBind() const;
-	void VetexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, size_t offset) const ;
+	void VertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, size_t offset) const ;
 	GLuint Id() const { return id; }
 	GLuint Vbo() const { return vboId; }
 	GLuint Ibo() const { return iboId; }

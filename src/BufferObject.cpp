@@ -161,7 +161,7 @@ void VertexArrayObject::UnBind() const {
 *
 *	@sa Bind(),Unbind(),ResetVertexAttribPointer()
 */
-void VertexArrayObject::VetexAttribPointer(GLuint index,GLint size,GLenum type,GLboolean normalized,GLsizei stride,size_t offset) const {
+void VertexArrayObject::VertexAttribPointer(GLuint index,GLint size,GLenum type,GLboolean normalized,GLsizei stride,size_t offset) const {
 
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, size, type, normalized, stride, reinterpret_cast<GLvoid*>(offset));
