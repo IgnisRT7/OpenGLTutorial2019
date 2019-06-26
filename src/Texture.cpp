@@ -126,7 +126,6 @@ DDSHeader ReadDDSHeader(const uint8_t* buf)
 GLuint LoadDDS(const char* filename, const struct stat& st,
 	const uint8_t* buf, DDSHeader* pHeader)
 {
-	//<---ここにコードを追加していきます --->
 	if (st.st_size < 128) {
 		std::cerr << "WARNING: " << filename << "はDDSファイルではありません." << std::endl;
 		return 0;
