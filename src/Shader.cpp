@@ -119,6 +119,8 @@ namespace Shader {
 		}
 	}
 
+
+
 	/**
 	*	テクスチャをテクスチャ・イメージユニットに割り当てる
 	*
@@ -126,7 +128,7 @@ namespace Shader {
 	*	@param type		割り当てるテクスチャの種類(GL_TEXTURE_1D,GLTEXTURE_2D,etc)
 	*	@param texure	割り当てるテクスチャオブジェクト
 	*/
-	void Program::BindTexture(GLenum unit, GLuint texture, GLenum type ) {
+	void Program::BindTexture(GLenum unit, GLenum texture, GLuint type){
 
 		if (unit >= GL_TEXTURE0 && unit < static_cast<GLenum>(GL_TEXTURE0 + samperCount)) {
 
