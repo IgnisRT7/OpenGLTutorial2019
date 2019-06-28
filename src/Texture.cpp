@@ -211,6 +211,7 @@ GLuint LoadDDS(const char* filename, const struct stat& st,
 				imageBytes = ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * blockSize;
 				glCompressedTexImage2D(target + faceIndex, mipLevel, iformat,
 					curWidth, curHeight, 0, imageBytes, data);
+
 			}
 			else {
 				imageBytes = curWidth * curHeight * 4;
@@ -227,8 +228,7 @@ GLuint LoadDDS(const char* filename, const struct stat& st,
 			data += imageBytes;
 		}
 	}
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, header.mipMapCount - 1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, std::min(1U, header.mipMapCount - 1));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, header.mipMapCount <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -356,6 +356,7 @@ TexturePtr Texture::LoadFromFile(const char* filename) {
 		|| pHeader[3] == ' ') {
 		DDSHeader header;
 		const GLuint texId = LoadDDS(filename, st, buf.data(), &header);
+		auto err = glGetError();
 		if (texId) {
 			struct impl : Texture {};
 			TexturePtr p = std::make_shared<impl>();
