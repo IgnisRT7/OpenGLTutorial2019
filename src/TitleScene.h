@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include <vector>
 #include "Sprite.h"
+#include "Font.h"
 
 /**
 *	ƒ^ƒCƒgƒ‹‰æ–Ê
@@ -26,6 +27,7 @@ private:
 
 	std::vector<Sprite> sprites;
 	SpriteRenderer spriteRenderer;
+	FontRenderer fontRenderer;
 };
 
 
