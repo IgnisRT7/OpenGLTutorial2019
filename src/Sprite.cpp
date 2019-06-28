@@ -97,7 +97,8 @@ bool SpriteRenderer::AddVertices(const Sprite& sprite) {
 	}
 
 	const TexturePtr& texture = sprite.Texture();
-	const glm::vec2 reciprocalSize(glm::vec2(1) / glm::vec2(texture->Width(), texture->Height()));
+	const glm::vec2 textureSize(texture->Width(), texture->Height());
+	const glm::vec2 reciprocalSize(glm::vec2(1) / textureSize);
 
 	//‹éŒ`‚ð0.0 ` 1.0‚Ì”ÍˆÍ‚É•ÏŠ·
 	Rect rect = sprite.Rectangle();
@@ -172,6 +173,8 @@ void SpriteRenderer::EndUpdate() {
 */
 void SpriteRenderer::Draw(const glm::vec2& screenSize)const {
 
+	
+
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -190,11 +193,10 @@ void SpriteRenderer::Draw(const glm::vec2& screenSize)const {
 
 		program->BindTexture(GL_TEXTURE0, primitive.texture->Id());
 		glDrawElements(GL_TRIANGLES, primitive.count, GL_UNSIGNED_SHORT, reinterpret_cast<const GLvoid*>(primitive.offset));
+		program->BindTexture(GL_TEXTURE0, 0);
 	}
 
-	program->BindTexture(0, 0);
 	vao.UnBind();
-
 }
 
 /**
