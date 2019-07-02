@@ -9,24 +9,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Src\Scene">
+      <UniqueIdentifier>{edb1fe9d-ee64-41ee-868f-2e945158aecb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TitleScene.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MainGameScene.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\StatusScene.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameOverScene.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="src\GLFWEW.cpp">
@@ -47,21 +38,21 @@
     <ClCompile Include="src\Font.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\TitleScene.cpp">
+      <Filter>Src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StatusScene.cpp">
+      <Filter>Src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainGameScene.cpp">
+      <Filter>Src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameOverScene.cpp">
+      <Filter>Src\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
-      <Filter>Src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TitleScene.h">
-      <Filter>Src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MainGameScene.h">
-      <Filter>Src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameOverScene.h">
-      <Filter>Src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\StatusScene.h">
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\GLFWEW.h">
@@ -81,6 +72,18 @@
     </ClInclude>
     <ClInclude Include="src\Font.h">
       <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TitleScene.h">
+      <Filter>Src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\StatusScene.h">
+      <Filter>Src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainGameScene.h">
+      <Filter>Src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameOverScene.h">
+      <Filter>Src\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
