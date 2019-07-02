@@ -26,12 +26,6 @@
     <ClCompile Include="src\BufferObject.cpp">
       <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Sprite.cpp">
       <Filter>Src</Filter>
     </ClCompile>
@@ -50,6 +44,12 @@
     <ClCompile Include="src\GameOverScene.cpp">
       <Filter>Src\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -59,12 +59,6 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\BufferObject.h">
-      <Filter>Src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Texture.h">
-      <Filter>Src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shader.h">
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\Sprite.h">
@@ -84,6 +78,18 @@
     </ClInclude>
     <ClInclude Include="src\GameOverScene.h">
       <Filter>Src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Geometory.h">
+      <Filter>Src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Geometry.h">
+      <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

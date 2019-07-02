@@ -10,7 +10,7 @@
 /**
 *	Spriteコンストラクタ
 */
-Sprite::Sprite(const TexturePtr& tex) :
+Sprite::Sprite(const Texture::Image2DPtr& tex) :
 	texture(tex), rect(Rect{ glm::vec2(), glm::vec2(tex->Width(), tex->Height()) }) {
 	
 }
@@ -20,7 +20,7 @@ Sprite::Sprite(const TexturePtr& tex) :
 *
 *	@param tex	描画に使用するテクスチャ
 */
-void Sprite::Texture(const TexturePtr& tex) {
+void Sprite::Texture(const Texture::Image2DPtr& tex) {
 
 	texture = tex;
 	Rectangle(Rect{ glm::vec2(0),glm::vec2(tex->Width(),tex->Height()) });
@@ -96,7 +96,7 @@ bool SpriteRenderer::AddVertices(const Sprite& sprite) {
 		return false;
 	}
 
-	const TexturePtr& texture = sprite.Texture();
+	const Texture::Image2DPtr& texture = sprite.Texture();
 	const glm::vec2 textureSize(texture->Width(), texture->Height());
 	const glm::vec2 reciprocalSize(glm::vec2(1) / textureSize);
 
@@ -180,7 +180,7 @@ void SpriteRenderer::Draw(const glm::vec2& screenSize)const {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	vao.Bind();
-	program->UseProgram();
+	program->Use();
 
 	//平行投影、原点は画面の中心
 	const glm::vec2 halfScreenSize = screenSize * 0.5f;
@@ -191,11 +191,11 @@ void SpriteRenderer::Draw(const glm::vec2& screenSize)const {
 
 	for (const Primitive& primitive : primitives) {
 
-		program->BindTexture(GL_TEXTURE0, primitive.texture->Id());
+		program->BindTexture(0, primitive.texture->Get());
 		glDrawElements(GL_TRIANGLES, primitive.count, GL_UNSIGNED_SHORT, reinterpret_cast<const GLvoid*>(primitive.offset));
-		program->BindTexture(GL_TEXTURE0, 0);
 	}
 
+	program->BindTexture(0, 0);
 	vao.UnBind();
 }
 

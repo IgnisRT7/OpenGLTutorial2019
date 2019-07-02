@@ -32,7 +32,7 @@ public:
 private:
 
 	SpriteRenderer spriteRenderer;
-	std::vector<TexturePtr> textures;
+	std::vector<Texture::Image2DPtr> textures;
 	float lineHeight = 0;
 	float base = 0;
 

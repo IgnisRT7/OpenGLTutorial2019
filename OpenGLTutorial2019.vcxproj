@@ -141,6 +141,8 @@
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\GameOverScene.h" />
+    <ClInclude Include="src\Geometory.h" />
+    <ClInclude Include="src\Geometry.h" />
     <ClInclude Include="src\GLFWEW.h" />
     <ClInclude Include="src\MainGameScene.h" />
     <ClInclude Include="src\Scene.h" />

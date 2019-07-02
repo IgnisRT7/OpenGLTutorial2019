@@ -1,225 +1,28 @@
 /**
-*	@file Shader.cpp
+* @file Shader.cpp
 */
 #include "Shader.h"
+#include "Geometry.h"
+#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <iostream>
-#include <cstdint>
-#include <stdio.h>
-#include <sys/stat.h>
+#include <fstream>
 
 namespace Shader {
 
 	/**
-	*	ƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚ğì¬‚·‚é
+	* ã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã‚’ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã™ã‚‹.
 	*
-	*	@param vsCode;
-	*	@param fsCode;
+	* @param type   ã‚·ã‚§ãƒ¼ãƒ€ã®ç¨®é¡.
+	* @param string ã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
 	*
-	*	@return ì¬‚µ‚½ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg
+	* @return ä½œæˆã—ãŸã‚·ã‚§ãƒ¼ãƒ€ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ.
 	*/
-	ProgramPtr Program::Create(const char* vsFilename, const char* fsFilename) {
-
-		struct Impl : Program { Impl() {}~Impl() {} };
-		ProgramPtr p = std::make_shared<Impl>();
-		if (!p) {
-			std::cerr << "ERROR: ƒvƒƒOƒ‰ƒ€'" << fsFilename << "'‚Ìì¬‚É¸”s" << std::endl;
-			return {};
+	GLuint Compile(GLenum type, const GLchar* string)
+	{
+		if (!string) {
+			return 0;
 		}
-
-		std::cout << "Compiling " << vsFilename << " and " << fsFilename << std::endl;
-
-		p->program = CreateProgramFromFile(vsFilename, fsFilename);
-		if (!p->program) {
-			return {};
-		}
-
-		//ƒTƒ“ƒvƒ‰[‚Ì”‚ÆˆÊ’u‚ğæ“¾‚·‚é
-		GLint activeUniforms;
-		glGetProgramiv(p->program, GL_ACTIVE_UNIFORMS, &activeUniforms);
-		for (int i = 0; i < activeUniforms; ++i) {
-			GLint size;
-			GLenum type;
-			GLchar name[128];
-			glGetActiveUniform(p->program, i, sizeof(name), nullptr, &size, &type, name);
-			if (type == GL_SAMPLER_2D) {
-				p->samperCount = size;
-				p->samplerLocation = glGetUniformLocation(p->program, name);
-				if (p->samplerLocation < 0) {
-					std::cerr << "ERROR: ƒvƒƒOƒ‰ƒ€'" << vsFilename << "'‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½" << std::endl;
-					return {};
-				}
-				break;
-			}
-		}
-
-		p->viewIndexLocation = glGetUniformLocation(p->program, "viewIndex");
-		p->depthSamplerLocation = glGetUniformLocation(p->program, "depthSampler");
-		p->matVPLocation = glGetUniformLocation(p->program, "matMVP");
-
-		auto result = glGetError();
-
-
-		//’¸“_ƒVƒF[ƒ_ƒtƒ@ƒCƒ‹–¼‚Ì––”ö‚©‚ç".vert"‚ğæ‚èœ‚¢‚½‚à‚Ì‚ğƒvƒƒOƒ‰ƒ€–¼‚Æ‚·‚é
-		p->name = vsFilename;
-		p->name.resize(p->name.size() - 4);
-
-		return p;
-	}
-
-	/**
-	*	ƒfƒXƒgƒ‰ƒNƒ^
-	*/
-	Program::~Program() {
-		if (program) {
-			glDeleteProgram(program);
-		}
-	}
-
-	/**
-	*	Uniform ƒuƒƒbƒN‚ğƒoƒCƒ“ƒfƒBƒ“ƒOEƒ|ƒCƒ“ƒg‚ÉŠ„‚è“–‚Ä‚é
-	*
-	*	@param blockName	Š„‚è“–‚Ä‚éUniformƒuƒƒbƒN‚Ì–¼‘O
-	*	@param bindingPoint	Š„“–æ‚ÌƒoƒCƒ“ƒfƒBƒ“ƒOEƒ|ƒCƒ“ƒg
-	*
-	*	@retval	true	Š„‚è“–‚Ä¬Œ÷
-	*	@retval false	Š„‚è“–‚Ä¸”s
-	*/
-	bool Program::UniformBlockBinding(const char* blockName, GLuint bindingPoint) {
-
-		const GLuint blockIndex = glGetUniformBlockIndex(program, blockName);
-		if (blockIndex == GL_INVALID_INDEX) {
-			std::cerr << "ERROR(" << name << "): UniformƒuƒƒbƒN'" << blockName << "'‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ" << std::endl;
-			return false;
-		}
-
-		glUniformBlockBinding(program, blockIndex, bindingPoint);
-		const GLenum result = glGetError();
-		if (result != GL_NO_ERROR) {
-			std::cerr << "ERROR(" << name << "): UniformƒuƒƒbƒN'" << blockName << "'‚ÌƒoƒCƒ“ƒh‚É¸”s" << std::endl;
-			return false;
-		}
-
-		//std::cout << "Program::UniformBlockBinding()" << "Successed" << " blockName:" << blockName << " bindingPoint:"<<bindingPoint << std::endl;
-		return true;
-	}
-
-	/**
-	*	•`‰æ—pƒvƒƒOƒ‰ƒ€‚Éİ’è‚·‚é
-	*/
-	void Program::UseProgram() {
-
-		glUseProgram(program);
-		for (GLint i = 0; i < samperCount; ++i) {
-			glUniform1i(samplerLocation + i, i);
-		}
-
-		if (depthSamplerLocation >= 0) {
-			glUniform1i(depthSamplerLocation, 2);
-		}
-	}
-
-
-
-	/**
-	*	ƒeƒNƒXƒ`ƒƒ‚ğƒeƒNƒXƒ`ƒƒEƒCƒ[ƒWƒ†ƒjƒbƒg‚ÉŠ„‚è“–‚Ä‚é
-	*
-	*	@param unit		Š„“–æ‚ÌƒeƒNƒXƒ`ƒƒEƒCƒ[ƒWEƒ†ƒjƒbƒg”Ô†(GL_TEXTURE0`)
-	*	@param type		Š„‚è“–‚Ä‚éƒeƒNƒXƒ`ƒƒ‚Ìí—Ş(GL_TEXTURE_1D,GLTEXTURE_2D,etc)
-	*	@param texure	Š„‚è“–‚Ä‚éƒeƒNƒXƒ`ƒƒƒIƒuƒWƒFƒNƒg
-	*/
-	void Program::BindTexture(GLenum unit, GLenum texture, GLuint type){
-
-		if (unit >= GL_TEXTURE0 && unit < static_cast<GLenum>(GL_TEXTURE0 + samperCount)) {
-
-			glActiveTexture(unit);
-			glBindTexture(type, texture);
-		}
-	}
-
-	/**
-	*	ƒfƒvƒXƒeƒNƒXƒ`ƒƒ‚ğƒeƒNƒXƒ`ƒƒEƒCƒ[ƒWEƒ†ƒjƒbƒg‚ÉŠ„‚è“–‚Ä‚é
-	*
-	*	@param type		Š„‚è“–‚Ä‚éƒeƒNƒXƒ`ƒƒ‚Ìí—Ş (GL_TEXTURE_1D,GL_TEXTURE_2D,etc)
-	*	@param texture	Š„‚è“–‚Ä‚éƒeƒNƒXƒ`ƒƒƒIƒuƒWƒFƒNƒg
-	*/
-	void Program::BindShadowTexture(GLenum type, GLuint texture) {
-		if (depthSamplerLocation >= 0) {
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(type, texture);
-		}
-	}
-
-	/**
-	*	g—p‚·‚éƒJƒƒ‰‚ÌƒCƒ“ƒfƒbƒNƒX‚ğw’è‚·‚é
-	*/
-	void Program::SetViewIndex(int index) {
-
-		if (viewIndexLocation >= 0) {
-			glUniform1i(viewIndexLocation, index);
-		}
-	}
-
-	/**
-	*	ƒrƒ…[Ë‰e•ÏŠ·s—ñ‚ğİ’è‚·‚é
-	*/
-	void Program::SetViewProjectionMatrix(const glm::mat4& matVP) {
-
-		this->matVP =  matVP;
-		if (matVPLocation >= 0) {
-			glUniformMatrix4fv(matVPLocation, 1, GL_FALSE, &matVP[0][0]);
-		}
-	}
-
-	/**
-	*	ƒxƒNƒgƒ‹Œ^‚Ìƒpƒ‰ƒ[ƒ^‚ğİ’è‚·‚é
-	*
-	*	@param p	ƒpƒ‰ƒ[ƒ^
-	*	@param n	ƒpƒ‰ƒ[ƒ^–¼
-	*/
-	void Program::SetVectorParameter(glm::vec3 p, std::string name) {
-		GLint vecLocation = glGetUniformLocation(program, name.c_str());
-		if (vecLocation > 0) {
-			glUniform4fv(vecLocation, 1, glm::value_ptr(glm::vec4(p.x, p.y, p.z, 1.0f)));
-		}
-	}
-
-	/**
-	*	ƒu[ƒ‹Œ^‚Ìƒpƒ‰ƒ[ƒ^‚ğİ’è‚·‚é
-	*
-	*	@param b	ƒpƒ‰ƒ[ƒ^
-	*	@param name	ƒpƒ‰ƒ[ƒ^–¼
-	*/
-	void Program::SetBoolParameter(bool b, std::string name) {
-
-		GLint bLocation = glGetUniformLocation(program, name.c_str());
-		if (bLocation > 0) {
-			glUniform1i(bLocation, b);
-		}
-	}
-
-	/**
-	*	floatŒ^ƒpƒ‰ƒ[ƒ^‚ğİ’è‚·‚é
-	*
-	*	@param name ƒpƒ‰ƒ[ƒ^–¼
-	*/
-	void Program::SetFloatParameter(float f, std::string name){
-
-		GLint fLocation = glGetUniformLocation(program, name.c_str());
-		if (fLocation > 0) {
-			glUniform1f(fLocation, f);
-		}
-	}
-
-	/**
-	*	ƒVƒF[ƒ_ƒR[ƒh‚ğƒRƒ“ƒpƒCƒ‹‚·‚é
-	*
-	*	@param type ƒVƒF[ƒ_‚Ìí—Ş
-	*	@param string ƒVƒF[ƒ_ƒR[ƒh‚Ö‚Ìƒ|ƒCƒ“ƒ^
-	*
-	*	@return ì¬‚µ‚½ƒVƒF[ƒ_ƒIƒuƒWƒFƒNƒg
-	*/
-	GLuint CompileShader(GLenum type, const GLchar* string) {
 
 		GLuint shader = glCreateShader(type);
 		glShaderSource(shader, 1, &string, nullptr);
@@ -234,40 +37,30 @@ namespace Shader {
 				buf.resize(infoLen);
 				if (static_cast<int>(buf.size()) >= infoLen) {
 					glGetShaderInfoLog(shader, infoLen, NULL, buf.data());
-					std::cerr << "ERROR: ƒVƒF[ƒ_‚ÌƒRƒ“ƒpƒCƒ‹‚É¸”s\n" << buf.data() << std::endl;
+					std::cerr << "ERROR: ã‚·ã‚§ãƒ¼ãƒ€ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã«å¤±æ•—\n" << buf.data() << std::endl;
 				}
-
 			}
 			glDeleteShader(shader);
 			return 0;
-		}
-		else {
-			std::cout << "Successful." << std::endl;
 		}
 		return shader;
 	}
 
 	/**
-	*	ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg‚ğì¬‚·‚é
+	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹.
 	*
-	*	@param vsCode ’¸“_ƒVƒF[ƒ_ƒR[ƒh‚Ö‚Ìƒ|ƒCƒ“ƒ^
-	*	@param fsCode ƒtƒ‰ƒOƒƒ“ƒgƒVƒF[ƒ_ƒR[ƒh‚Ö‚Ìƒ|ƒCƒ“ƒ^
+	* @param vsCode é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
+	* @param fsCode ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
 	*
-	*	@return ì¬‚µ‚½ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg
+	* @return ä½œæˆã—ãŸãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ.
 	*/
-	GLuint CreateShaderProgram(const GLchar* vsCode, const GLchar* fsCode) {
-
-		std::cout << "	vertex shader... ";
-		GLuint vs = CompileShader(GL_VERTEX_SHADER, vsCode);
-
-		std::cout << "	fragment shader... ";
-		GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fsCode);
-
-
+	GLuint Build(const GLchar* vsCode, const GLchar* fsCode)
+	{
+		GLuint vs = Compile(GL_VERTEX_SHADER, vsCode);
+		GLuint fs = Compile(GL_FRAGMENT_SHADER, fsCode);
 		if (!vs || !fs) {
 			return 0;
 		}
-
 		GLuint program = glCreateProgram();
 		glAttachShader(program, fs);
 		glDeleteShader(fs);
@@ -284,78 +77,300 @@ namespace Shader {
 				buf.resize(infoLen);
 				if (static_cast<int>(buf.size()) >= infoLen) {
 					glGetProgramInfoLog(program, infoLen, NULL, buf.data());
-					std::cerr << "ERROR: ƒVƒF[ƒ_‚ÌƒŠƒ“ƒN‚É¸”s\n" << buf.data() << std::endl;
+					std::cerr << "ERROR: ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒªãƒ³ã‚¯ã«å¤±æ•—\n" << buf.data() << std::endl;
 				}
 			}
 			glDeleteProgram(program);
 			return 0;
 		}
-
-		std::cout << std::endl;
-
 		return program;
 	}
 
-
 	/**
-	*	ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚Ş
+	* ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€.
 	*
-	*	@param filename “Ç‚İ‚Şƒtƒ@ƒCƒ‹–¼
-	*	@param buf		“Ç‚İ‚İæƒoƒbƒtƒ@
+	* @param path èª­ã¿è¾¼ã‚€ãƒ•ã‚¡ã‚¤ãƒ«å.
 	*
-	*	@retval true	“Ç‚İ‚İ¬Œ÷
-	*	@retval false	“Ç‚İ‚İ¸”s
+	* @return èª­ã¿è¾¼ã‚“ã ãƒ‡ãƒ¼ã‚¿.
 	*/
-	bool ReadFile(const char* filename, std::vector<char>&buf) {
-
-		struct stat st;
-		if (stat(filename, &st)) {
-			return false;
+	std::vector<GLchar> ReadFile(const char* path)
+	{
+		std::basic_ifstream<GLchar> ifs;
+		ifs.open(path, std::ios_base::binary);
+		if (!ifs.is_open()) {
+			std::cerr << "ERROR: " << path << " ã‚’é–‹ã‘ã¾ã›ã‚“\n";
+			return {};
 		}
-
-		FILE* fp = NULL;
-		fopen_s(&fp, filename, "rb");
-		if (!fp) {
-			return false;
-		}
-
-		buf.resize(st.st_size + 1);
-		const size_t readSize = fread(buf.data(), 1, st.st_size, fp);
-		fclose(fp);
-		if (readSize != st.st_size) {
-			return false;
-		}
-
-		buf.back() = '\0';
-		return true;
-
+		ifs.seekg(0, std::ios_base::end);
+		const std::streamoff length = ifs.tellg();
+		ifs.seekg(0, std::ios_base::beg);
+		std::vector<GLchar> buf((size_t)length);
+		ifs.read(buf.data(), length);
+		buf.push_back('\0');
+		return buf;
 	}
 
 	/**
-	*	ƒtƒ@ƒCƒ‹‚©‚çƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚ğì¬‚·‚é
+	* ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹.
 	*
-	*	@param vsCode ’¸“_ƒVƒF[ƒ_ƒtƒ@ƒCƒ‹–¼
-	*	@param fsCode ƒtƒ‰ƒOƒƒ“ƒgƒVƒF[ƒ_ƒtƒ@ƒCƒ‹–¼
+	* @param vsPath é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å.
+	* @param fsPath ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å.
 	*
-	*	@return ì¬‚µ‚½ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg
+	* @return ä½œæˆã—ãŸãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ.
 	*/
-	GLuint CreateProgramFromFile(const char* vsFilename, const char* fsFilename) {
-
-		std::vector<char> vsBuf;
-		if (!ReadFile(vsFilename, vsBuf)) {
-			std::cerr << "ERROR in Shader::CreateProgramFromFile:\n" << vsFilename << "‚ğ“Ç‚İ‚ß‚Ü‚¹‚ñ" << std::endl;
-			return 0;
-		}
-
-		std::vector<char> fsBuf;
-		if (!ReadFile(fsFilename, fsBuf)) {
-			std::cerr << "ERROR in Shader::CreateProgramFromFile:\n" << fsFilename << "‚ğ“Ç‚İ‚ß‚Ü‚¹‚ñ" << std::endl;
-			return 0;
-		}
-
-		return CreateShaderProgram(vsBuf.data(), fsBuf.data());
+	GLuint BuildFromFile(const char* vsPath, const char* fsPath)
+	{
+		const std::vector<GLchar> vsCode = ReadFile(vsPath);
+		const std::vector<GLchar> fsCode = ReadFile(fsPath);
+		return Build(vsCode.data(), fsCode.data());
 	}
 
-}
+	/**
+	* ãƒ©ã‚¤ãƒˆãƒªã‚¹ãƒˆã‚’åˆæœŸåŒ–ã™ã‚‹.
+	*
+	* å…¨ã¦ã®å…‰æºã®æ˜ã‚‹ã•ã‚’0ã«ã™ã‚‹.
+	*/
+	void LightList::Init()
+	{
+		ambient.color = glm::vec3(0);
+		directional.color = glm::vec3(0);
+		for (int i = 0; i < 8; ++i) {
+			point.color[i] = glm::vec3(0);
+		}
+		for (int i = 0; i < 4; ++i) {
+			spot.color[i] = glm::vec3(0);
+		}
+	}
 
+	/**
+	*	ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹
+	*
+	*	@param vspath	é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å
+	*	@param fsPath	ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å
+	*
+	*	@return ä½œæˆã—ãŸãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	*/
+	ProgramPtr Program::Create(const char* vsPath, const char* fsPath)
+	{
+		return std::make_shared<Program>(BuildFromFile(vsPath, fsPath));
+	}
 
+	/**
+	* ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	*/
+	Program::Program()
+	{
+		lights.Init();
+	}
+
+	/**
+	* ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	*
+	* @param id ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	*/
+	Program::Program(GLuint programId)
+	{
+		lights.Init();
+		Reset(programId);
+	}
+
+	/**
+	* ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	*
+	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å‰Šé™¤ã™ã‚‹.
+	*/
+	Program::~Program()
+	{
+		glDeleteProgram(id);
+	}
+
+	/**
+	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¨­å®šã™ã‚‹.
+	*
+	* @param id ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	*/
+	void Program::Reset(GLuint programId)
+	{
+		glDeleteProgram(id);
+		id = programId;
+		if (id == 0) {
+			locMatMVP = -1;
+			locPointLightPos = -1;
+			locPointLightCol = -1;
+			locDirLightDir = -1;
+			locDirLightCol = -1;
+			locAmbLightCol = -1;
+			locSpotLightPos = -1;
+			locSpotLightDir = -1;
+			locSpotLightCol = -1;
+			return;
+		}
+
+		locMatMVP = glGetUniformLocation(id, "matMVP");
+		locPointLightPos = glGetUniformLocation(id, "pointLight.position");
+		locPointLightCol = glGetUniformLocation(id, "pointLight.color");
+		locDirLightDir = glGetUniformLocation(id, "directionalLight.direction");
+		locDirLightCol = glGetUniformLocation(id, "directionalLight.color");
+		locAmbLightCol = glGetUniformLocation(id, "ambientLight.color");
+		locSpotLightPos = glGetUniformLocation(id, "spotLight.posAndInnerCutOff");
+		locSpotLightDir = glGetUniformLocation(id, "spotLight.dirAndCutOff");
+		locSpotLightCol = glGetUniformLocation(id, "spotLight.color");
+
+		const GLint texColorLoc = glGetUniformLocation(id, "texColor");
+		if (texColorLoc >= 0) {
+			glUseProgram(id);
+			glUniform1i(texColorLoc, 0);
+			glUseProgram(0);
+		}
+	}
+
+	/**
+	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹.
+	*
+	* @retval true  è¨­å®šã•ã‚Œã¦ã„ã‚‹.
+	* @retval false è¨­å®šã•ã‚Œã¦ã„ãªã„.
+	*/
+	bool Program::IsNull() const
+	{
+		return id;
+	}
+
+	/**
+	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚¹ãƒ»ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã«å‰²ã‚Šå½“ã¦ã‚‹.
+	*
+	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½¿ã„çµ‚ã‚ã£ãŸã‚‰glUseProgram(0)ã‚’å®Ÿè¡Œã—ã¦è§£é™¤ã™ã‚‹ã“ã¨.
+	*/
+	void Program::Use()
+	{
+		glUseProgram(id);
+	}
+
+	/**
+	* æç”»ã«ä½¿ç”¨ã™ã‚‹VAOã‚’è¨­å®šã™ã‚‹.
+	*
+	* @param vao è¨­å®šã™ã‚‹VAOã®ID.
+	*/
+	void Program::BindVertexArray(GLuint vao)
+	{
+		glBindVertexArray(vao);
+	}
+
+	/**
+	* æç”»ã«ä½¿ç”¨ã™ã‚‹ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’è¨­å®šã™ã‚‹.
+	*
+	* @param unitNo è¨­å®šã™ã‚‹ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚¤ãƒ¡ãƒ¼ã‚¸ãƒ»ãƒ¦ãƒ‹ãƒƒãƒˆã®ç•ªå·(0ï½).
+	* @param texId  è¨­å®šã™ã‚‹ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ID.
+	*/
+	void Program::BindTexture(GLuint unitNo, GLuint texId)
+	{
+		glActiveTexture(GL_TEXTURE0 + unitNo);
+		glBindTexture(GL_TEXTURE_2D, texId);
+	}
+
+	/**
+	* æç”»ã«ä½¿ã‚ã‚Œã‚‹ãƒ©ã‚¤ãƒˆã‚’è¨­å®šã™ã‚‹.
+	*
+	* @param lights è¨­å®šã™ã‚‹ãƒ©ã‚¤ãƒˆ.
+	*
+	* ã“ã®é–¢æ•°ã‚’ä½¿ã†å‰ã«ã€Use()ã‚’å®Ÿè¡Œã—ã¦ãŠãã“ã¨.
+	*/
+	void Program::SetLightList(const LightList& lights)
+	{
+		this->lights = lights;
+
+		// ãƒ©ã‚¤ãƒˆã®è‰²æƒ…å ±ã‚’GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		if (locAmbLightCol >= 0) {
+			glUniform3fv(locAmbLightCol, 1, &lights.ambient.color.x);
+		}
+		if (locDirLightCol >= 0) {
+			glUniform3fv(locDirLightCol, 1, &lights.directional.color.x);
+		}
+		if (locPointLightCol >= 0) {
+			glUniform3fv(locPointLightCol, 8, &lights.point.color[0].x);
+		}
+		if (locSpotLightCol >= 0) {
+			glUniform3fv(locSpotLightCol, 4, &lights.spot.color[0].x);
+		}
+	}
+
+	/**
+	* æç”»ã«ä½¿ã‚ã‚Œã‚‹ãƒ“ãƒ¥ãƒ¼ãƒ»ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã‚’è¨­å®šã™ã‚‹.
+	*
+	* @param matVP è¨­å®šã™ã‚‹ãƒ“ãƒ¥ãƒ¼ãƒ»ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—.
+	*/
+	void Program::SetViewProjectionMatrix(const glm::mat4& matVP)
+	{
+		this->matVP = matVP;
+		if (locMatMVP >= 0) {
+			glUniformMatrix4fv(locMatMVP, 1, GL_FALSE, &matVP[0][0]);
+		}
+	}
+
+	/**
+	* ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æç”»ã™ã‚‹.
+	*
+	* @param mesh  æç”»ã™ã‚‹ãƒ¡ãƒƒã‚·ãƒ¥.
+	* @param t     å¹³è¡Œç§»å‹•é‡.
+	* @param r     å›è»¢è§’åº¦(ãƒ©ã‚¸ã‚¢ãƒ³).
+	* @param s     æ‹¡å¤§ç¸®å°ç‡(1=ç­‰å€, 0.5=1/2å€, 2.0=2å€).
+	*
+	* ã“ã®é–¢æ•°ã‚’ä½¿ã†å‰ã«ã€Use()ã‚’å®Ÿè¡Œã—ã¦ãŠãã“ã¨.
+	*/
+	void Program::Draw(const Mesh& mesh, const glm::vec3& t, const glm::vec3& r, const glm::vec3& s)
+	{
+		if (id == 0) {
+			return;
+		}
+
+		// ãƒ¢ãƒ‡ãƒ«è¡Œåˆ—ã‚’è¨ˆç®—ã™ã‚‹.
+		const glm::mat4 matScale = glm::scale(glm::mat4(1), s);
+		const glm::mat4 matRotateY = glm::rotate(glm::mat4(1), r.y, glm::vec3(0, 1, 0));
+		const glm::mat4 matRotateZY = glm::rotate(matRotateY, r.z, glm::vec3(0, 0, -1));
+		const glm::mat4 matRotateXZY = glm::rotate(matRotateZY, r.x, glm::vec3(1, 0, 0));
+		const glm::mat4 matTranslate = glm::translate(glm::mat4(1), t);
+		const glm::mat4 matModelTR = matTranslate * matRotateXZY;
+		const glm::mat4 matModel = matModelTR * matScale;
+
+		// ãƒ¢ãƒ‡ãƒ«ãƒ»ãƒ“ãƒ¥ãƒ¼ãƒ»ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		const glm::mat4 matMVP = matVP * matModel;
+		glUniformMatrix4fv(locMatMVP, 1, GL_FALSE, &matMVP[0][0]);
+
+		// ãƒ¢ãƒ‡ãƒ«åº§æ¨™ç³»ã«ãŠã‘ã‚‹æŒ‡å‘æ€§ãƒ©ã‚¤ãƒˆã®æ–¹å‘ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		if (locDirLightDir >= 0) {
+			const glm::mat3 matInvRotate = glm::inverse(glm::mat3(matRotateXZY));
+			const glm::vec3 dirLightDirOnModel = matInvRotate * lights.directional.direction;
+			glUniform3fv(locDirLightDir, 1, &dirLightDirOnModel.x);
+		}
+
+		// ãƒ¢ãƒ‡ãƒ«åº§æ¨™ç³»ã«ãŠã‘ã‚‹ãƒã‚¤ãƒ³ãƒˆãƒ©ã‚¤ãƒˆã®åº§æ¨™ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		if (locPointLightPos >= 0) {
+			const glm::mat4 matInvModel = glm::inverse(matModelTR);
+			glm::vec3 pointLightPosOnModel[8];
+			for (int i = 0; i < 8; ++i) {
+				pointLightPosOnModel[i] = matInvModel * glm::vec4(lights.point.position[i], 1);
+			}
+			glUniform3fv(locPointLightPos, 8, &pointLightPosOnModel[0].x);
+		}
+
+		// ãƒ¢ãƒ‡ãƒ«åº§æ¨™ç³»ã«ãŠã‘ã‚‹ã‚¹ãƒãƒƒãƒˆãƒ©ã‚¤ãƒˆã®åº§æ¨™ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		if (locSpotLightPos >= 0 && locSpotLightDir >= 0) {
+			const glm::mat3 matInvRotate = glm::inverse(glm::mat3(matRotateXZY));
+			const glm::mat4 matInvModel = glm::inverse(matModelTR);
+			glm::vec4 spotLightPosOnModel[4];
+			glm::vec4 spotLightDirOnModel[4];
+			for (int i = 0; i < 4; ++i) {
+				const glm::vec3 invDir = matInvRotate * lights.spot.dirAndCutOff[i];
+				spotLightDirOnModel[i] = glm::vec4(invDir, lights.spot.dirAndCutOff[i].w);
+				const glm::vec3 pos = lights.spot.posAndInnerCutOff[i];
+				spotLightPosOnModel[i] = matInvModel * glm::vec4(pos, 1);
+				spotLightPosOnModel[i].w = lights.spot.posAndInnerCutOff[i].w;
+			}
+			glUniform4fv(locSpotLightPos, 4, &spotLightPosOnModel[0].x);
+			glUniform4fv(locSpotLightDir, 4, &spotLightDirOnModel[0].x);
+		}
+
+		// ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æç”»ã™ã‚‹.
+		glDrawElementsBaseVertex(mesh.mode, mesh.count, GL_UNSIGNED_SHORT, mesh.indices, mesh.baseVertex);
+	}
+
+} // namespace Shader

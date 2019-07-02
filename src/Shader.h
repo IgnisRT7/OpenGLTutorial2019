@@ -1,61 +1,109 @@
 /**
-*	@file Shader.h
+* @file Shader.h
 */
-#pragma once
-
+#ifndef SHADER_H_INCLUDED
+#define SHADER_H_INCLUDED
 #include <GL/glew.h>
-#include <string>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 #include <memory>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
+struct Mesh;
 
 namespace Shader {
 
 	class Program;
-	using ProgramPtr = std::shared_ptr<Program>;	///< プログラムオブジェクトのポインタ
+	using ProgramPtr = std::shared_ptr<Program>;
 
-	GLuint CreateProgramFromFile(const char* vsFilename, const char* fsFilename);
+	GLuint Build(const GLchar* vsCode, const GLchar* fsCode);
+	GLuint BuildFromFile(const char* vsPath, const char* fsPath);
 
 	/**
-	*	シェーダプログラムクラス
+	* 環境光.
 	*/
-	class Program {
-	public:
-
-		static ProgramPtr Create(const char* vsFilename, const char* fsFilename);
-
-		bool UniformBlockBinding(const char* blocblockName, GLuint bindingPoint);
-		void UseProgram();
-		void BindTexture(GLenum unit, GLenum texture, GLuint type = GL_TEXTURE_2D);
-
-
-		void BindShadowTexture(GLenum type, GLuint texture);
-		void SetViewIndex(int index);
-
-		void SetViewProjectionMatrix(const glm::mat4& matVP);
-		void SetVectorParameter(glm::vec3 p, std::string name);
-		void SetBoolParameter(bool b, std::string name);
-		void SetFloatParameter(float f, std::string name);
-		bool IsNull() { return program == 0; }
-
-	private:
-		Program() = default;
-		~Program();
-		Program(const Program&) = delete;
-		Program& operator=(const Program&) = delete;
-
-	private:
-
-		GLuint program = 0;			///< プログラムオブジェクト
-		GLint samplerLocation = -1;	///< サンプラーの位置
-		int samperCount = 0;		///< サンプラーの数
-		GLint viewIndexLocation = 1;///< 始点インデックスの位置
-		GLuint depthSamplerLocation = -1;
-		GLuint matVPLocation = -1;	///< ビュー射影変換用行列の位置
-		std::string name;			///< プログラム名
-
-		glm::mat4 matVP;
+	struct AmbientLight
+	{
+		glm::vec3 color;
 	};
 
-}
+	/**
+	* 指向性ライト.
+	*/
+	struct DirectionalLight
+	{
+		glm::vec3 direction;
+		glm::vec3 color;
+	};
+
+	/**
+	* ポイントライト.
+	*/
+	struct PointLight
+	{
+		glm::vec3 position[8];
+		glm::vec3 color[8];
+	};
+
+	// スポットライト
+	struct SpotLight
+	{
+		glm::vec4 dirAndCutOff[4];
+		glm::vec4 posAndInnerCutOff[4];
+		glm::vec3 color[4];
+	};
+
+	/**
+	* ライトをまとめた構造体.
+	*/
+	struct LightList
+	{
+		AmbientLight ambient;
+		DirectionalLight directional;
+		PointLight point;
+		SpotLight spot;
+
+		void Init();
+	};
+
+	/**
+	* シェーダー・プログラム.
+	*/
+	class Program
+	{
+	public:
+
+		static ProgramPtr Create(const char* vsPath, const char* fsPath);
+
+		Program();
+		explicit Program(GLuint programId);
+		~Program();
+
+		void Reset(GLuint programId);
+		bool IsNull() const;
+		void Use();
+		void BindVertexArray(GLuint);
+		void BindTexture(GLuint, GLuint);
+		void SetLightList(const LightList&);
+		void SetViewProjectionMatrix(const glm::mat4&);
+		void Draw(const Mesh&, const glm::vec3& t, const glm::vec3& r, const glm::vec3& s);
+
+	private:
+		GLuint id = 0; // プログラムID.
+
+		// uniform変数の位置.
+		GLint locMatMVP = -1;
+		GLint locPointLightPos = -1;
+		GLint locPointLightCol = -1;
+		GLint locDirLightDir = -1;
+		GLint locDirLightCol = -1;
+		GLint locAmbLightCol = -1;
+		GLint locSpotLightPos = -1;
+		GLint locSpotLightDir = -1;
+		GLint locSpotLightCol = -1;
+
+		glm::mat4 matVP = glm::mat4(1);
+		LightList lights;
+	};
+
+} // namespace Shader
+#endif

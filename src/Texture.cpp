@@ -1,410 +1,473 @@
 /**
-*	@file Texture.cpp
+* @file Texture.cpp
 */
 #include "Texture.h"
-#include <iostream>
+#include <cstdint>
 #include <vector>
+#include <fstream>
+#include <iostream>
+#include <math.h>
 #include <algorithm>
-#include <stdio.h>
-#include <sys/stat.h>
+
+/// ãƒ†ã‚¯ã‚¹ãƒãƒ£é–¢é€£ã®é–¢æ•°ã‚„ã‚¯ãƒ©ã‚¹ã‚’æ ¼ç´ã™ã‚‹åå‰ç©ºé–“.
+namespace Texture {
 
 
-
-/**
-*	ƒoƒCƒg—ñ‚©‚ç”’l‚ğ•œŒ³‚·‚é
-*
-*	@param p		ƒoƒCƒg—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
-*	@param offset	”’l‚ÌƒIƒtƒZƒbƒg
-*	@param size		”’l‚ÌƒoƒCƒg”(1`4)
-*
-*	@return •œŒ³‚µ‚½”’l
-*/
-uint32_t Get(const uint8_t* p, size_t offset, size_t size) {
-	uint32_t n = 0;
-	p += offset;
-	for (size_t i = 0; i < size; ++i) {
-		n += p[i] << (i * 8);
-	}
-	return n;
-}
-
-/**
-* FOURCC‚ğì¬‚·‚é.
-*/
-#define MAKE_FOURCC(a, b, c, d) \
-  static_cast<uint32_t>(a + (b << 8) + (c << 16) + (d << 24))
-
-/**
-* DDS‰æ‘œî•ñ.
-*/
-struct DDSPixelFormat
-{
-	uint32_t size; ///< ‚±‚Ì\‘¢‘Ì‚ÌƒoƒCƒg”(32).
-	uint32_t flgas; ///< ‰æ‘œ‚ÉŠÜ‚Ü‚ê‚éƒf[ƒ^‚Ìí—Ş‚ğ¦‚·ƒtƒ‰ƒO.
-	uint32_t fourCC; ///< ‰æ‘œƒtƒH[ƒ}ƒbƒg‚ğ¦‚·FOURCC.
-	uint32_t rgbBitCount; ///< 1ƒsƒNƒZƒ‹‚Ìƒrƒbƒg”.
-	uint32_t redBitMask; ///< Ô—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
-	uint32_t greenBitMask; ///< —Î—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
-	uint32_t blueBitMask; ///< Â—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
-	uint32_t alphaBitMask; ///< “§–¾—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
-};
-
-/**
-* ƒoƒbƒtƒ@‚©‚çDDS‰æ‘œî•ñ‚ğ“Ç‚İo‚·.
-*
-* @param buf “Ç‚İo‚µŒ³ƒoƒbƒtƒ@.
-*
-* @return “Ç‚İo‚µ‚½DDS‰æ‘œî•ñ.
-*/
-DDSPixelFormat ReadDDSPixelFormat(const uint8_t* buf)
-{
-	DDSPixelFormat tmp;
-	tmp.size = Get(buf, 0, 4);
-	tmp.flgas = Get(buf, 4, 4);
-	tmp.fourCC = Get(buf, 8, 4);
-	tmp.rgbBitCount = Get(buf, 12, 4);
-	tmp.redBitMask = Get(buf, 16, 4);
-	tmp.greenBitMask = Get(buf, 20, 4);
-	tmp.blueBitMask = Get(buf, 24, 4);
-	tmp.alphaBitMask = Get(buf, 28, 4);
-	return tmp;
-}
-
-/**
-* DDSƒtƒ@ƒCƒ‹ƒwƒbƒ_.
-*/
-struct DDSHeader
-{
-	uint32_t size;  ///< ‚±‚Ì\‘¢‘Ì‚ÌƒoƒCƒg”(124).
-	uint32_t flags; ///< ‚Ç‚Ìƒpƒ‰ƒ[ƒ^‚ª—LŒø‚©‚ğ¦‚·ƒtƒ‰ƒO.
-	uint32_t height; ///< ‰æ‘œ‚Ì‚‚³(ƒsƒNƒZƒ‹”).
-	uint32_t width; ///< ‰æ‘œ‚Ì•(ƒsƒNƒZƒ‹”).
-	uint32_t pitchOrLinearSize; ///< ‰¡‚ÌƒoƒCƒg”‚Ü‚½‚Í‰æ‘œ1–‡‚ÌƒoƒCƒg”.
-	uint32_t depth; ///< ‰æ‘œ‚Ì‰œs‚«(–‡”)(3ŸŒ³ƒeƒNƒXƒ`ƒƒ“™‚Åg—p).
-	uint32_t mipMapCount; ///< ŠÜ‚Ü‚ê‚Ä‚¢‚éƒ~ƒbƒvƒ}ƒbƒvƒŒƒxƒ‹”.
-	uint32_t reserved1[11]; ///< («—ˆ‚Ì‚½‚ß‚É—\–ñ‚³‚ê‚Ä‚¢‚é).
-	DDSPixelFormat ddspf; ///< DDS‰æ‘œî•ñ.
-	uint32_t caps[4]; ///< ŠÜ‚Ü‚ê‚Ä‚¢‚é‰æ‘œ‚Ìí—Ş.
-	uint32_t reserved2; ///< («—ˆ‚Ì‚½‚ß‚É—\–ñ‚³‚ê‚Ä‚¢‚é).
-};
-
-/**
-* ƒoƒbƒtƒ@‚©‚çDDSƒtƒ@ƒCƒ‹ƒwƒbƒ_‚ğ“Ç‚İo‚·.
-*
-* @param buf “Ç‚İo‚µŒ³ƒoƒbƒtƒ@.
-*
-* @return “Ç‚İo‚µ‚½DDSƒtƒ@ƒCƒ‹ƒwƒbƒ_.
-*/
-DDSHeader ReadDDSHeader(const uint8_t* buf)
-{
-	DDSHeader tmp = {};
-	tmp.size = Get(buf, 0, 4);
-	tmp.flags = Get(buf, 4, 4);
-	tmp.height = Get(buf, 8, 4);
-	tmp.width = Get(buf, 12, 4);
-	tmp.pitchOrLinearSize = Get(buf, 16, 4);
-	tmp.depth = Get(buf, 20, 4);
-	tmp.mipMapCount = Get(buf, 24, 4);
-	tmp.ddspf = ReadDDSPixelFormat(buf + 28 + 4 * 11);
-	for (int i = 0; i < 4; ++i) {
-		tmp.caps[i] = Get(buf, 28 + 4 * 11 + 32 + i * 4, 4);
-	}
-	return tmp;
-}
-
-/**
-* DDSƒtƒ@ƒCƒ‹‚©‚çƒeƒNƒXƒ`ƒƒ‚ğì¬‚·‚é.
-*
-* @param filename DDSƒtƒ@ƒCƒ‹–¼.
-* @param st       DDSƒtƒ@ƒCƒ‹ƒXƒe[ƒ^ƒX.
-* @param buf      ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ñ‚¾ƒoƒbƒtƒ@.
-* @param header   DDSƒwƒbƒ_Ši”[æ‚Ö‚Ìƒ|ƒCƒ“ƒ^.
-*
-* @retval 0ˆÈŠO ì¬‚µ‚½ƒeƒNƒXƒ`ƒƒID.
-* @retval 0     ì¬¸”s.
-*/
-GLuint LoadDDS(const char* filename, const struct stat& st,
-	const uint8_t* buf, DDSHeader* pHeader)
-{
-	if (st.st_size < 128) {
-		std::cerr << "WARNING: " << filename << "‚ÍDDSƒtƒ@ƒCƒ‹‚Å‚Í‚ ‚è‚Ü‚¹‚ñ." << std::endl;
-		return 0;
-	}
-	const DDSHeader header = ReadDDSHeader(buf + 4);
-	if (header.size != 124) {
-		std::cerr << "WARNING: " << filename << "‚ÍDDSƒtƒ@ƒCƒ‹‚Å‚Í‚ ‚è‚Ü‚¹‚ñ." << std::endl;
-		return 0;
-	}
-
-	GLenum iformat = GL_RGBA8;
-	GLenum format = GL_RGBA;
-	uint32_t blockSize = 16;
-	bool isCompressed = false;
-	if (header.ddspf.flgas & 0x04) {
-		// ˆ³kƒtƒH[ƒ}ƒbƒg
-		switch (header.ddspf.fourCC) {
-		case MAKE_FOURCC('D', 'X', 'T', '1'):
-			iformat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-			blockSize = 8;
-			break;
-		case MAKE_FOURCC('D', 'X', 'T', '2'):
-		case MAKE_FOURCC('D', 'X', 'T', '3'):
-			iformat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-			break;
-		case MAKE_FOURCC('D', 'X', 'T', '4'):
-		case MAKE_FOURCC('D', 'X', 'T', '5'):
-			iformat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			break;
-		case MAKE_FOURCC('B', 'C', '4', 'U'):
-			iformat = GL_COMPRESSED_RED_RGTC1;
-			break;
-		case MAKE_FOURCC('B', 'C', '4', 'S'):
-			iformat = GL_COMPRESSED_SIGNED_RED_RGTC1;
-			break;
-		case MAKE_FOURCC('B', 'C', '5', 'U'):
-			iformat = GL_COMPRESSED_RG_RGTC2;
-			break;
-		case MAKE_FOURCC('B', 'C', '5', 'S'):
-			iformat = GL_COMPRESSED_SIGNED_RG_RGTC2;
-			break;
-		default:
-			std::cerr << "WARNING: " << filename << "‚Í–¢‘Î‰‚ÌDDSƒtƒ@ƒCƒ‹‚Å‚·." << std::endl;
-			return 0;
+	/**
+	*	ãƒã‚¤ãƒˆåˆ—ã‹ã‚‰æ•°å€¤ã‚’å¾©å…ƒã™ã‚‹
+	*
+	*	@param p		ãƒã‚¤ãƒˆåˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿
+	*	@param offset	æ•°å€¤ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+	*	@param size		æ•°å€¤ã®ãƒã‚¤ãƒˆæ•°(1ï½4)
+	*
+	*	@return å¾©å…ƒã—ãŸæ•°å€¤
+	*/
+	uint32_t Get(const uint8_t* p, size_t offset, size_t size) {
+		uint32_t n = 0;
+		p += offset;
+		for (size_t i = 0; i < size; ++i) {
+			n += p[i] << (i * 8);
 		}
-		isCompressed = true;
-	}
-	else if (header.ddspf.flgas & 0x40) {
-		// –³ˆ³kƒtƒH[ƒ}ƒbƒg
-		if (header.ddspf.redBitMask == 0xff) {
-			iformat = header.ddspf.alphaBitMask ? GL_RGBA8 : GL_RGB8;
-			format = header.ddspf.alphaBitMask ? GL_RGBA : GL_RGB;
-		}
-		else if (header.ddspf.blueBitMask == 0xff) {
-			iformat = header.ddspf.alphaBitMask ? GL_RGBA8 : GL_RGB8;
-			format = header.ddspf.alphaBitMask ? GL_BGRA : GL_BGR;
-		}
-		else {
-			std::cerr << "WARNING: " << filename << "‚Í–¢‘Î‰‚ÌDDSƒtƒ@ƒCƒ‹‚Å‚·." << std::endl;
-			return 0;
-		}
-	}
-	else {
-		std::cerr << "WARNING: " << filename << "‚Í–¢‘Î‰‚ÌDDSƒtƒ@ƒCƒ‹‚Å‚·." << std::endl;
-		return 0;
-	}
-
-	const bool isCubemap = header.caps[1] & 0x200;
-	const GLenum target = isCubemap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D;
-	const int faceCount = isCubemap ? 6 : 1;
-
-	GLuint texId;
-	glGenTextures(1, &texId);
-	glBindTexture(isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texId);
-	const uint8_t* data = buf + 128;
-	for (int faceIndex = 0; faceIndex < faceCount; ++faceIndex) {
-		GLsizei curWidth = header.width;
-		GLsizei curHeight = header.height;
-		for (int mipLevel = 0; mipLevel < static_cast<int>(header.mipMapCount);
-			++mipLevel) {
-			uint32_t imageBytes;
-			if (isCompressed) {
-				imageBytes = ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * blockSize;
-				glCompressedTexImage2D(target + faceIndex, mipLevel, iformat,
-					curWidth, curHeight, 0, imageBytes, data);
-
-			}
-			else {
-				imageBytes = curWidth * curHeight * 4;
-				glTexImage2D(target + faceIndex, mipLevel, iformat,
-					curWidth, curHeight, 0, format, GL_UNSIGNED_BYTE, data);
-			}
-			const GLenum result = glGetError();
-			if (result != GL_NO_ERROR) {
-				std::cerr << "WARNING: " << filename << "‚Ì“Ç‚İ‚İ‚É¸”s("
-					<< std::hex << result << ")." << std::endl;
-			}
-			curWidth = std::max(1, curWidth / 2);
-			curHeight = std::max(1, curHeight / 2);
-			data += imageBytes;
-		}
-	}
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, std::min(1U, header.mipMapCount - 1));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, header.mipMapCount <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	*pHeader = header;
-	return texId;
-}
-
-/**
-*	ƒfƒXƒgƒ‰ƒNƒ^
-*/
-Texture::~Texture() {
-	if (texId) {
-		glDeleteTextures(1, &texId);
-	}
-}
-
-/**
-*	2DƒeƒNƒXƒ`ƒƒ‚ğì¬‚·‚é
-*
-*	@param width	ƒeƒNƒXƒ`ƒƒ‚Ì•(ƒsƒNƒZƒ‹”)
-*	@param height	ƒeƒNƒXƒ`ƒƒ‚Ì‚‚³(ƒsƒNƒZƒ‹”)
-*	@param iformat	ƒeƒNƒXƒ`ƒƒ‚Ìƒf[ƒ^Œ`®
-*	@param format	ƒAƒNƒZƒX‚·‚é—v‘f
-*	@param data		ƒeƒNƒXƒ`ƒƒ‚Ìƒf[ƒ^‚Ö‚Ìƒ|ƒCƒ“ƒ^
-*
-*	@return ì¬‚É¬Œ÷‚µ‚½ê‡‚ÍƒeƒNƒXƒ`ƒƒƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
-*			¸”s‚µ‚½ê‡‚Ínullptr‚ğ•Ô‚·
-*/
-TexturePtr Texture::Create(int width, int height, GLenum iformat, GLenum format, const void* data) {
-
-	GLenum type;
-
-	switch (iformat) {
-	case GL_RGB10_A2:type = GL_UNSIGNED_INT_2_10_10_10_REV; break;
-	case GL_RGBA16F: type = GL_HALF_FLOAT; break;
-	case GL_DEPTH_COMPONENT16:type = GL_HALF_FLOAT; break;
-	case GL_DEPTH_COMPONENT24:type = GL_UNSIGNED_INT; break;
-	case GL_DEPTH_COMPONENT32:type = GL_UNSIGNED_INT; break;
-	case GL_DEPTH_COMPONENT32F:type = GL_FLOAT; break;
-	default: type = GL_UNSIGNED_BYTE;
-	}
-
-	struct Impl : Texture {};
-	TexturePtr p = std::make_shared<Impl>();
-
-	p->width = width;
-	p->height = height;
-	glGenTextures(1, &p->texId);
-
-	glBindTexture(GL_TEXTURE_2D, p->texId);
-	glTexImage2D(GL_TEXTURE_2D, 0, iformat, width, height, 0, format, type, data);
-	const GLenum result = glGetError();
-	if (result != GL_NO_ERROR) {
-		std::cerr << "ERROR ƒeƒNƒXƒ`ƒƒ‚Ìì¬‚É¸”s 0x" << std::hex << result << std::endl;
-		return {};
+		return n;
 	}
 
 	/**
-	*	ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
-	*	ƒ~ƒbƒvƒ}ƒbƒv‚ğg—p‚µ‚È‚¢
-	*	ƒeƒNƒXƒ`ƒƒ‚ğk¬•\¦‚·‚éÛALINEAR•âŠÔ‚ğs‚¤
-	*	ƒeƒNƒXƒ`ƒƒ‚ğŠg‘å•\¦‚·‚éÛALINEAR•âŠÔ‚ğs‚¤
-	*	ƒeƒNƒXƒ`ƒƒ‚Ìu’l‚ª”ÍˆÍŠO‚ÌA’[‚ÌF‚Å“h‚è‚Â‚Ô‚³‚ê‚Ü‚·
-	*	ƒeƒNƒXƒ`ƒƒ‚Ìv’l‚ª”ÍˆÍŠO‚ÌA’[‚ÌF‚Å“h‚è‚Â‚Ô‚³‚ê‚Ü‚·
+	* FOURCCã‚’ä½œæˆã™ã‚‹.
 	*/
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#define MAKE_FOURCC(a, b, c, d) \
+  static_cast<uint32_t>(a + (b << 8) + (c << 16) + (d << 24))
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	/**
+	* DDSç”»åƒæƒ…å ±.
+	*/
+	struct DDSPixelFormat
+	{
+		uint32_t size; ///< ã“ã®æ§‹é€ ä½“ã®ãƒã‚¤ãƒˆæ•°(32).
+		uint32_t flgas; ///< ç”»åƒã«å«ã¾ã‚Œã‚‹ãƒ‡ãƒ¼ã‚¿ã®ç¨®é¡ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°.
+		uint32_t fourCC; ///< ç”»åƒãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’ç¤ºã™FOURCC.
+		uint32_t rgbBitCount; ///< 1ãƒ”ã‚¯ã‚»ãƒ«ã®ãƒ“ãƒƒãƒˆæ•°.
+		uint32_t redBitMask; ///< èµ¤è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
+		uint32_t greenBitMask; ///< ç·‘è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
+		uint32_t blueBitMask; ///< é’è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
+		uint32_t alphaBitMask; ///< é€æ˜è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
+	};
 
-	return p;
-}
-
-/**
-*	ƒtƒ@ƒCƒ‹‚©‚ç2DƒeƒNƒXƒ`ƒƒ‚ğ“Ç‚İ‚Ş
-*
-*	@param	filename ƒtƒ@ƒCƒ‹–¼
-*
-*	@return ì¬‚É¬Œ÷‚µ‚½ê‡‚ÍƒeƒNƒXƒ`ƒƒƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
-*			¸”s‚µ‚½ê‡‚Ínullptr‚ğ•Ô‚·
-*/
-TexturePtr Texture::LoadFromFile(const char* filename) {
-
-	struct stat st;
-	if (stat(filename, &st)) {
-		return {};
+	/**
+	* ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰DDSç”»åƒæƒ…å ±ã‚’èª­ã¿å‡ºã™.
+	*
+	* @param buf èª­ã¿å‡ºã—å…ƒãƒãƒƒãƒ•ã‚¡.
+	*
+	* @return èª­ã¿å‡ºã—ãŸDDSç”»åƒæƒ…å ±.
+	*/
+	DDSPixelFormat ReadDDSPixelFormat(const uint8_t* buf)
+	{
+		DDSPixelFormat tmp;
+		tmp.size = Get(buf, 0, 4);
+		tmp.flgas = Get(buf, 4, 4);
+		tmp.fourCC = Get(buf, 8, 4);
+		tmp.rgbBitCount = Get(buf, 12, 4);
+		tmp.redBitMask = Get(buf, 16, 4);
+		tmp.greenBitMask = Get(buf, 20, 4);
+		tmp.blueBitMask = Get(buf, 24, 4);
+		tmp.alphaBitMask = Get(buf, 28, 4);
+		return tmp;
 	}
 
-	const size_t bmpFileHeaderSize = 14;	//ƒrƒbƒgƒ}ƒbƒvƒtƒ@ƒCƒ‹ƒwƒbƒ_‚ÌƒoƒCƒg”
-	const size_t windowsV1HeaderSize = 40;	//ƒrƒbƒgƒ}ƒbƒvî•ñƒwƒbƒ_‚ÌƒoƒCƒg”
+	/**
+	* DDSãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€.
+	*/
+	struct DDSHeader
+	{
+		uint32_t size;  ///< ã“ã®æ§‹é€ ä½“ã®ãƒã‚¤ãƒˆæ•°(124).
+		uint32_t flags; ///< ã©ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒæœ‰åŠ¹ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°.
+		uint32_t height; ///< ç”»åƒã®é«˜ã•(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
+		uint32_t width; ///< ç”»åƒã®å¹…(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
+		uint32_t pitchOrLinearSize; ///< æ¨ªã®ãƒã‚¤ãƒˆæ•°ã¾ãŸã¯ç”»åƒ1æšã®ãƒã‚¤ãƒˆæ•°.
+		uint32_t depth; ///< ç”»åƒã®å¥¥è¡Œã(æšæ•°)(3æ¬¡å…ƒãƒ†ã‚¯ã‚¹ãƒãƒ£ç­‰ã§ä½¿ç”¨).
+		uint32_t mipMapCount; ///< å«ã¾ã‚Œã¦ã„ã‚‹ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ãƒ¬ãƒ™ãƒ«æ•°.
+		uint32_t reserved1[11]; ///< (å°†æ¥ã®ãŸã‚ã«äºˆç´„ã•ã‚Œã¦ã„ã‚‹).
+		DDSPixelFormat ddspf; ///< DDSç”»åƒæƒ…å ±.
+		uint32_t caps[4]; ///< å«ã¾ã‚Œã¦ã„ã‚‹ç”»åƒã®ç¨®é¡.
+		uint32_t reserved2; ///< (å°†æ¥ã®ãŸã‚ã«äºˆç´„ã•ã‚Œã¦ã„ã‚‹).
+	};
 
-	if (st.st_size < bmpFileHeaderSize + windowsV1HeaderSize) {
-		//ƒrƒbƒgƒ}ƒbƒvƒtƒ@ƒCƒ‹‚Å‚Í‚È‚¢
-		return {};
+	/**
+	* ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰DDSãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€ã‚’èª­ã¿å‡ºã™.
+	*
+	* @param buf èª­ã¿å‡ºã—å…ƒãƒãƒƒãƒ•ã‚¡.
+	*
+	* @return èª­ã¿å‡ºã—ãŸDDSãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€.
+	*/
+	DDSHeader ReadDDSHeader(const uint8_t* buf)
+	{
+		DDSHeader tmp = {};
+		tmp.size = Get(buf, 0, 4);
+		tmp.flags = Get(buf, 4, 4);
+		tmp.height = Get(buf, 8, 4);
+		tmp.width = Get(buf, 12, 4);
+		tmp.pitchOrLinearSize = Get(buf, 16, 4);
+		tmp.depth = Get(buf, 20, 4);
+		tmp.mipMapCount = Get(buf, 24, 4);
+		tmp.ddspf = ReadDDSPixelFormat(buf + 28 + 4 * 11);
+		for (int i = 0; i < 4; ++i) {
+			tmp.caps[i] = Get(buf, 28 + 4 * 11 + 32 + i * 4, 4);
+		}
+		return tmp;
 	}
 
-	FILE* fp = NULL;
-	fopen_s(&fp, filename, "rb");
-	if (!fp) {
-		//ƒtƒ@ƒCƒ‹“Ç‚İ‚İ¸”s
-		return {};
+	/**
+	* DDSãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹.
+	*
+	* @param filename DDSãƒ•ã‚¡ã‚¤ãƒ«å.
+	* @param st       DDSãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹.
+	* @param buf      ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚“ã ãƒãƒƒãƒ•ã‚¡.
+	* @param header   DDSãƒ˜ãƒƒãƒ€æ ¼ç´å…ˆã¸ã®ãƒã‚¤ãƒ³ã‚¿.
+	*
+	* @retval 0ä»¥å¤– ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ID.
+	* @retval 0     ä½œæˆå¤±æ•—.
+	*/
+	GLuint LoadDDS(const char* filename, const struct stat& st,
+		const uint8_t* buf, DDSHeader* pHeader)
+	{
+
+		if (st.st_size < 128) {
+			std::cerr << "WARNING: " << filename << "ã¯DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã¯ã‚ã‚Šã¾ã›ã‚“." << std::endl;
+			return 0;
+		}
+		const DDSHeader header = ReadDDSHeader(buf + 4);
+		if (header.size != 124) {
+			std::cerr << "WARNING: " << filename << "ã¯DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã¯ã‚ã‚Šã¾ã›ã‚“." << std::endl;
+			return 0;
+		}
+
+		GLenum iformat = GL_RGBA8;
+		GLenum format = GL_RGBA;
+		uint32_t blockSize = 16;
+		bool isCompressed = false;
+		if (header.ddspf.flgas & 0x04) {
+			// åœ§ç¸®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
+			switch (header.ddspf.fourCC) {
+			case MAKE_FOURCC('D', 'X', 'T', '1'):
+				iformat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+				blockSize = 8;
+				break;
+			case MAKE_FOURCC('D', 'X', 'T', '2'):
+			case MAKE_FOURCC('D', 'X', 'T', '3'):
+				iformat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+				break;
+			case MAKE_FOURCC('D', 'X', 'T', '4'):
+			case MAKE_FOURCC('D', 'X', 'T', '5'):
+				iformat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+				break;
+			case MAKE_FOURCC('B', 'C', '4', 'U'):
+				iformat = GL_COMPRESSED_RED_RGTC1;
+				break;
+			case MAKE_FOURCC('B', 'C', '4', 'S'):
+				iformat = GL_COMPRESSED_SIGNED_RED_RGTC1;
+				break;
+			case MAKE_FOURCC('B', 'C', '5', 'U'):
+				iformat = GL_COMPRESSED_RG_RGTC2;
+				break;
+			case MAKE_FOURCC('B', 'C', '5', 'S'):
+				iformat = GL_COMPRESSED_SIGNED_RG_RGTC2;
+				break;
+			default:
+				std::cerr << "WARNING: " << filename << "ã¯æœªå¯¾å¿œã®DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã™." << std::endl;
+				return 0;
+			}
+			isCompressed = true;
+		}
+		else if (header.ddspf.flgas & 0x40) {
+			// ç„¡åœ§ç¸®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
+			if (header.ddspf.redBitMask == 0xff) {
+				iformat = header.ddspf.alphaBitMask ? GL_RGBA8 : GL_RGB8;
+				format = header.ddspf.alphaBitMask ? GL_RGBA : GL_RGB;
+			}
+			else if (header.ddspf.blueBitMask == 0xff) {
+				iformat = header.ddspf.alphaBitMask ? GL_RGBA8 : GL_RGB8;
+				format = header.ddspf.alphaBitMask ? GL_BGRA : GL_BGR;
+			}
+			else {
+				std::cerr << "WARNING: " << filename << "ã¯æœªå¯¾å¿œã®DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã™." << std::endl;
+				return 0;
+			}
+		}
+		else {
+			std::cerr << "WARNING: " << filename << "ã¯æœªå¯¾å¿œã®DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã™." << std::endl;
+			return 0;
+		}
+
+		const bool isCubemap = header.caps[1] & 0x200;
+		const GLenum target = isCubemap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D;
+		const int faceCount = isCubemap ? 6 : 1;
+
+		GLuint texId;
+		glGenTextures(1, &texId);
+		glBindTexture(isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texId);
+		const uint8_t* data = buf + 128;
+		for (int faceIndex = 0; faceIndex < faceCount; ++faceIndex) {
+			GLsizei curWidth = header.width;
+			GLsizei curHeight = header.height;
+			for (int mipLevel = 0; mipLevel < static_cast<int>(header.mipMapCount);
+				++mipLevel) {
+				uint32_t imageBytes;
+				if (isCompressed) {
+					imageBytes = ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * blockSize;
+					glCompressedTexImage2D(target + faceIndex, mipLevel, iformat,
+						curWidth, curHeight, 0, imageBytes, data);
+				}
+				else {
+					imageBytes = curWidth * curHeight * 4;
+					glTexImage2D(target + faceIndex, mipLevel, iformat,
+						curWidth, curHeight, 0, format, GL_UNSIGNED_BYTE, data);
+				}
+				const GLenum result = glGetError();
+				if (result != GL_NO_ERROR) {
+					std::cerr << "WARNING: " << filename << "ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—("
+						<< std::hex << result << ")." << std::endl;
+				}
+				curWidth = std::max(1, curWidth / 2);
+				curHeight = std::max(1, curHeight / 2);
+				data += imageBytes;
+			}
+		}
+
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, header.mipMapCount - 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, header.mipMapCount <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		*pHeader = header;
+		return texId;
 	}
 
-	//ƒf[ƒ^æ‚èo‚µ
-	std::vector<uint8_t> buf;
-	buf.resize(st.st_size);
-	const size_t readSize = fread(buf.data(), 1, st.st_size, fp);
-	fclose(fp);
-	if (readSize != st.st_size) {
-		//ƒf[ƒ^‚ğ‚·‚×‚Äæ‚èo‚¹‚È‚©‚Á‚½
-		return {};
+	/**
+	* 2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹.
+	*
+	* @param width   ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å¹…(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
+	* @param height  ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®é«˜ã•(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
+	* @param data    ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
+	* @param format  è»¢é€å…ƒç”»åƒã®ãƒ‡ãƒ¼ã‚¿å½¢å¼.
+	* @param type    è»¢é€å…ƒç”»åƒã®ãƒ‡ãƒ¼ã‚¿æ ¼ç´å½¢å¼.
+	*
+	* @retval 0ä»¥å¤–  ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	* @retval 0      ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ä½œæˆã«å¤±æ•—.
+	*/
+	GLuint CreateImage2D(GLsizei width, GLsizei height, const GLvoid* data, GLenum format, GLenum type)
+	{
+		GLuint id;
+		glGenTextures(1, &id);
+		glBindTexture(GL_TEXTURE_2D, id);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, type, data);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		const GLenum result = glGetError();
+		if (result != GL_NO_ERROR) {
+			std::cerr << "ERROR: ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ä½œæˆã«å¤±æ•—(0x" << std::hex << result << ").";
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glDeleteTextures(1, &id);
+			return 0;
+		}
+
+		// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’è¨­å®šã™ã‚‹.
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		if (format == GL_RED) {
+			const GLint swizzle[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+			glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return id;
 	}
 
-	//ƒwƒbƒ_î•ñæ‚èo‚µ
-	const uint8_t* pHeader = buf.data();
+	/**
+	* ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’èª­ã¿è¾¼ã‚€.
+	*
+	* @param path 2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã¨ã—ã¦èª­ã¿è¾¼ã‚€ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹.
+	*
+	* @retval 0ä»¥å¤–  ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	* @retval 0      ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ä½œæˆã«å¤±æ•—.
+	*/
+	GLuint LoadImage2D(const char* path)
+	{
+		///DDSèª­ã¿è¾¼ã¿ç”¨ã‚³ãƒ¼ãƒ‰
 
-	//DDSƒtƒ@ƒCƒ‹“Ç‚İ‚İ
-	if (pHeader[0] == 'D' || pHeader[1] == 'D' || pHeader[2] == 'S'
-		|| pHeader[3] == ' ') {
-		DDSHeader header;
-		const GLuint texId = LoadDDS(filename, st, buf.data(), &header);
-		auto err = glGetError();
-		if (texId) {
-			struct impl : Texture {};
-			TexturePtr p = std::make_shared<impl>();
-			p->width = header.width;
-			p->height = header.height;
-			p->texId = texId;
-			return p;
+		struct stat st;
+		if (stat(path, &st)) {
+			return 0;
+		}
+
+		FILE* fp = NULL;
+		fopen_s(&fp, path, "rb");
+		if (!fp) {
+			//ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿å¤±æ•—
+			return 0;
+		}
+
+		//ãƒ‡ãƒ¼ã‚¿å–ã‚Šå‡ºã—
+		std::vector<uint8_t> buf;
+		buf.resize(st.st_size);
+		const size_t readSize = fread(buf.data(), 1, st.st_size, fp);
+		fclose(fp);
+		if (readSize != st.st_size) {
+			//ãƒ‡ãƒ¼ã‚¿ã‚’ã™ã¹ã¦å–ã‚Šå‡ºã›ãªã‹ã£ãŸ
+			return 0;
+		}
+
+		//ãƒ˜ãƒƒãƒ€æƒ…å ±å–ã‚Šå‡ºã—
+		const uint8_t* pHeader = buf.data();
+
+		//DDSãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
+		if (pHeader[0] == 'D' || pHeader[1] == 'D' || pHeader[2] == 'S'
+			|| pHeader[3] == ' ') {
+			DDSHeader header;
+			return LoadDDS(path, st, buf.data(), &header);
+		}
+		buf.clear();
+
+		// TGAãƒ˜ãƒƒãƒ€ã‚’èª­ã¿è¾¼ã‚€.
+		std::basic_ifstream<uint8_t> ifs;
+
+		ifs.open(path, std::ios_base::binary);
+		if (!ifs) {
+			std::cerr << "WARNING: " << path << "ã‚’é–‹ã‘ã¾ã›ã‚“.\n";
+			return 0;
+		}
+		std::vector<uint8_t> tmp(1024 * 1024);
+		ifs.rdbuf()->pubsetbuf(tmp.data(), tmp.size());
+
+		std::cout << "INFO: " << path << "ã‚’èª­ã¿è¾¼ã¿ä¸­â€¦";
+		uint8_t tgaHeader[18];
+		ifs.read(tgaHeader, 18);
+
+		// ã‚¤ãƒ¡ãƒ¼ã‚¸IDã‚’é£›ã°ã™.
+		ifs.ignore(tgaHeader[0]);
+
+		// ã‚«ãƒ©ãƒ¼ãƒãƒƒãƒ—ã‚’é£›ã°ã™.
+		if (tgaHeader[1]) {
+			const int colorMapLength = tgaHeader[5] | (tgaHeader[6] << 8);
+			const int colorMapEntrySize = tgaHeader[7];
+			const int colorMapSize = colorMapLength * colorMapEntrySize / 8;
+			ifs.ignore(colorMapSize);
+		}
+
+		// ç”»åƒãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€.
+		const int width = tgaHeader[12] | (tgaHeader[13] << 8);
+		const int height = tgaHeader[14] | (tgaHeader[15] << 8);
+		const int pixelDepth = tgaHeader[16];
+		const int imageSize = width * height * pixelDepth / 8;
+		buf.reserve(imageSize);
+		buf.resize(imageSize);
+		ifs.read(buf.data(), imageSize);
+
+		// ç”»åƒãƒ‡ãƒ¼ã‚¿ãŒã€Œä¸Šã‹ã‚‰ä¸‹ã€ã§æ ¼ç´ã•ã‚Œã¦ã„ã‚‹å ´åˆã€ä¸Šä¸‹ã‚’å…¥ã‚Œæ›¿ãˆã‚‹.
+		if (tgaHeader[17] & 0x20) {
+			std::cout << "åè»¢ä¸­â€¦";
+			const int lineSize = width * pixelDepth / 8;
+			std::vector<uint8_t> tmp(imageSize);
+			std::vector<uint8_t>::iterator source = buf.begin();
+			std::vector<uint8_t>::iterator destination = tmp.end();
+			for (int i = 0; i < height; ++i) {
+				destination -= lineSize;
+				std::copy(source, source + lineSize, destination);
+				source += lineSize;
+			}
+			buf.swap(tmp);
+		}
+		std::cout << "å®Œäº†\n";
+
+		GLenum type = GL_UNSIGNED_BYTE;
+		GLenum format = GL_BGRA;
+		if (tgaHeader[2] == 3) {
+			format = GL_RED;
+		}
+		if (tgaHeader[16] == 24) {
+			format = GL_BGR;
+		}
+		else if (tgaHeader[16] == 16) {
+			type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+		}
+
+		// èª­ã¿è¾¼ã‚“ã ç”»åƒãƒ‡ãƒ¼ã‚¿ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹.
+		return CreateImage2D(width, height, buf.data(), format, type);
+	}
+
+	/**
+	* ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	*
+	* @param texId ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	*/
+	Image2D::Image2D(GLuint texId)
+	{
+		Reset(texId);
+	}
+
+	/**
+	* ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	*/
+	Image2D::~Image2D()
+	{
+		glDeleteTextures(1, &id);
+	}
+
+	/**
+	* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¨­å®šã™ã‚‹.
+	*
+	* @param texId ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	*/
+	void Image2D::Reset(GLuint texId)
+	{
+		glDeleteTextures(1, &id);
+		id = texId;
+
+		if (id) {
+			//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å¹…ã¨é«˜ã•ã‚’å–å¾—ã™ã‚‹
+			glBindTexture(GL_TEXTURE_2D, id);
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
 
-	if (pHeader[0] != 'B' || pHeader[1] != 'M') {
-		//Windows—p‚ÌBMP‚Ó‚Ÿ‚¢‚é‚Å‚Í‚È‚©‚Á‚½
-		return {};
+	/**
+	* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹.
+	*
+	* @retval true  è¨­å®šã•ã‚Œã¦ã„ã‚‹.
+	* @retval false è¨­å®šã•ã‚Œã¦ã„ãªã„.
+	*/
+	bool Image2D::IsNull() const
+	{
+		return id;
 	}
 
-	const size_t offsetBytes = Get(pHeader, 10, 4);
-	const uint32_t infoSize = Get(pHeader, 14, 4);
-	const uint32_t width = Get(pHeader, 18, 4);
-	const uint32_t height = Get(pHeader, 22, 4);
-	const uint32_t bitCount = Get(pHeader, 28, 2);
-	const uint32_t compression = Get(pHeader, 30, 4);
-	const size_t pixelBytes = bitCount / 8;
-	if (infoSize != windowsV1HeaderSize || bitCount != 24 || compression || (width * pixelBytes) % 4) {
-		return {};
+	/**
+	* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã™ã‚‹.
+	*
+	* @return ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	*/
+	GLuint Image2D::Get() const
+	{
+		return id;
 	}
 
-	const size_t imageSize = width * height * pixelBytes;
-	if (buf.size() < offsetBytes + imageSize) {
-		return {};
+	/**
+	*	2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹
+	*
+	*	@param path	ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ•ã‚¡ã‚¤ãƒ«å
+	*
+	*	@return	ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	*/
+	Image2DPtr Image2D::Create(const char *path){
+
+		return std::make_shared<Image2D>(LoadImage2D(path));
 	}
 
-	return Create(width, height, GL_RGB8, GL_BGR, buf.data() + offsetBytes);
-}
-
-/**
-*	ƒeƒNƒXƒ`ƒƒ‚ÌƒŠƒZƒbƒgˆ—
-*
-*	@param id	ƒeƒNƒXƒ`ƒƒID
-*/
-void Texture::Reset(GLuint id){
-
-	glDeleteTextures(1, &texId);
-	texId = id;
-	if (id) {
-		//ƒeƒNƒXƒ`ƒƒ‚Ì•‚Æ‚‚³‚ğ’²ß‚·‚é
-		glBindTexture(GL_TEXTURE_2D, id);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-}
+} // namespace Texture

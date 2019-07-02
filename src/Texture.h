@@ -1,42 +1,42 @@
-#pragma once
 /**
-*	@Texture.h
+* @file Texture.h
 */
+#ifndef TEXTURE_H_INCLUDED
+#define TEXTURE_H_INCLUDED
 #include <GL/glew.h>
 #include <memory>
 
-/**
-*	講義資料との違いまとめ
-*
-*	(Image2D, Image2DPtr) == (Texture, TexturePtr)
-*	Image2D**Create(const char* path) == Texture::LoadFromFile(const char*)
-*	関数追加 : Texture::Reset(LGuint)
-*/
+namespace Texture {
 
-class Texture;
-using TexturePtr = std::shared_ptr<Texture>;	///< テクスチャポインタ
+	class Image2D;
+	using Image2DPtr = std::shared_ptr<Image2D>;
 
-/**
-*	テクスチャクラス
-*/
-class Texture {
-public:
-	
-	static TexturePtr Create(int width, int height, GLenum iformat, GLenum format, const void* data);
-	static TexturePtr LoadFromFile(const char*);
-	GLuint Id() const { return texId; }
-	GLsizei Width() const { return width; }
-	GLsizei Height() const { return height; }
-	void Reset(GLuint texId);
+	GLuint CreateImage2D(GLsizei width, GLsizei height, const GLvoid* data, GLenum format, GLenum type);
+	GLuint LoadImage2D(const char* path);
 
-private:
+	/**
+	*	逕ｻ蜒上け繝ｩ繧ｹ
+	*/
+	class Image2D {
+	public:
 
-	Texture() = default;
-	~Texture();
-	Texture(const Texture&) = delete;
-	Texture& operator=(const Texture&) = delete;
+		static Image2DPtr Create(const char*);
 
-	GLuint texId = 0;
-	int width = 0;
-	int height = 0;
-};
+		Image2D() = default;
+		explicit Image2D(GLuint texId);
+		~Image2D();
+		void Reset(GLuint texId);
+		bool IsNull() const;
+		GLuint Get() const;
+		GLint Width() const { return width; }
+		GLint Height() const { return height; }
+
+	private:
+		GLuint id = 0;
+		GLint width = 0;
+		GLint height = 0;
+	};
+
+} // namespace Texture
+
+#endif // TEXTURE_H_INCLUDED
