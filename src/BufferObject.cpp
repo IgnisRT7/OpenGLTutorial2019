@@ -53,7 +53,7 @@ bool BufferObject::BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid*
 		//可能な範囲だけ転送を行う
 		size = this->size - offset;
 	}
-	
+
 	glBindBuffer(target, id);
 	glBufferSubData(target, offset, size, data);
 	glBindBuffer(target, 0);
@@ -81,7 +81,7 @@ void BufferObject::Destroy() {
 *
 *	@param vbo	頂点バッファオブジェクトのID
 *	@param ibo	インデックスバッファオブジェクトのIDD
-*	
+*
 *	@retval false	作成失敗
 *	@retval true	作成成功
 */
@@ -93,7 +93,7 @@ bool VertexArrayObject::Create(GLuint vbo, GLuint ibo) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER,0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	vboId = vbo;
 	iboId = ibo;
@@ -129,7 +129,7 @@ void VertexArrayObject::Destroy() {
 void VertexArrayObject::Bind() const {
 
 	glBindVertexArray(id);
-	glBindBuffer(GL_ARRAY_BUFFER,id);
+	glBindBuffer(GL_ARRAY_BUFFER, vboId);
 }
 
 /**
@@ -149,8 +149,8 @@ void VertexArrayObject::UnBind() const {
 
 /**
 *	頂点アトリビュートを設定する
-*	
-*	@param index		頂点アトリビュートのインデックス	
+*
+*	@param index		頂点アトリビュートのインデックス
 *	@param size			頂点アトリビュートの要素数
 *	@param type			頂点アトリビュートの型
 *	@param normalized	GL_TRUE = 要素を正規化する, GL_FALSE = 正規化しない
@@ -161,7 +161,7 @@ void VertexArrayObject::UnBind() const {
 *
 *	@sa Bind(),Unbind(),ResetVertexAttribPointer()
 */
-void VertexArrayObject::VertexAttribPointer(GLuint index,GLint size,GLenum type,GLboolean normalized,GLsizei stride,size_t offset) const {
+void VertexArrayObject::VertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, size_t offset) const {
 
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, size, type, normalized, stride, reinterpret_cast<GLvoid*>(offset));
