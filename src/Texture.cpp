@@ -108,6 +108,7 @@ namespace Texture {
 		tmp.pitchOrLinearSize = Get(buf, 16, 4);
 		tmp.depth = Get(buf, 20, 4);
 		tmp.mipMapCount = Get(buf, 24, 4);
+		if (tmp.mipMapCount == 0) { tmp.mipMapCount = 1; }
 		tmp.ddspf = ReadDDSPixelFormat(buf + 28 + 4 * 11);
 		for (int i = 0; i < 4; ++i) {
 			tmp.caps[i] = Get(buf, 28 + 4 * 11 + 32 + i * 4, 4);
@@ -467,7 +468,13 @@ namespace Texture {
 	*/
 	Image2DPtr Image2D::Create(const char *path){
 
-		return std::make_shared<Image2D>(LoadImage2D(path));
+		auto image = std::make_shared<Image2D>(LoadImage2D(path));
+		std::string str(path);
+		str.resize(str.size() - 4);
+		str += '\0';
+		image->Name(str);
+		return image;
+
 	}
 
 } // namespace Texture

@@ -11,12 +11,12 @@
 namespace Shader {
 
 	/**
-	* ã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã‚’ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã™ã‚‹.
+	* ƒVƒF[ƒ_ƒR[ƒh‚ğƒRƒ“ƒpƒCƒ‹‚·‚é.
 	*
-	* @param type   ã‚·ã‚§ãƒ¼ãƒ€ã®ç¨®é¡.
-	* @param string ã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
+	* @param type   ƒVƒF[ƒ_‚Ìí—Ş.
+	* @param string ƒVƒF[ƒ_ƒR[ƒh‚Ö‚Ìƒ|ƒCƒ“ƒ^.
 	*
-	* @return ä½œæˆã—ãŸã‚·ã‚§ãƒ¼ãƒ€ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ.
+	* @return ì¬‚µ‚½ƒVƒF[ƒ_ƒIƒuƒWƒFƒNƒg.
 	*/
 	GLuint Compile(GLenum type, const GLchar* string)
 	{
@@ -37,7 +37,7 @@ namespace Shader {
 				buf.resize(infoLen);
 				if (static_cast<int>(buf.size()) >= infoLen) {
 					glGetShaderInfoLog(shader, infoLen, NULL, buf.data());
-					std::cerr << "ERROR: ã‚·ã‚§ãƒ¼ãƒ€ã®ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã«å¤±æ•—\n" << buf.data() << std::endl;
+					std::cerr << "ERROR: ƒVƒF[ƒ_‚ÌƒRƒ“ƒpƒCƒ‹‚É¸”s\n" << buf.data() << std::endl;
 				}
 			}
 			glDeleteShader(shader);
@@ -47,12 +47,12 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹.
+	* ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg‚ğì¬‚·‚é.
 	*
-	* @param vsCode é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
-	* @param fsCode ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ã‚³ãƒ¼ãƒ‰ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
+	* @param vsCode ’¸“_ƒVƒF[ƒ_ƒR[ƒh‚Ö‚Ìƒ|ƒCƒ“ƒ^.
+	* @param fsCode ƒtƒ‰ƒOƒƒ“ƒgƒVƒF[ƒ_ƒR[ƒh‚Ö‚Ìƒ|ƒCƒ“ƒ^.
 	*
-	* @return ä½œæˆã—ãŸãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ.
+	* @return ì¬‚µ‚½ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg.
 	*/
 	GLuint Build(const GLchar* vsCode, const GLchar* fsCode)
 	{
@@ -77,7 +77,7 @@ namespace Shader {
 				buf.resize(infoLen);
 				if (static_cast<int>(buf.size()) >= infoLen) {
 					glGetProgramInfoLog(program, infoLen, NULL, buf.data());
-					std::cerr << "ERROR: ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒªãƒ³ã‚¯ã«å¤±æ•—\n" << buf.data() << std::endl;
+					std::cerr << "ERROR: ƒVƒF[ƒ_‚ÌƒŠƒ“ƒN‚É¸”s\n" << buf.data() << std::endl;
 				}
 			}
 			glDeleteProgram(program);
@@ -87,18 +87,18 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€.
+	* ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚Ş.
 	*
-	* @param path èª­ã¿è¾¼ã‚€ãƒ•ã‚¡ã‚¤ãƒ«å.
+	* @param path “Ç‚İ‚Şƒtƒ@ƒCƒ‹–¼.
 	*
-	* @return èª­ã¿è¾¼ã‚“ã ãƒ‡ãƒ¼ã‚¿.
+	* @return “Ç‚İ‚ñ‚¾ƒf[ƒ^.
 	*/
 	std::vector<GLchar> ReadFile(const char* path)
 	{
 		std::basic_ifstream<GLchar> ifs;
 		ifs.open(path, std::ios_base::binary);
 		if (!ifs.is_open()) {
-			std::cerr << "ERROR: " << path << " ã‚’é–‹ã‘ã¾ã›ã‚“\n";
+			std::cerr << "ERROR: " << path << " ‚ğŠJ‚¯‚Ü‚¹‚ñ\n";
 			return {};
 		}
 		ifs.seekg(0, std::ios_base::end);
@@ -111,12 +111,12 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹.
+	* ƒtƒ@ƒCƒ‹‚©‚çƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ğì¬‚·‚é.
 	*
-	* @param vsPath é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å.
-	* @param fsPath ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å.
+	* @param vsPath ’¸“_ƒVƒF[ƒ_[ƒtƒ@ƒCƒ‹–¼.
+	* @param fsPath ƒtƒ‰ƒOƒƒ“ƒgƒVƒF[ƒ_[ƒtƒ@ƒCƒ‹–¼.
 	*
-	* @return ä½œæˆã—ãŸãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ.
+	* @return ì¬‚µ‚½ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg.
 	*/
 	GLuint BuildFromFile(const char* vsPath, const char* fsPath)
 	{
@@ -126,9 +126,9 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ©ã‚¤ãƒˆãƒªã‚¹ãƒˆã‚’åˆæœŸåŒ–ã™ã‚‹.
+	* ƒ‰ƒCƒgƒŠƒXƒg‚ğ‰Šú‰»‚·‚é.
 	*
-	* å…¨ã¦ã®å…‰æºã®æ˜ã‚‹ã•ã‚’0ã«ã™ã‚‹.
+	* ‘S‚Ä‚ÌŒõŒ¹‚Ì–¾‚é‚³‚ğ0‚É‚·‚é.
 	*/
 	void LightList::Init()
 	{
@@ -143,12 +143,12 @@ namespace Shader {
 	}
 
 	/**
-	*	ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹
+	*	ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg‚ğì¬‚·‚é
 	*
-	*	@param vspath	é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å
-	*	@param fsPath	ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«å
+	*	@param vspath	’¸“_ƒVƒF[ƒ_[ƒtƒ@ƒCƒ‹–¼
+	*	@param fsPath	ƒtƒ‰ƒOƒƒ“ƒgƒVƒF[ƒ_[ƒtƒ@ƒCƒ‹–¼
 	*
-	*	@return ä½œæˆã—ãŸãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	*	@return ì¬‚µ‚½ƒvƒƒOƒ‰ƒ€ƒIƒuƒWƒFƒNƒg
 	*/
 	ProgramPtr Program::Create(const char* vsPath, const char* fsPath)
 	{
@@ -156,7 +156,7 @@ namespace Shader {
 	}
 
 	/**
-	* ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	* ƒRƒ“ƒXƒgƒ‰ƒNƒ^.
 	*/
 	Program::Program()
 	{
@@ -164,9 +164,9 @@ namespace Shader {
 	}
 
 	/**
-	* ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	* ƒRƒ“ƒXƒgƒ‰ƒNƒ^.
 	*
-	* @param id ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	* @param id ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ÌID.
 	*/
 	Program::Program(GLuint programId)
 	{
@@ -175,9 +175,9 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	* ƒfƒXƒgƒ‰ƒNƒ^.
 	*
-	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å‰Šé™¤ã™ã‚‹.
+	* ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ğíœ‚·‚é.
 	*/
 	Program::~Program()
 	{
@@ -185,9 +185,9 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¨­å®šã™ã‚‹.
+	* ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ğİ’è‚·‚é.
 	*
-	* @param id ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	* @param id ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ÌID.
 	*/
 	void Program::Reset(GLuint programId)
 	{
@@ -225,10 +225,10 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹.
+	* ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ªİ’è‚³‚ê‚Ä‚¢‚é‚©’²‚×‚é.
 	*
-	* @retval true  è¨­å®šã•ã‚Œã¦ã„ã‚‹.
-	* @retval false è¨­å®šã•ã‚Œã¦ã„ãªã„.
+	* @retval true  İ’è‚³‚ê‚Ä‚¢‚é.
+	* @retval false İ’è‚³‚ê‚Ä‚¢‚È‚¢.
 	*/
 	bool Program::IsNull() const
 	{
@@ -236,9 +236,9 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚¹ãƒ»ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã«å‰²ã‚Šå½“ã¦ã‚‹.
+	* ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ğƒOƒ‰ƒtƒBƒbƒNƒXEƒpƒCƒvƒ‰ƒCƒ“‚ÉŠ„‚è“–‚Ä‚é.
 	*
-	* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½¿ã„çµ‚ã‚ã£ãŸã‚‰glUseProgram(0)ã‚’å®Ÿè¡Œã—ã¦è§£é™¤ã™ã‚‹ã“ã¨.
+	* ƒvƒƒOƒ‰ƒ€EƒIƒuƒWƒFƒNƒg‚ğg‚¢I‚í‚Á‚½‚çglUseProgram(0)‚ğÀs‚µ‚Ä‰ğœ‚·‚é‚±‚Æ.
 	*/
 	void Program::Use()
 	{
@@ -246,9 +246,9 @@ namespace Shader {
 	}
 
 	/**
-	* æç”»ã«ä½¿ç”¨ã™ã‚‹VAOã‚’è¨­å®šã™ã‚‹.
+	* •`‰æ‚Ég—p‚·‚éVAO‚ğİ’è‚·‚é.
 	*
-	* @param vao è¨­å®šã™ã‚‹VAOã®ID.
+	* @param vao İ’è‚·‚éVAO‚ÌID.
 	*/
 	void Program::BindVertexArray(GLuint vao)
 	{
@@ -256,10 +256,10 @@ namespace Shader {
 	}
 
 	/**
-	* æç”»ã«ä½¿ç”¨ã™ã‚‹ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’è¨­å®šã™ã‚‹.
+	* •`‰æ‚Ég—p‚·‚éƒeƒNƒXƒ`ƒƒ‚ğİ’è‚·‚é.
 	*
-	* @param unitNo è¨­å®šã™ã‚‹ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚¤ãƒ¡ãƒ¼ã‚¸ãƒ»ãƒ¦ãƒ‹ãƒƒãƒˆã®ç•ªå·(0ï½).
-	* @param texId  è¨­å®šã™ã‚‹ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ID.
+	* @param unitNo İ’è‚·‚éƒeƒNƒXƒ`ƒƒEƒCƒ[ƒWEƒ†ƒjƒbƒg‚Ì”Ô†(0`).
+	* @param texId  İ’è‚·‚éƒeƒNƒXƒ`ƒƒ‚ÌID.
 	*/
 	void Program::BindTexture(GLuint unitNo, GLuint texId)
 	{
@@ -268,17 +268,17 @@ namespace Shader {
 	}
 
 	/**
-	* æç”»ã«ä½¿ã‚ã‚Œã‚‹ãƒ©ã‚¤ãƒˆã‚’è¨­å®šã™ã‚‹.
+	* •`‰æ‚Ég‚í‚ê‚éƒ‰ƒCƒg‚ğİ’è‚·‚é.
 	*
-	* @param lights è¨­å®šã™ã‚‹ãƒ©ã‚¤ãƒˆ.
+	* @param lights İ’è‚·‚éƒ‰ƒCƒg.
 	*
-	* ã“ã®é–¢æ•°ã‚’ä½¿ã†å‰ã«ã€Use()ã‚’å®Ÿè¡Œã—ã¦ãŠãã“ã¨.
+	* ‚±‚ÌŠÖ”‚ğg‚¤‘O‚ÉAUse()‚ğÀs‚µ‚Ä‚¨‚­‚±‚Æ.
 	*/
 	void Program::SetLightList(const LightList& lights)
 	{
 		this->lights = lights;
 
-		// ãƒ©ã‚¤ãƒˆã®è‰²æƒ…å ±ã‚’GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		// ƒ‰ƒCƒg‚ÌFî•ñ‚ğGPUƒƒ‚ƒŠ‚É“]‘—‚·‚é.
 		if (locAmbLightCol >= 0) {
 			glUniform3fv(locAmbLightCol, 1, &lights.ambient.color.x);
 		}
@@ -294,9 +294,9 @@ namespace Shader {
 	}
 
 	/**
-	* æç”»ã«ä½¿ã‚ã‚Œã‚‹ãƒ“ãƒ¥ãƒ¼ãƒ»ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã‚’è¨­å®šã™ã‚‹.
+	* •`‰æ‚Ég‚í‚ê‚éƒrƒ…[EƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ‚ğİ’è‚·‚é.
 	*
-	* @param matVP è¨­å®šã™ã‚‹ãƒ“ãƒ¥ãƒ¼ãƒ»ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—.
+	* @param matVP İ’è‚·‚éƒrƒ…[EƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ.
 	*/
 	void Program::SetViewProjectionMatrix(const glm::mat4& matVP)
 	{
@@ -307,14 +307,14 @@ namespace Shader {
 	}
 
 	/**
-	* ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æç”»ã™ã‚‹.
+	* ƒƒbƒVƒ…‚ğ•`‰æ‚·‚é.
 	*
-	* @param mesh  æç”»ã™ã‚‹ãƒ¡ãƒƒã‚·ãƒ¥.
-	* @param t     å¹³è¡Œç§»å‹•é‡.
-	* @param r     å›è»¢è§’åº¦(ãƒ©ã‚¸ã‚¢ãƒ³).
-	* @param s     æ‹¡å¤§ç¸®å°ç‡(1=ç­‰å€, 0.5=1/2å€, 2.0=2å€).
+	* @param mesh  •`‰æ‚·‚éƒƒbƒVƒ….
+	* @param t     •½sˆÚ“®—Ê.
+	* @param r     ‰ñ“]Šp“x(ƒ‰ƒWƒAƒ“).
+	* @param s     Šg‘åk¬—¦(1=“™”{, 0.5=1/2”{, 2.0=2”{).
 	*
-	* ã“ã®é–¢æ•°ã‚’ä½¿ã†å‰ã«ã€Use()ã‚’å®Ÿè¡Œã—ã¦ãŠãã“ã¨.
+	* ‚±‚ÌŠÖ”‚ğg‚¤‘O‚ÉAUse()‚ğÀs‚µ‚Ä‚¨‚­‚±‚Æ.
 	*/
 	void Program::Draw(const Mesh& mesh, const glm::vec3& t, const glm::vec3& r, const glm::vec3& s)
 	{
@@ -322,7 +322,7 @@ namespace Shader {
 			return;
 		}
 
-		// ãƒ¢ãƒ‡ãƒ«è¡Œåˆ—ã‚’è¨ˆç®—ã™ã‚‹.
+		// ƒ‚ƒfƒ‹s—ñ‚ğŒvZ‚·‚é.
 		const glm::mat4 matScale = glm::scale(glm::mat4(1), s);
 		const glm::mat4 matRotateY = glm::rotate(glm::mat4(1), r.y, glm::vec3(0, 1, 0));
 		const glm::mat4 matRotateZY = glm::rotate(matRotateY, r.z, glm::vec3(0, 0, -1));
@@ -331,18 +331,18 @@ namespace Shader {
 		const glm::mat4 matModelTR = matTranslate * matRotateXZY;
 		const glm::mat4 matModel = matModelTR * matScale;
 
-		// ãƒ¢ãƒ‡ãƒ«ãƒ»ãƒ“ãƒ¥ãƒ¼ãƒ»ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		// ƒ‚ƒfƒ‹Eƒrƒ…[EƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ‚ğŒvZ‚µAGPUƒƒ‚ƒŠ‚É“]‘—‚·‚é.
 		const glm::mat4 matMVP = matVP * matModel;
 		glUniformMatrix4fv(locMatMVP, 1, GL_FALSE, &matMVP[0][0]);
 
-		// ãƒ¢ãƒ‡ãƒ«åº§æ¨™ç³»ã«ãŠã‘ã‚‹æŒ‡å‘æ€§ãƒ©ã‚¤ãƒˆã®æ–¹å‘ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		// ƒ‚ƒfƒ‹À•WŒn‚É‚¨‚¯‚éwŒü«ƒ‰ƒCƒg‚Ì•ûŒü‚ğŒvZ‚µAGPUƒƒ‚ƒŠ‚É“]‘—‚·‚é.
 		if (locDirLightDir >= 0) {
 			const glm::mat3 matInvRotate = glm::inverse(glm::mat3(matRotateXZY));
 			const glm::vec3 dirLightDirOnModel = matInvRotate * lights.directional.direction;
 			glUniform3fv(locDirLightDir, 1, &dirLightDirOnModel.x);
 		}
 
-		// ãƒ¢ãƒ‡ãƒ«åº§æ¨™ç³»ã«ãŠã‘ã‚‹ãƒã‚¤ãƒ³ãƒˆãƒ©ã‚¤ãƒˆã®åº§æ¨™ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		// ƒ‚ƒfƒ‹À•WŒn‚É‚¨‚¯‚éƒ|ƒCƒ“ƒgƒ‰ƒCƒg‚ÌÀ•W‚ğŒvZ‚µAGPUƒƒ‚ƒŠ‚É“]‘—‚·‚é.
 		if (locPointLightPos >= 0) {
 			const glm::mat4 matInvModel = glm::inverse(matModelTR);
 			glm::vec3 pointLightPosOnModel[8];
@@ -352,7 +352,7 @@ namespace Shader {
 			glUniform3fv(locPointLightPos, 8, &pointLightPosOnModel[0].x);
 		}
 
-		// ãƒ¢ãƒ‡ãƒ«åº§æ¨™ç³»ã«ãŠã‘ã‚‹ã‚¹ãƒãƒƒãƒˆãƒ©ã‚¤ãƒˆã®åº§æ¨™ã‚’è¨ˆç®—ã—ã€GPUãƒ¡ãƒ¢ãƒªã«è»¢é€ã™ã‚‹.
+		// ƒ‚ƒfƒ‹À•WŒn‚É‚¨‚¯‚éƒXƒ|ƒbƒgƒ‰ƒCƒg‚ÌÀ•W‚ğŒvZ‚µAGPUƒƒ‚ƒŠ‚É“]‘—‚·‚é.
 		if (locSpotLightPos >= 0 && locSpotLightDir >= 0) {
 			const glm::mat3 matInvRotate = glm::inverse(glm::mat3(matRotateXZY));
 			const glm::mat4 matInvModel = glm::inverse(matModelTR);
@@ -369,7 +369,7 @@ namespace Shader {
 			glUniform4fv(locSpotLightDir, 4, &spotLightDirOnModel[0].x);
 		}
 
-		// ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æç”»ã™ã‚‹.
+		// ƒƒbƒVƒ…‚ğ•`‰æ‚·‚é.
 		glDrawElementsBaseVertex(mesh.mode, mesh.count, GL_UNSIGNED_SHORT, mesh.indices, mesh.baseVertex);
 	}
 

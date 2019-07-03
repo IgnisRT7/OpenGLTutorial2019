@@ -5,6 +5,7 @@
 #define TEXTURE_H_INCLUDED
 #include <GL/glew.h>
 #include <memory>
+#include <string>
 
 namespace Texture {
 
@@ -30,8 +31,12 @@ namespace Texture {
 		GLuint Get() const;
 		GLint Width() const { return width; }
 		GLint Height() const { return height; }
+		const std::string& Name() const { return name; }
+		void Name(std::string& s) { name = s; }
 
 	private:
+
+		std::string name;
 		GLuint id = 0;
 		GLint width = 0;
 		GLint height = 0;

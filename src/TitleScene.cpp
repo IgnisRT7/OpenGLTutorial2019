@@ -16,7 +16,7 @@ bool TitleScene::Initialize() {
 
 	spriteRenderer.Init(1000, "res/Sprite.vert", "res/Sprite.frag");
 	sprites.reserve(100);
-	Sprite spr(Texture::Image2D::Create("res/Player.dds"));
+	Sprite spr(Texture::Image2D::Create("res/TitleBg.tga"));
 	spr.Scale(glm::vec2(2));
 	sprites.push_back(spr);
 
@@ -32,11 +32,11 @@ bool TitleScene::Initialize() {
 */
 void TitleScene::Update(float deltaTime) {
 	
-/*	spriteRenderer.BeginUpdate();
+	spriteRenderer.BeginUpdate();
 	for (const Sprite& e : sprites) {
 		spriteRenderer.AddVertices(e);
 	}
-	spriteRenderer.EndUpdate();*/
+	spriteRenderer.EndUpdate();
 
 	const GLFWEW::Window& window = GLFWEW::Window::Instance();
 	const float w = window.Width();

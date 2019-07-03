@@ -87,7 +87,7 @@ bool FontRenderer::LoadFromFile(const char* filename) {
 
 	//chars行を読み込む
 	int charCount;	//char行の数
-	ret = fscanf(fp.get(), "chars count=%d",&charCount);
+	ret = fscanf(fp.get(), " chars count=%d",&charCount);
 	if (ret < 1) {
 		std::cerr << "[エラー]" << __func__ << ":" << filename << "の読み込みに失敗(" << line << "行目)\n";
 		return false;
@@ -117,6 +117,7 @@ bool FontRenderer::LoadFromFile(const char* filename) {
 		}
 		++line;
 	}
+
 
 	//テクスチャを読み込む
 	textures.clear();
@@ -188,6 +189,8 @@ void FontRenderer::EndUpdate() {
 *	@param screenSize	画面サイズ
 */
 void FontRenderer::Draw(const glm::vec2& screenSize)const {
+
+	//glDisable(GL_CULL_FACE);
 
 	spriteRenderer.Draw(screenSize);
 }
