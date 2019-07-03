@@ -86,6 +86,10 @@ namespace GLFWEW {
 			return false;
 		}
 
+		for (auto e : keyState) {
+			e = KeyState::release;
+		}
+
 		width = w;
 		height = h;
 
@@ -161,6 +165,23 @@ namespace GLFWEW {
 
 		const uint32_t prevButtons = gamepad.buttons;
 		int axesCount, buttonCount;
+
+		//キー状態の更新
+		for (size_t i = 0; i < keyState.size(); i++) {
+			const bool pressed = glfwGetKey(window, i) == GLFW_PRESS;
+			if (pressed) {
+				if (keyState[i] == KeyState::release) {
+					keyState[i] = KeyState::startPress;
+				}
+				else if (keyState[i] != KeyState::startPress) {
+					keyState[i] = KeyState::press;
+				}
+			}
+			else if (keyState[i] != KeyState::release) {
+				keyState[i] = KeyState::release;
+			}
+		}
+
 
 		//軸入力とボタン入力の取得
 		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
@@ -251,5 +272,36 @@ namespace GLFWEW {
 		gamepad.buttonDown = gamepad.buttons & ~prevButtons;
 	}
 
+	/**
+	* キーが押された瞬間か調べる.
+	*
+	* @param key 調べるキーのID(GLFW_KEY_Aなど).
+	*
+	* @retval true  キーが押された瞬間.
+	* @retval false キーが押された瞬間ではない.
+	*/
+	bool Window::KeyDown(int key) const
+	{
+		if (key < 0 || key >= static_cast<int>(keyState.size())) {
+			return false;
+		}
+		return keyState[key] == KeyState::startPress;
+	}
+
+	/**
+	* キーが押されているか調べる.
+	*
+	* @param key 調べるキーのID(GLFW_KEY_Aなど).
+	*
+	* @retval true  キーが押されている.
+	* @retval false キーが押されていない.
+	*/
+	bool Window::KeyPressed(int key) const
+	{
+		if (key < 0 || key >= static_cast<int>(keyState.size())) {
+			return false;
+		}
+		return keyState[key] != KeyState::release;
+	}
 
 } //namespace GLFWEW

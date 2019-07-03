@@ -8,7 +8,7 @@
 #include "GamePad.h"
 #include <map>
 #include <vector>
-
+#include <array>
 
 namespace GLFWEW {
 
@@ -23,6 +23,16 @@ namespace GLFWEW {
 		void SwapBuffers() const;
 		const GamePad& GetGamePad() const;
 		void UpdateGamePad();
+
+		enum class KeyState : char {
+			release,
+			startPress,
+			press,
+		};
+		std::array<KeyState, GLFW_KEY_LAST + 1> keyState = { KeyState::release };
+
+		bool KeyDown(int key) const;
+		bool KeyPressed(int key) const;
 
 		int Width() const { return width; }
 		int Height() const { return height; }
