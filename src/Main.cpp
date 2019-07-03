@@ -35,12 +35,12 @@ int main() {
 		window.UpdateGamePad();
 
 		// TODO : コメントアウト対象
-		/*//ESCキーが押されたら終了ウインドウを表示
-		if (window.IsKeyPressed(GLFW_KEY_ESCAPE)) {
+		//ESCキーが押されたら終了ウインドウを表示
+		if (window.KeyPressed(GLFW_KEY_ESCAPE)) {
 			if (MessageBox(nullptr, "ゲームを終了しますか?", "終了", MB_OKCANCEL) == IDOK) {
 				break;
-			})
-		}*/
+			}
+		}
 
 		sceneStack.Update(deltaTime);
 		sceneStack.Render();
