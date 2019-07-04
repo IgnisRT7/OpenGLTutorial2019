@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "Font.h"
 #include "Mesh.h"
+#include "Terrain.h"
 #include <vector>
 
 /**
@@ -31,6 +32,7 @@ private:
 	FontRenderer fontRenderer;
 	Mesh::Buffer meshBuffer;
 	std::vector<Sprite> sprites;
+	Terrain::HeightMap heightMap;
 };
 
 #endif //MAINGAMESCENE_H_INCLUDE
