@@ -8,7 +8,6 @@
 #include <glm/mat4x4.hpp>
 #include <memory>
 
-struct Mesh;
 
 namespace Shader {
 
@@ -85,13 +84,14 @@ namespace Shader {
 		void BindTexture(GLuint, GLuint);
 		void SetLightList(const LightList&);
 		void SetViewProjectionMatrix(const glm::mat4&);
-		void Draw(const Mesh&, const glm::vec3& t, const glm::vec3& r, const glm::vec3& s);
+		void SetModelMatrix(const glm::mat4&);
 
 	private:
 		GLuint id = 0; // ƒvƒƒOƒ‰ƒ€ID.
 
 		// uniform•Ï”‚ÌˆÊ’u.
 		GLint locMatMVP = -1;
+		GLint locMatModel = -1;
 		GLint locPointLightPos = -1;
 		GLint locPointLightCol = -1;
 		GLint locDirLightDir = -1;

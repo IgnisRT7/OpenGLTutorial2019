@@ -195,6 +195,7 @@ namespace Shader {
 		id = programId;
 		if (id == 0) {
 			locMatMVP = -1;
+			locMatModel = -1;
 			locPointLightPos = -1;
 			locPointLightCol = -1;
 			locDirLightDir = -1;
@@ -206,7 +207,9 @@ namespace Shader {
 			return;
 		}
 
+		locMatModel = glGetUniformLocation(id, "matModel");
 		locMatMVP = glGetUniformLocation(id, "matMVP");
+
 		locPointLightPos = glGetUniformLocation(id, "pointLight.position");
 		locPointLightCol = glGetUniformLocation(id, "pointLight.color");
 		locDirLightDir = glGetUniformLocation(id, "directionalLight.direction");
@@ -232,7 +235,7 @@ namespace Shader {
 	*/
 	bool Program::IsNull() const
 	{
-		return id;
+		return id == 0;
 	}
 
 	/**
@@ -307,70 +310,16 @@ namespace Shader {
 	}
 
 	/**
-	* メッシュを描画する.
+	*	描画に使われるモデル行列を設定する
 	*
-	* @param mesh  描画するメッシュ.
-	* @param t     平行移動量.
-	* @param r     回転角度(ラジアン).
-	* @param s     拡大縮小率(1=等倍, 0.5=1/2倍, 2.0=2倍).
-	*
-	* この関数を使う前に、Use()を実行しておくこと.
+	*	@param m	設定するモデル行列
 	*/
-	void Program::Draw(const Mesh& mesh, const glm::vec3& t, const glm::vec3& r, const glm::vec3& s)
-	{
-		if (id == 0) {
-			return;
+	void Program::SetModelMatrix(const glm::mat4& m){
+
+		if (locMatModel >= 0) {
+			glUniformMatrix4fv(locMatModel, 1, GL_FALSE, &m[0][0]);
 		}
 
-		// モデル行列を計算する.
-		const glm::mat4 matScale = glm::scale(glm::mat4(1), s);
-		const glm::mat4 matRotateY = glm::rotate(glm::mat4(1), r.y, glm::vec3(0, 1, 0));
-		const glm::mat4 matRotateZY = glm::rotate(matRotateY, r.z, glm::vec3(0, 0, -1));
-		const glm::mat4 matRotateXZY = glm::rotate(matRotateZY, r.x, glm::vec3(1, 0, 0));
-		const glm::mat4 matTranslate = glm::translate(glm::mat4(1), t);
-		const glm::mat4 matModelTR = matTranslate * matRotateXZY;
-		const glm::mat4 matModel = matModelTR * matScale;
-
-		// モデル・ビュー・プロジェクション行列を計算し、GPUメモリに転送する.
-		const glm::mat4 matMVP = matVP * matModel;
-		glUniformMatrix4fv(locMatMVP, 1, GL_FALSE, &matMVP[0][0]);
-
-		// モデル座標系における指向性ライトの方向を計算し、GPUメモリに転送する.
-		if (locDirLightDir >= 0) {
-			const glm::mat3 matInvRotate = glm::inverse(glm::mat3(matRotateXZY));
-			const glm::vec3 dirLightDirOnModel = matInvRotate * lights.directional.direction;
-			glUniform3fv(locDirLightDir, 1, &dirLightDirOnModel.x);
-		}
-
-		// モデル座標系におけるポイントライトの座標を計算し、GPUメモリに転送する.
-		if (locPointLightPos >= 0) {
-			const glm::mat4 matInvModel = glm::inverse(matModelTR);
-			glm::vec3 pointLightPosOnModel[8];
-			for (int i = 0; i < 8; ++i) {
-				pointLightPosOnModel[i] = matInvModel * glm::vec4(lights.point.position[i], 1);
-			}
-			glUniform3fv(locPointLightPos, 8, &pointLightPosOnModel[0].x);
-		}
-
-		// モデル座標系におけるスポットライトの座標を計算し、GPUメモリに転送する.
-		if (locSpotLightPos >= 0 && locSpotLightDir >= 0) {
-			const glm::mat3 matInvRotate = glm::inverse(glm::mat3(matRotateXZY));
-			const glm::mat4 matInvModel = glm::inverse(matModelTR);
-			glm::vec4 spotLightPosOnModel[4];
-			glm::vec4 spotLightDirOnModel[4];
-			for (int i = 0; i < 4; ++i) {
-				const glm::vec3 invDir = matInvRotate * lights.spot.dirAndCutOff[i];
-				spotLightDirOnModel[i] = glm::vec4(invDir, lights.spot.dirAndCutOff[i].w);
-				const glm::vec3 pos = lights.spot.posAndInnerCutOff[i];
-				spotLightPosOnModel[i] = matInvModel * glm::vec4(pos, 1);
-				spotLightPosOnModel[i].w = lights.spot.posAndInnerCutOff[i].w;
-			}
-			glUniform4fv(locSpotLightPos, 4, &spotLightPosOnModel[0].x);
-			glUniform4fv(locSpotLightDir, 4, &spotLightDirOnModel[0].x);
-		}
-
-		// メッシュを描画する.
-		glDrawElementsBaseVertex(mesh.mode, mesh.count, GL_UNSIGNED_SHORT, mesh.indices, mesh.baseVertex);
 	}
 
 } // namespace Shader
