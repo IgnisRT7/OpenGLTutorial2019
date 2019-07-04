@@ -53,6 +53,9 @@
     <ClCompile Include="src\Mesh.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Terrain.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -97,6 +100,7 @@
     <ClInclude Include="src\MainGameScene.h">
       <Filter>Src\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
