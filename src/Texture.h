@@ -15,26 +15,27 @@ namespace Texture {
 	using Image2DPtr = std::shared_ptr<Image2D>;
 
 	/**
-	*	ç”»åƒãƒ‡ãƒ¼ã‚¿
+	*	‰æ‘œƒf[ƒ^
 	*/
 	class ImageData {
 	public:
 		glm::vec4 GetColor(int x, int y) const;
 
 	public:
-		GLint width = 0;			///< æ¨ªã®ãƒ”ã‚¯ã‚»ãƒ«æ•°
-		GLint height = 0;			///< ç¸¦ã®ãƒ”ã‚¯ã‚»ãƒ«æ•°
-		GLenum format = GL_NONE;	///< è¨˜éŒ²ã•ã‚Œã¦ã„ã‚‹è‰²ã®ç¨®é¡
-		GLenum type = GL_NONE;		///< ãã‚Œãã‚Œã®è‰²æƒ…å ±ã®ãƒ“ãƒƒãƒˆé…ç½®
-		std::vector<uint8_t> data;	///< ãƒã‚¤ãƒˆãƒ‡ãƒ¼ã‚¿
+		GLint width = 0;			///< ‰¡‚ÌƒsƒNƒZƒ‹”
+		GLint height = 0;			///< c‚ÌƒsƒNƒZƒ‹”
+		GLenum format = GL_NONE;	///< ‹L˜^‚³‚ê‚Ä‚¢‚éF‚Ìí—Ş
+		GLenum type = GL_NONE;		///< ‚»‚ê‚¼‚ê‚ÌFî•ñ‚Ìƒrƒbƒg”z’u
+		std::vector<uint8_t> data;	///< ƒoƒCƒgƒf[ƒ^
 	};
 
 
 	GLuint CreateImage2D(GLsizei width, GLsizei height, const GLvoid* data, GLenum format, GLenum type);
 	GLuint LoadImage2D(const char* path);
+	bool LoadImage2D(const char* path, ImageData* imageData);
 
 	/**
-	*	ç”»åƒã‚¯ãƒ©ã‚¹
+	*	‰æ‘œƒNƒ‰ƒX
 	*/
 	class Image2D {
 	public:

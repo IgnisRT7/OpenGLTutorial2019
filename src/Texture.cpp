@@ -9,30 +9,30 @@
 #include <math.h>
 #include <algorithm>
 
-/// ãƒ†ã‚¯ã‚¹ãƒãƒ£é–¢é€£ã®é–¢æ•°ã‚„ã‚¯ãƒ©ã‚¹ã‚’æ ¼ç´ã™ã‚‹åå‰ç©ºé–“.
+/// ƒeƒNƒXƒ`ƒƒŠÖ˜A‚ÌŠÖ”‚âƒNƒ‰ƒX‚ğŠi”[‚·‚é–¼‘O‹óŠÔ.
 namespace Texture {
 
 	/**
-	*	è‰²ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
+	*	Fƒf[ƒ^‚ğæ“¾‚·‚é
 	*
-	*	@param x	Xåº§æ¨™
-	*	@param y	Yåº§æ¨™
+	*	@param x	XÀ•W
+	*	@param y	YÀ•W
 	*
-	*	@return åº§æ¨™(x,y)ã®è‰²ã‚’0.0~1.0ã§è¡¨ã—ãŸå€¤
-	*			è‰²è¦ç´ ãŒãƒ‡ãƒ¼ã‚¿ã«å­˜åœ¨ã—ãªã„å ´åˆã€RGBã¯0.0ã€Aã¯1.0ã«ãªã‚‹
+	*	@return À•W(x,y)‚ÌF‚ğ0.0~1.0‚Å•\‚µ‚½’l
+	*			F—v‘f‚ªƒf[ƒ^‚É‘¶İ‚µ‚È‚¢ê‡ARGB‚Í0.0AA‚Í1.0‚É‚È‚é
 	*/
 	glm::vec4 ImageData::GetColor(int x, int y) const {
 		
-		//åº§æ¨™ã‚’ç”»åƒã®ç¯„å›²ã«åˆ¶é™
+		//À•W‚ğ‰æ‘œ‚Ì”ÍˆÍ‚É§ŒÀ
 		x = std::max(0, std::min(x, width - 1));
 		y = std::max(0, std::min(y, height - 1));
 
 		if (type == GL_UNSIGNED_BYTE) {
-			//å„è‰²1ãƒã‚¤ãƒˆã®ãƒ‡ãƒ¼ã‚¿
+			//ŠeF1ƒoƒCƒg‚Ìƒf[ƒ^
 			glm::vec4 color(0, 0, 0, 255);
 
 			if (format == GL_BGRA) {
-				//BGRAã®é †ç•ªã§1ãƒã‚¤ãƒˆãšã¤ã€åˆè¨ˆ4ãƒã‚¤ãƒˆæ ¼ç´ã•ã‚Œã¦ã„ã‚‹
+				//BGRA‚Ì‡”Ô‚Å1ƒoƒCƒg‚¸‚ÂA‡Œv4ƒoƒCƒgŠi”[‚³‚ê‚Ä‚¢‚é
 				const uint8_t* p = &data[x * 4 + 6 * (width * 4)];
 				color.b = p[0];
 				color.g = p[1];
@@ -40,7 +40,7 @@ namespace Texture {
 				color.a = p[3];
 			}
 			else if (format == GL_RGBA) {
-				//RGBAã®é †ç•ªã§1ãƒã‚¤ãƒˆãšã¤ã€åˆè¨ˆ3ãƒã‚¤ãƒˆæ ¼ç´ã•ã‚Œã¦ã„ã‚‹TODO :
+				//RGBA‚Ì‡”Ô‚Å1ƒoƒCƒg‚¸‚ÂA‡Œv3ƒoƒCƒgŠi”[‚³‚ê‚Ä‚¢‚éTODO :
 				const uint8_t* p = &data[x * 3 + y * (width * 3)];
 				color.r = p[3];
 				color.g = p[2];
@@ -48,20 +48,20 @@ namespace Texture {
 				color.a = p[0];
 			}
 			else if (format == GL_RED) {
-				//èµ¤è‰²ã ã‘ã€åˆè¨ˆ1ãƒã‚¤ãƒˆæ ¼ç´ã•ã‚Œã¦ã„ã‚‹
+				//ÔF‚¾‚¯A‡Œv1ƒoƒCƒgŠi”[‚³‚ê‚Ä‚¢‚é
 				color.r = data[x + y * width];
 			}
 
 			return color / 255.0f;
 
 		} else if (type == GL_UNSIGNED_SHORT_1_5_5_5_REV) {
-			//è‰²ãŒ2ãƒã‚¤ãƒˆã«è©°ã‚è¾¼ã¾ã‚ŒãŸãƒ‡ãƒ¼ã‚¿
+			//F‚ª2ƒoƒCƒg‚É‹l‚ß‚Ü‚ê‚½ƒf[ƒ^
 			glm::vec4 color(0, 0, 0, 1);
 
 			const uint8_t*p = &data[x * 2 + y * (width * 2)];
 			const uint16_t c = p[0] + p[1] * 0x100;
 			if (format == GL_BGRA) {
-				//16ãƒ“ãƒƒãƒˆã®ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰å„è‰²ã‚’å–ã‚Šå‡ºã™
+				//16ƒrƒbƒg‚Ìƒf[ƒ^‚©‚çŠeF‚ğæ‚èo‚·
 				color.b = static_cast<float>((c & 0b0000'0000'0001'1111));
 				color.g = static_cast<float>((c & 0b0000'0011'1110'0000) >> 5);
 				color.r = static_cast<float>((c & 0b0111'1100'0000'0000) >> 10);
@@ -76,13 +76,13 @@ namespace Texture {
 
 
 	/**
-	*	ãƒã‚¤ãƒˆåˆ—ã‹ã‚‰æ•°å€¤ã‚’å¾©å…ƒã™ã‚‹
+	*	ƒoƒCƒg—ñ‚©‚ç”’l‚ğ•œŒ³‚·‚é
 	*
-	*	@param p		ãƒã‚¤ãƒˆåˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿
-	*	@param offset	æ•°å€¤ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ
-	*	@param size		æ•°å€¤ã®ãƒã‚¤ãƒˆæ•°(1ï½4)
+	*	@param p		ƒoƒCƒg—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+	*	@param offset	”’l‚ÌƒIƒtƒZƒbƒg
+	*	@param size		”’l‚ÌƒoƒCƒg”(1`4)
 	*
-	*	@return å¾©å…ƒã—ãŸæ•°å€¤
+	*	@return •œŒ³‚µ‚½”’l
 	*/
 	uint32_t Get(const uint8_t* p, size_t offset, size_t size) {
 		uint32_t n = 0;
@@ -94,32 +94,32 @@ namespace Texture {
 	}
 
 	/**
-	* FOURCCã‚’ä½œæˆã™ã‚‹.
+	* FOURCC‚ğì¬‚·‚é.
 	*/
 #define MAKE_FOURCC(a, b, c, d) \
   static_cast<uint32_t>(a + (b << 8) + (c << 16) + (d << 24))
 
 	/**
-	* DDSç”»åƒæƒ…å ±.
+	* DDS‰æ‘œî•ñ.
 	*/
 	struct DDSPixelFormat
 	{
-		uint32_t size; ///< ã“ã®æ§‹é€ ä½“ã®ãƒã‚¤ãƒˆæ•°(32).
-		uint32_t flgas; ///< ç”»åƒã«å«ã¾ã‚Œã‚‹ãƒ‡ãƒ¼ã‚¿ã®ç¨®é¡ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°.
-		uint32_t fourCC; ///< ç”»åƒãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’ç¤ºã™FOURCC.
-		uint32_t rgbBitCount; ///< 1ãƒ”ã‚¯ã‚»ãƒ«ã®ãƒ“ãƒƒãƒˆæ•°.
-		uint32_t redBitMask; ///< èµ¤è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
-		uint32_t greenBitMask; ///< ç·‘è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
-		uint32_t blueBitMask; ///< é’è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
-		uint32_t alphaBitMask; ///< é€æ˜è¦ç´ ãŒä½¿ã†éƒ¨åˆ†ã‚’ç¤ºã™ãƒ“ãƒƒãƒˆ.
+		uint32_t size; ///< ‚±‚Ì\‘¢‘Ì‚ÌƒoƒCƒg”(32).
+		uint32_t flgas; ///< ‰æ‘œ‚ÉŠÜ‚Ü‚ê‚éƒf[ƒ^‚Ìí—Ş‚ğ¦‚·ƒtƒ‰ƒO.
+		uint32_t fourCC; ///< ‰æ‘œƒtƒH[ƒ}ƒbƒg‚ğ¦‚·FOURCC.
+		uint32_t rgbBitCount; ///< 1ƒsƒNƒZƒ‹‚Ìƒrƒbƒg”.
+		uint32_t redBitMask; ///< Ô—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
+		uint32_t greenBitMask; ///< —Î—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
+		uint32_t blueBitMask; ///< Â—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
+		uint32_t alphaBitMask; ///< “§–¾—v‘f‚ªg‚¤•”•ª‚ğ¦‚·ƒrƒbƒg.
 	};
 
 	/**
-	* ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰DDSç”»åƒæƒ…å ±ã‚’èª­ã¿å‡ºã™.
+	* ƒoƒbƒtƒ@‚©‚çDDS‰æ‘œî•ñ‚ğ“Ç‚İo‚·.
 	*
-	* @param buf èª­ã¿å‡ºã—å…ƒãƒãƒƒãƒ•ã‚¡.
+	* @param buf “Ç‚İo‚µŒ³ƒoƒbƒtƒ@.
 	*
-	* @return èª­ã¿å‡ºã—ãŸDDSç”»åƒæƒ…å ±.
+	* @return “Ç‚İo‚µ‚½DDS‰æ‘œî•ñ.
 	*/
 	DDSPixelFormat ReadDDSPixelFormat(const uint8_t* buf)
 	{
@@ -136,29 +136,29 @@ namespace Texture {
 	}
 
 	/**
-	* DDSãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€.
+	* DDSƒtƒ@ƒCƒ‹ƒwƒbƒ_.
 	*/
 	struct DDSHeader
 	{
-		uint32_t size;  ///< ã“ã®æ§‹é€ ä½“ã®ãƒã‚¤ãƒˆæ•°(124).
-		uint32_t flags; ///< ã©ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒæœ‰åŠ¹ã‹ã‚’ç¤ºã™ãƒ•ãƒ©ã‚°.
-		uint32_t height; ///< ç”»åƒã®é«˜ã•(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
-		uint32_t width; ///< ç”»åƒã®å¹…(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
-		uint32_t pitchOrLinearSize; ///< æ¨ªã®ãƒã‚¤ãƒˆæ•°ã¾ãŸã¯ç”»åƒ1æšã®ãƒã‚¤ãƒˆæ•°.
-		uint32_t depth; ///< ç”»åƒã®å¥¥è¡Œã(æšæ•°)(3æ¬¡å…ƒãƒ†ã‚¯ã‚¹ãƒãƒ£ç­‰ã§ä½¿ç”¨).
-		uint32_t mipMapCount; ///< å«ã¾ã‚Œã¦ã„ã‚‹ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ãƒ¬ãƒ™ãƒ«æ•°.
-		uint32_t reserved1[11]; ///< (å°†æ¥ã®ãŸã‚ã«äºˆç´„ã•ã‚Œã¦ã„ã‚‹).
-		DDSPixelFormat ddspf; ///< DDSç”»åƒæƒ…å ±.
-		uint32_t caps[4]; ///< å«ã¾ã‚Œã¦ã„ã‚‹ç”»åƒã®ç¨®é¡.
-		uint32_t reserved2; ///< (å°†æ¥ã®ãŸã‚ã«äºˆç´„ã•ã‚Œã¦ã„ã‚‹).
+		uint32_t size;  ///< ‚±‚Ì\‘¢‘Ì‚ÌƒoƒCƒg”(124).
+		uint32_t flags; ///< ‚Ç‚Ìƒpƒ‰ƒ[ƒ^‚ª—LŒø‚©‚ğ¦‚·ƒtƒ‰ƒO.
+		uint32_t height; ///< ‰æ‘œ‚Ì‚‚³(ƒsƒNƒZƒ‹”).
+		uint32_t width; ///< ‰æ‘œ‚Ì•(ƒsƒNƒZƒ‹”).
+		uint32_t pitchOrLinearSize; ///< ‰¡‚ÌƒoƒCƒg”‚Ü‚½‚Í‰æ‘œ1–‡‚ÌƒoƒCƒg”.
+		uint32_t depth; ///< ‰æ‘œ‚Ì‰œs‚«(–‡”)(3ŸŒ³ƒeƒNƒXƒ`ƒƒ“™‚Åg—p).
+		uint32_t mipMapCount; ///< ŠÜ‚Ü‚ê‚Ä‚¢‚éƒ~ƒbƒvƒ}ƒbƒvƒŒƒxƒ‹”.
+		uint32_t reserved1[11]; ///< («—ˆ‚Ì‚½‚ß‚É—\–ñ‚³‚ê‚Ä‚¢‚é).
+		DDSPixelFormat ddspf; ///< DDS‰æ‘œî•ñ.
+		uint32_t caps[4]; ///< ŠÜ‚Ü‚ê‚Ä‚¢‚é‰æ‘œ‚Ìí—Ş.
+		uint32_t reserved2; ///< («—ˆ‚Ì‚½‚ß‚É—\–ñ‚³‚ê‚Ä‚¢‚é).
 	};
 
 	/**
-	* ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰DDSãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€ã‚’èª­ã¿å‡ºã™.
+	* ƒoƒbƒtƒ@‚©‚çDDSƒtƒ@ƒCƒ‹ƒwƒbƒ_‚ğ“Ç‚İo‚·.
 	*
-	* @param buf èª­ã¿å‡ºã—å…ƒãƒãƒƒãƒ•ã‚¡.
+	* @param buf “Ç‚İo‚µŒ³ƒoƒbƒtƒ@.
 	*
-	* @return èª­ã¿å‡ºã—ãŸDDSãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€.
+	* @return “Ç‚İo‚µ‚½DDSƒtƒ@ƒCƒ‹ƒwƒbƒ_.
 	*/
 	DDSHeader ReadDDSHeader(const uint8_t* buf)
 	{
@@ -179,27 +179,27 @@ namespace Texture {
 	}
 
 	/**
-	* DDSãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹.
+	* DDSƒtƒ@ƒCƒ‹‚©‚çƒeƒNƒXƒ`ƒƒ‚ğì¬‚·‚é.
 	*
-	* @param filename DDSãƒ•ã‚¡ã‚¤ãƒ«å.
-	* @param st       DDSãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹.
-	* @param buf      ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚“ã ãƒãƒƒãƒ•ã‚¡.
-	* @param header   DDSãƒ˜ãƒƒãƒ€æ ¼ç´å…ˆã¸ã®ãƒã‚¤ãƒ³ã‚¿.
+	* @param filename DDSƒtƒ@ƒCƒ‹–¼.
+	* @param st       DDSƒtƒ@ƒCƒ‹ƒXƒe[ƒ^ƒX.
+	* @param buf      ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ñ‚¾ƒoƒbƒtƒ@.
+	* @param header   DDSƒwƒbƒ_Ši”[æ‚Ö‚Ìƒ|ƒCƒ“ƒ^.
 	*
-	* @retval 0ä»¥å¤– ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ID.
-	* @retval 0     ä½œæˆå¤±æ•—.
+	* @retval 0ˆÈŠO ì¬‚µ‚½ƒeƒNƒXƒ`ƒƒID.
+	* @retval 0     ì¬¸”s.
 	*/
 	GLuint LoadDDS(const char* filename, const struct stat& st,
-		const uint8_t* buf, DDSHeader* pHeader)
+		const uint8_t* buf, DDSHeader* pHeader,ImageData* imageData)
 	{
 
 		if (st.st_size < 128) {
-			std::cerr << "WARNING: " << filename << "ã¯DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã¯ã‚ã‚Šã¾ã›ã‚“." << std::endl;
+			std::cerr << "WARNING: " << filename << "‚ÍDDSƒtƒ@ƒCƒ‹‚Å‚Í‚ ‚è‚Ü‚¹‚ñ." << std::endl;
 			return 0;
 		}
 		const DDSHeader header = ReadDDSHeader(buf + 4);
 		if (header.size != 124) {
-			std::cerr << "WARNING: " << filename << "ã¯DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã¯ã‚ã‚Šã¾ã›ã‚“." << std::endl;
+			std::cerr << "WARNING: " << filename << "‚ÍDDSƒtƒ@ƒCƒ‹‚Å‚Í‚ ‚è‚Ü‚¹‚ñ." << std::endl;
 			return 0;
 		}
 
@@ -208,7 +208,7 @@ namespace Texture {
 		uint32_t blockSize = 16;
 		bool isCompressed = false;
 		if (header.ddspf.flgas & 0x04) {
-			// åœ§ç¸®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
+			// ˆ³kƒtƒH[ƒ}ƒbƒg
 			switch (header.ddspf.fourCC) {
 			case MAKE_FOURCC('D', 'X', 'T', '1'):
 				iformat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -235,13 +235,13 @@ namespace Texture {
 				iformat = GL_COMPRESSED_SIGNED_RG_RGTC2;
 				break;
 			default:
-				std::cerr << "WARNING: " << filename << "ã¯æœªå¯¾å¿œã®DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã™." << std::endl;
+				std::cerr << "WARNING: " << filename << "‚Í–¢‘Î‰‚ÌDDSƒtƒ@ƒCƒ‹‚Å‚·." << std::endl;
 				return 0;
 			}
 			isCompressed = true;
 		}
 		else if (header.ddspf.flgas & 0x40) {
-			// ç„¡åœ§ç¸®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
+			// –³ˆ³kƒtƒH[ƒ}ƒbƒg
 			if (header.ddspf.redBitMask == 0xff) {
 				iformat = header.ddspf.alphaBitMask ? GL_RGBA8 : GL_RGB8;
 				format = header.ddspf.alphaBitMask ? GL_RGBA : GL_RGB;
@@ -251,12 +251,12 @@ namespace Texture {
 				format = header.ddspf.alphaBitMask ? GL_BGRA : GL_BGR;
 			}
 			else {
-				std::cerr << "WARNING: " << filename << "ã¯æœªå¯¾å¿œã®DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã™." << std::endl;
+				std::cerr << "WARNING: " << filename << "‚Í–¢‘Î‰‚ÌDDSƒtƒ@ƒCƒ‹‚Å‚·." << std::endl;
 				return 0;
 			}
 		}
 		else {
-			std::cerr << "WARNING: " << filename << "ã¯æœªå¯¾å¿œã®DDSãƒ•ã‚¡ã‚¤ãƒ«ã§ã™." << std::endl;
+			std::cerr << "WARNING: " << filename << "‚Í–¢‘Î‰‚ÌDDSƒtƒ@ƒCƒ‹‚Å‚·." << std::endl;
 			return 0;
 		}
 
@@ -286,7 +286,7 @@ namespace Texture {
 				}
 				const GLenum result = glGetError();
 				if (result != GL_NO_ERROR) {
-					std::cerr << "WARNING: " << filename << "ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—("
+					std::cerr << "WARNING: " << filename << "‚Ì“Ç‚İ‚İ‚É¸”s("
 						<< std::hex << result << ")." << std::endl;
 				}
 				curWidth = std::max(1, curWidth / 2);
@@ -295,6 +295,12 @@ namespace Texture {
 			}
 		}
 
+		GLenum type = GL_UNSIGNED_BYTE;
+
+		imageData->width = header.width;
+		imageData->height = header.height;
+		imageData->format = format;
+		imageData->type = type;
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, header.mipMapCount - 1);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, header.mipMapCount <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
@@ -308,16 +314,16 @@ namespace Texture {
 	}
 
 	/**
-	* 2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹.
+	* 2DƒeƒNƒXƒ`ƒƒ‚ğì¬‚·‚é.
 	*
-	* @param width   ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å¹…(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
-	* @param height  ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®é«˜ã•(ãƒ”ã‚¯ã‚»ãƒ«æ•°).
-	* @param data    ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã¸ã®ãƒã‚¤ãƒ³ã‚¿.
-	* @param format  è»¢é€å…ƒç”»åƒã®ãƒ‡ãƒ¼ã‚¿å½¢å¼.
-	* @param type    è»¢é€å…ƒç”»åƒã®ãƒ‡ãƒ¼ã‚¿æ ¼ç´å½¢å¼.
+	* @param width   ƒeƒNƒXƒ`ƒƒ‚Ì•(ƒsƒNƒZƒ‹”).
+	* @param height  ƒeƒNƒXƒ`ƒƒ‚Ì‚‚³(ƒsƒNƒZƒ‹”).
+	* @param data    ƒeƒNƒXƒ`ƒƒƒf[ƒ^‚Ö‚Ìƒ|ƒCƒ“ƒ^.
+	* @param format  “]‘—Œ³‰æ‘œ‚Ìƒf[ƒ^Œ`®.
+	* @param type    “]‘—Œ³‰æ‘œ‚Ìƒf[ƒ^Ši”[Œ`®.
 	*
-	* @retval 0ä»¥å¤–  ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
-	* @retval 0      ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ä½œæˆã«å¤±æ•—.
+	* @retval 0ˆÈŠO  ì¬‚µ‚½ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ÌID.
+	* @retval 0      ƒeƒNƒXƒ`ƒƒ‚Ìì¬‚É¸”s.
 	*/
 	GLuint CreateImage2D(GLsizei width, GLsizei height, const GLvoid* data, GLenum format, GLenum type)
 	{
@@ -329,13 +335,13 @@ namespace Texture {
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		const GLenum result = glGetError();
 		if (result != GL_NO_ERROR) {
-			std::cerr << "ERROR: ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ä½œæˆã«å¤±æ•—(0x" << std::hex << result << ").";
+			std::cerr << "ERROR: ƒeƒNƒXƒ`ƒƒ‚Ìì¬‚É¸”s(0x" << std::hex << result << ").";
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDeleteTextures(1, &id);
 			return 0;
 		}
 
-		// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’è¨­å®šã™ã‚‹.
+		// ƒeƒNƒXƒ`ƒƒ‚Ìƒpƒ‰ƒ[ƒ^‚ğİ’è‚·‚é.
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -352,16 +358,35 @@ namespace Texture {
 	}
 
 	/**
-	* ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’èª­ã¿è¾¼ã‚€.
+	* ƒtƒ@ƒCƒ‹‚©‚ç2DƒeƒNƒXƒ`ƒƒ‚ğ“Ç‚İ‚Ş.
 	*
-	* @param path 2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã¨ã—ã¦èª­ã¿è¾¼ã‚€ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹.
+	* @param path 2DƒeƒNƒXƒ`ƒƒ‚Æ‚µ‚Ä“Ç‚İ‚Şƒtƒ@ƒCƒ‹‚ÌƒpƒX.
 	*
-	* @retval 0ä»¥å¤–  ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
-	* @retval 0      ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ä½œæˆã«å¤±æ•—.
+	* @retval 0ˆÈŠO  ì¬‚µ‚½ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ÌID.
+	* @retval 0      ƒeƒNƒXƒ`ƒƒ‚Ìì¬‚É¸”s.
 	*/
-	GLuint LoadImage2D(const char* path)
-	{
-		///DDSèª­ã¿è¾¼ã¿ç”¨ã‚³ãƒ¼ãƒ‰
+	GLuint LoadImage2D(const char* path) {
+
+		ImageData imageData;
+		if (!LoadImage2D(path, &imageData)) {
+			return 0;
+		}
+		return CreateImage2D(imageData.width, imageData.height, imageData.data.data(),
+			imageData.format, imageData.type);
+	}
+
+	/**
+	*	ƒtƒ@ƒCƒ‹‚©‚ç‰æ‘œƒf[ƒ^‚ğ“Ç‚İ‚Ş
+	*
+	*	@param path		 ‰æ‘œ‚Æ‚µ‚Ä“Ç‚İ‚Şƒtƒ@ƒCƒ‹‚ÌƒpƒX
+	*	@param imageData ‰æ‘œƒf[ƒ^‚ğŠi”[‚·‚é\‘¢‘Ì
+	*
+	*	@retval true	“Ç‚İ‚Ş¬Œ÷
+	*	@retval false	“Ç‚İ‚İ¸”s
+	*/
+	bool LoadImage2D(const char* path,ImageData* imageData){
+
+		///DDS“Ç‚İ‚İ—pƒR[ƒh
 
 		struct stat st;
 		if (stat(path, &st)) {
@@ -371,50 +396,54 @@ namespace Texture {
 		FILE* fp = NULL;
 		fopen_s(&fp, path, "rb");
 		if (!fp) {
-			//ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿å¤±æ•—
+			//ƒtƒ@ƒCƒ‹“Ç‚İ‚İ¸”s
 			return 0;
 		}
 
-		//ãƒ‡ãƒ¼ã‚¿å–ã‚Šå‡ºã—
+		//ƒf[ƒ^æ‚èo‚µ
 		std::vector<uint8_t> buf;
 		buf.resize(st.st_size);
 		const size_t readSize = fread(buf.data(), 1, st.st_size, fp);
 		fclose(fp);
 		if (readSize != st.st_size) {
-			//ãƒ‡ãƒ¼ã‚¿ã‚’ã™ã¹ã¦å–ã‚Šå‡ºã›ãªã‹ã£ãŸ
+			//ƒf[ƒ^‚ğ‚·‚×‚Äæ‚èo‚¹‚È‚©‚Á‚½
 			return 0;
 		}
 
-		//ãƒ˜ãƒƒãƒ€æƒ…å ±å–ã‚Šå‡ºã—
+		//ƒwƒbƒ_î•ñæ‚èo‚µ
 		const uint8_t* pHeader = buf.data();
 
-		//DDSãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
+		//DDSƒtƒ@ƒCƒ‹“Ç‚İ‚İ
 		if (pHeader[0] == 'D' || pHeader[1] == 'D' || pHeader[2] == 'S'
 			|| pHeader[3] == ' ') {
 			DDSHeader header;
-			return LoadDDS(path, st, buf.data(), &header);
+			auto id = LoadDDS(path, st, buf.data(), &header, imageData);
+			if (id) {
+				imageData->data.swap(buf);
+			}
+			return id;
 		}
 		buf.clear();
 
-		// TGAãƒ˜ãƒƒãƒ€ã‚’èª­ã¿è¾¼ã‚€.
+		// TGAƒwƒbƒ_‚ğ“Ç‚İ‚Ş.
 		std::basic_ifstream<uint8_t> ifs;
 
 		ifs.open(path, std::ios_base::binary);
 		if (!ifs) {
-			std::cerr << "WARNING: " << path << "ã‚’é–‹ã‘ã¾ã›ã‚“.\n";
+			std::cerr << "WARNING: " << path << "‚ğŠJ‚¯‚Ü‚¹‚ñ.\n";
 			return 0;
 		}
 		std::vector<uint8_t> tmp(1024 * 1024);
 		ifs.rdbuf()->pubsetbuf(tmp.data(), tmp.size());
 
-		std::cout << "INFO: " << path << "ã‚’èª­ã¿è¾¼ã¿ä¸­â€¦";
+		std::cout << "INFO: " << path << "‚ğ“Ç‚İ‚İ’†c";
 		uint8_t tgaHeader[18];
 		ifs.read(tgaHeader, 18);
 
-		// ã‚¤ãƒ¡ãƒ¼ã‚¸IDã‚’é£›ã°ã™.
+		// ƒCƒ[ƒWID‚ğ”ò‚Î‚·.
 		ifs.ignore(tgaHeader[0]);
 
-		// ã‚«ãƒ©ãƒ¼ãƒãƒƒãƒ—ã‚’é£›ã°ã™.
+		// ƒJƒ‰[ƒ}ƒbƒv‚ğ”ò‚Î‚·.
 		if (tgaHeader[1]) {
 			const int colorMapLength = tgaHeader[5] | (tgaHeader[6] << 8);
 			const int colorMapEntrySize = tgaHeader[7];
@@ -422,7 +451,7 @@ namespace Texture {
 			ifs.ignore(colorMapSize);
 		}
 
-		// ç”»åƒãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€.
+		// ‰æ‘œƒf[ƒ^‚ğ“Ç‚İ‚Ş.
 		const int width = tgaHeader[12] | (tgaHeader[13] << 8);
 		const int height = tgaHeader[14] | (tgaHeader[15] << 8);
 		const int pixelDepth = tgaHeader[16];
@@ -431,9 +460,9 @@ namespace Texture {
 		buf.resize(imageSize);
 		ifs.read(buf.data(), imageSize);
 
-		// ç”»åƒãƒ‡ãƒ¼ã‚¿ãŒã€Œä¸Šã‹ã‚‰ä¸‹ã€ã§æ ¼ç´ã•ã‚Œã¦ã„ã‚‹å ´åˆã€ä¸Šä¸‹ã‚’å…¥ã‚Œæ›¿ãˆã‚‹.
+		// ‰æ‘œƒf[ƒ^‚ªuã‚©‚ç‰ºv‚ÅŠi”[‚³‚ê‚Ä‚¢‚éê‡Aã‰º‚ğ“ü‚ê‘Ö‚¦‚é.
 		if (tgaHeader[17] & 0x20) {
-			std::cout << "åè»¢ä¸­â€¦";
+			std::cout << "”½“]’†c";
 			const int lineSize = width * pixelDepth / 8;
 			std::vector<uint8_t> tmp(imageSize);
 			std::vector<uint8_t>::iterator source = buf.begin();
@@ -445,7 +474,7 @@ namespace Texture {
 			}
 			buf.swap(tmp);
 		}
-		std::cout << "å®Œäº†\n";
+		std::cout << "Š®—¹\n";
 
 		GLenum type = GL_UNSIGNED_BYTE;
 		GLenum format = GL_BGRA;
@@ -459,14 +488,19 @@ namespace Texture {
 			type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 		}
 
-		// èª­ã¿è¾¼ã‚“ã ç”»åƒãƒ‡ãƒ¼ã‚¿ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹.
-		return CreateImage2D(width, height, buf.data(), format, type);
+		//return CreateImage2D(width, height, buf.data(), format, type);
+		imageData->width = width;
+		imageData->height = height;
+		imageData->format = format;
+		imageData->type = type;
+		imageData->data.swap(buf);
+		return true;
 	}
 
 	/**
-	* ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	* ƒRƒ“ƒXƒgƒ‰ƒNƒ^.
 	*
-	* @param texId ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	* @param texId ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ÌID.
 	*/
 	Image2D::Image2D(GLuint texId)
 	{
@@ -474,7 +508,7 @@ namespace Texture {
 	}
 
 	/**
-	* ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿.
+	* ƒfƒXƒgƒ‰ƒNƒ^.
 	*/
 	Image2D::~Image2D()
 	{
@@ -482,9 +516,9 @@ namespace Texture {
 	}
 
 	/**
-	* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¨­å®šã™ã‚‹.
+	* ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ğİ’è‚·‚é.
 	*
-	* @param texId ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	* @param texId ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ÌID.
 	*/
 	void Image2D::Reset(GLuint texId)
 	{
@@ -492,7 +526,7 @@ namespace Texture {
 		id = texId;
 
 		if (id) {
-			//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å¹…ã¨é«˜ã•ã‚’å–å¾—ã™ã‚‹
+			//ƒeƒNƒXƒ`ƒƒ‚Ì•‚Æ‚‚³‚ğæ“¾‚·‚é
 			glBindTexture(GL_TEXTURE_2D, id);
 			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
 			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
@@ -501,10 +535,10 @@ namespace Texture {
 	}
 
 	/**
-	* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹.
+	* ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ªİ’è‚³‚ê‚Ä‚¢‚é‚©’²‚×‚é.
 	*
-	* @retval true  è¨­å®šã•ã‚Œã¦ã„ã‚‹.
-	* @retval false è¨­å®šã•ã‚Œã¦ã„ãªã„.
+	* @retval true  İ’è‚³‚ê‚Ä‚¢‚é.
+	* @retval false İ’è‚³‚ê‚Ä‚¢‚È‚¢.
 	*/
 	bool Image2D::IsNull() const
 	{
@@ -512,9 +546,9 @@ namespace Texture {
 	}
 
 	/**
-	* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã™ã‚‹.
+	* ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ğæ“¾‚·‚é.
 	*
-	* @return ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ID.
+	* @return ƒeƒNƒXƒ`ƒƒEƒIƒuƒWƒFƒNƒg‚ÌID.
 	*/
 	GLuint Image2D::Get() const
 	{
@@ -522,11 +556,11 @@ namespace Texture {
 	}
 
 	/**
-	*	2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã™ã‚‹
+	*	2DƒeƒNƒXƒ`ƒƒ‚ğì¬‚·‚é
 	*
-	*	@param path	ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ•ã‚¡ã‚¤ãƒ«å
+	*	@param path	ƒeƒNƒXƒ`ƒƒƒtƒ@ƒCƒ‹–¼
 	*
-	*	@return	ä½œæˆã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	*	@return	ì¬‚µ‚½ƒeƒNƒXƒ`ƒƒƒIƒuƒWƒFƒNƒg
 	*/
 	Image2DPtr Image2D::Create(const char *path){
 
