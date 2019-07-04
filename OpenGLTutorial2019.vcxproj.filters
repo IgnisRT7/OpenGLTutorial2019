@@ -50,6 +50,9 @@
     <ClCompile Include="src\Shader.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -73,9 +76,6 @@
     <ClInclude Include="src\StatusScene.h">
       <Filter>Src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\MainGameScene.h">
-      <Filter>Src\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\GameOverScene.h">
       <Filter>Src\Scene</Filter>
     </ClInclude>
@@ -91,6 +91,12 @@
     <ClInclude Include="src\Geometry.h">
       <Filter>Src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainGameScene.h">
+      <Filter>Src\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -98,6 +104,12 @@
       <Filter>Res</Filter>
     </None>
     <None Include="res\Sprite.vert">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\StaticMesh.frag">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\StaticMesh.vert">
       <Filter>Res</Filter>
     </None>
   </ItemGroup>
