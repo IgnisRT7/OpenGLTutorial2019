@@ -260,3 +260,11 @@ paket-files/
 __pycache__/
 *.pyc
 /TodoList.txt
+/src/json11/json11-master/test.cpp
+/src/json11/json11-master/README.md
+/src/json11/json11-master/Makefile
+/src/json11/json11-master/LICENSE.txt
+/src/json11/json11-master/json11.pc.in
+/src/json11/json11-master/json11.hpp
+/src/json11/json11-master/json11.cpp
+/src/json11/json11-master/CMakeLists.txt
