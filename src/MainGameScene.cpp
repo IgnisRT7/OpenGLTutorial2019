@@ -40,6 +40,30 @@ bool MainGameScene::Initialize(){
 */
 void MainGameScene::ProcessInput() {
 
+	//カメラ操作
+	GLFWEW::Window& window = GLFWEW::Window::Instance();
+	const GamePad gamepad = window.GetGamePad();
+
+	//カメラ操作
+	glm::vec3 velocity(0);
+	if (gamepad.buttons&GamePad::DPAD_LEFT) {
+		velocity.x = -1;
+	}
+	else if (gamepad.buttons&GamePad::DPAD_RIGHT) {
+		velocity.x = 1;
+	}
+	if (gamepad.buttons&GamePad::DPAD_DOWN) {
+		velocity.z = 1;
+	}
+	else if (gamepad.buttons&GamePad::DPAD_UP) {
+		velocity.z = -1;
+	}
+	if (velocity.x || velocity.z) {
+		velocity = glm::normalize(velocity) * 20.0f;
+	}
+	camera.velocity = velocity;
+
+
 	if (!frag) {
 		frag = true;
 	//	SceneStack::Instance().Push(std::make_shared<StatusScene>());
@@ -57,6 +81,21 @@ void MainGameScene::ProcessInput() {
 */
 void MainGameScene::Update(float deltaTime){
 
+	GLFWEW::Window& window = GLFWEW::Window::Instance();
+
+	//カメラの状態を更新
+	if (dot(camera.velocity, camera.velocity)) {
+		camera.target += camera.velocity * deltaTime;
+		camera.target.y = heightMap.Height(camera.target);
+		camera.position = camera.target + glm::vec3(0, 50, 50);
+	}
+
+	const float w = window.Width();
+	const float h = window.Height();
+	const float lineHeight = fontRenderer.LineHeight();
+	fontRenderer.BeginUpdate();
+	fontRenderer.AddString(glm::vec2(-w * 0.5f + 32, h*0.5f - lineHeight), L"メインゲーム画面");
+	fontRenderer.EndUpdate();
 
 }
 
@@ -70,9 +109,7 @@ void MainGameScene::Render(){
 	spriteRenderer.Draw(screenSize);
 	fontRenderer.Draw(screenSize);
 
-	const glm::vec3 targetPos(100, 0, 100);
-	const glm::vec3 cameraPos = targetPos + glm::vec3(0, 50, 50);
-	const glm::mat4 matView = glm::lookAt(cameraPos, targetPos, glm::vec3(0, 1, 0));
+	const glm::mat4 matView = glm::lookAt(camera.position, camera.target, camera.up);
 
 	const float aspectRatio = static_cast<float>(window.Width() / static_cast<float>(window.Height()));
 	const glm::mat4 matProj = glm::perspective(glm::radians(30.0f), aspectRatio, 1.0f, 1000.0f);
@@ -83,5 +120,4 @@ void MainGameScene::Render(){
 
 	Mesh::Draw(meshBuffer.GetFile("Cube"), matProj * matView, matModel);
 	Mesh::Draw(meshBuffer.GetFile("Terrain"), matProj*matView, glm::mat4(1));
-
 }
