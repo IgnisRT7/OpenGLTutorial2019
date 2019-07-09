@@ -185,6 +185,8 @@ namespace Mesh {
 	*/
 	void Buffer::AddCube(const char* name) {
 
+		static const Texture::Image2DPtr defaultTex = Texture::Image2D::Create("res/player.dds");
+
 		//    6---7	       +y-z
 		//   /|  /|        |/
 		//  / 5 / 4   -x --*-- +x
@@ -233,7 +235,7 @@ namespace Mesh {
 		const size_t vOffset = AddVertexData(vertices.data(), vertices.size() * sizeof(Vertex));
 		const size_t iOffset = AddIndexData(indices.data(), indices.size() * sizeof(GLubyte));
 		const Primitive p = CreatePrimitive(indices.size(), GL_UNSIGNED_BYTE, iOffset, vOffset);
-		const Material m = CreateMaterial(glm::vec4(1), nullptr);
+		const Material m = CreateMaterial(glm::vec4(1) ,defaultTex);
 		AddMesh(name, p, m);
 	}
 
