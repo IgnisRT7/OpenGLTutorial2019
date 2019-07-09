@@ -368,23 +368,6 @@ namespace Texture {
 	GLuint LoadImage2D(const char* path) {
 
 		ImageData imageData;
-		if (!LoadImage2D(path, &imageData)) {
-			return 0;
-		}
-		return CreateImage2D(imageData.width, imageData.height, imageData.data.data(),
-			imageData.format, imageData.type);
-	}
-
-	/**
-	*	ファイルから画像データを読み込む
-	*
-	*	@param path		 画像として読み込むファイルのパス
-	*	@param imageData 画像データを格納する構造体
-	*
-	*	@retval true	読み込む成功
-	*	@retval false	読み込み失敗
-	*/
-	bool LoadImage2D(const char* path,ImageData* imageData){
 
 		///DDS読み込み用コード
 
@@ -417,13 +400,32 @@ namespace Texture {
 		if (pHeader[0] == 'D' || pHeader[1] == 'D' || pHeader[2] == 'S'
 			|| pHeader[3] == ' ') {
 			DDSHeader header;
-			auto id = LoadDDS(path, st, buf.data(), &header, imageData);
+			auto id = LoadDDS(path, st, buf.data(), &header, &imageData);
 			if (id) {
-				imageData->data.swap(buf);
+				imageData.data.swap(buf);
 			}
 			return id;
 		}
 		buf.clear();
+
+		if (!LoadImage2D(path, &imageData)) {
+			return 0;
+		}
+		return CreateImage2D(imageData.width, imageData.height, imageData.data.data(),
+			imageData.format, imageData.type);
+	}
+
+	/**
+	*	ファイルから画像データを読み込む
+	*
+	*	@param path		 画像として読み込むファイルのパス
+	*	@param imageData 画像データを格納する構造体
+	*
+	*	@retval true	読み込む成功
+	*	@retval false	読み込み失敗
+	*/
+	bool LoadImage2D(const char* path,ImageData* imageData){
+
 
 		// TGAヘッダを読み込む.
 		std::basic_ifstream<uint8_t> ifs;
@@ -456,7 +458,7 @@ namespace Texture {
 		const int height = tgaHeader[14] | (tgaHeader[15] << 8);
 		const int pixelDepth = tgaHeader[16];
 		const int imageSize = width * height * pixelDepth / 8;
-		buf.reserve(imageSize);
+		std::vector<uint8_t> buf;
 		buf.resize(imageSize);
 		ifs.read(buf.data(), imageSize);
 
