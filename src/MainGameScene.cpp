@@ -25,7 +25,7 @@ bool MainGameScene::Initialize(){
 	meshBuffer.Init(1'000'000 * sizeof(Mesh::Vertex), 3'000'000 * sizeof(GLushort));
 
 	//ハイトマップを作成する
-	if (!heightMap.LoadFromFile("Res/Terrain2.tga", 20.0f, 0.5f)) {
+	if (!heightMap.LoadFromFile("Res/Terrain3.tga", 20.0f, 0.5f)) {
 		return false;
 	}
 	if (!heightMap.CreateMesh(meshBuffer, "Terrain")) {
@@ -76,8 +76,12 @@ void MainGameScene::Render(){
 
 	const float aspectRatio = static_cast<float>(window.Width() / static_cast<float>(window.Height()));
 	const glm::mat4 matProj = glm::perspective(glm::radians(30.0f), aspectRatio, 1.0f, 1000.0f);
-	const glm::mat4 matModel(1);
-	Mesh::Draw(meshBuffer.GetFile("Cube"), matProj*matView, matModel);
+
+	glm::vec3 cubePos(120, 0, 120);
+	cubePos.y = heightMap.Height(cubePos);
+	const glm::mat4 matModel = glm::translate(glm::mat4(1), cubePos);
+
+	Mesh::Draw(meshBuffer.GetFile("Cube"), matProj * matView, matModel);
 	Mesh::Draw(meshBuffer.GetFile("Terrain"), matProj*matView, glm::mat4(1));
 
 }
