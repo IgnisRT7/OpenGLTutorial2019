@@ -37,6 +37,9 @@ namespace GLFWEW {
 		int Width() const { return width; }
 		int Height() const { return height; }
 
+		//TODO: Œã‚ÉC³‚ª•K—v
+		float DeltaTime() { return 1.0f / 60.0f; }
+
 	private:
 
 		Window();
