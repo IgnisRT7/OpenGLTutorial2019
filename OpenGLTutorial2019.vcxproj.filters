@@ -59,6 +59,9 @@
     <ClCompile Include="src\json11\json11.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Actor.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -103,8 +106,13 @@
     <ClInclude Include="src\MainGameScene.h">
       <Filter>Src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Terrain.h" />
     <ClInclude Include="src\json11\json11.hpp">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actor.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Terrain.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>
