@@ -8,12 +8,12 @@
 #include "BufferObject.h"
 #include "Texture.h"
 #include "Shader.h"
-#include "json11/json11.hpp"
 #include <glm/glm.hpp>
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include "json11/json11.hpp"
 
 namespace Mesh {
 

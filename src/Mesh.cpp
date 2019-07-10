@@ -5,7 +5,6 @@
 #include "Mesh.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
-#include "json11/json11.hpp"
 #include <glm/gtc/quaternion.hpp>
 #include <fstream>
 #include <algorithm>
@@ -91,7 +90,7 @@ namespace Mesh {
 	glm::mat4 GetMat4(const json11::Json& json) {
 
 		const std::vector<json11::Json>& a = json.array_items();
-		if (a.size < 16) {
+		if (a.size() < 16) {
 			return glm::mat4(1);
 		}
 		return glm::mat4(
@@ -224,7 +223,7 @@ namespace Mesh {
 		if (gltfFile.empty()) {
 			return false;
 		}
-		gltfFile.push_back('\n');
+		gltfFile.push_back('\0');
 
 		//JSON‰ðÍ
 		std::string error;
@@ -293,7 +292,7 @@ namespace Mesh {
 				const int accessorId_normal = attributes["NORMAL"].is_null() ? -1 : attributes["NORMAL"].int_value();
 				const int accessorId_texcoord = attributes["TEXCOORD_0"].is_null() ? -1 : attributes["TEXCOORD_0"].int_value();
 				mesh.primitives[primId].vao = std::make_shared<VertexArrayObject>();
-				mesh.primitives[primId].vao->Create(vbo.Id(), ibo.Id);
+				mesh.primitives[primId].vao->Create(vbo.Id(), ibo.Id());
 				SetAttribute(&mesh.primitives[primId], 0, accessors[accessorId_position], bufferViews, binFiles);
 				SetAttribute(&mesh.primitives[primId], 1, accessors[accessorId_texcoord], bufferViews, binFiles);
 				SetAttribute(&mesh.primitives[primId], 2, accessors[accessorId_normal], bufferViews, binFiles);
