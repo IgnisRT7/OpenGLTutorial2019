@@ -35,6 +35,7 @@ private:
 	std::vector<Sprite> sprites;
 	Terrain::HeightMap heightMap;
 	StaticMeshActorPtr player;
+	ActorList enemies;
 
 	struct Camera {
 		glm::vec3 target = glm::vec3(100, 0, 100);
