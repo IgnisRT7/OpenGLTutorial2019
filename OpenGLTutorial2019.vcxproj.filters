@@ -62,6 +62,9 @@
     <ClCompile Include="src\Actor.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Collision.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -113,6 +116,9 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\Terrain.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Collision.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>
