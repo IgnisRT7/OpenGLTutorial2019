@@ -268,3 +268,11 @@ __pycache__/
 /src/json11/json11-master/json11.hpp
 /src/json11/json11-master/json11.cpp
 /src/json11/json11-master/CMakeLists.txt
+/src/json11/test.cpp
+/src/json11/README.md
+/src/json11/Makefile
+/src/json11/LICENSE.txt
+/src/json11/json11.pc.in
+/src/json11/json11.hpp
+/src/json11/json11.cpp
+/src/json11/CMakeLists.txt
