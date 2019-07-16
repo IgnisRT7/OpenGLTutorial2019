@@ -54,6 +54,14 @@ void Actor::Update(float deltaTime) {
 		colWorld.c.r = colLocal.c.r;
 		break;
 
+	case Collision::Shape::Type::obb:
+		colWorld.obb.center = matModel * glm::vec4(colLocal.obb.center, 1);
+		for (size_t i = 0; i < 3; ++i) {
+			colWorld.obb.axis[i] = matR_XZY * glm::vec4(colLocal.obb.axis[i], 1);
+		}
+		colWorld.obb.e = colLocal.obb.e;
+		break;
+
 	default:
 		break;
 	}
