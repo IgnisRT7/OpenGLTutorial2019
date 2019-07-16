@@ -134,6 +134,7 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainGameScene.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\PlayerActor.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="src\json11\json11.hpp" />
     <ClInclude Include="src\MainGameScene.h" />
     <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\PlayerActor.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Sprite.h" />
