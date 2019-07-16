@@ -26,6 +26,9 @@ public:
 	virtual void Render() override;
 	virtual void Finalize() override {}
 
+	void SpawnKooni(int n);
+	void SpawnTree(int n);
+
 private:
 
 	bool frag = false;
@@ -36,6 +39,7 @@ private:
 	Terrain::HeightMap heightMap;
 	StaticMeshActorPtr player;
 	ActorList enemies;
+	ActorList trees;
 
 	struct Camera {
 		glm::vec3 target = glm::vec3(100, 0, 100);
