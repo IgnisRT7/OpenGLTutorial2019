@@ -31,7 +31,7 @@ namespace Collision {
 	*	カプセル
 	*/
 	struct Capsule {
-		Segment center;	///< 円中部の線分
+		Segment seg;	///< 円中部の線分
 		float r = 0;	///< カプセルの半径
 	};
 

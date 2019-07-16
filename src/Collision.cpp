@@ -35,7 +35,7 @@ namespace Collision{
 
 		Shape result;
 		result.type = Shape::Type::capsule;
-		result.c = Capsule{ {a,b},r };
+		result.c = Capsule{ { a, b },r };
 		return result;
 	}
 
@@ -92,7 +92,7 @@ namespace Collision{
 	*/
 	bool TestSphereCapsule(const Sphere& s, const Capsule& c, glm::vec3* p){
 
-		*p = ClosestPointSegment(c.center, s.center);
+		*p = ClosestPointSegment(c.seg, s.center);
 		const glm::vec3 distance = *p - s.center;
 		const float radiusSum = s.r + c.r;
 		return glm::dot(distance, distance) <= radiusSum * radiusSum;
