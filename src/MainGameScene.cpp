@@ -60,11 +60,13 @@ bool MainGameScene::Initialize() {
 	spr.Scale(glm::vec2(2));
 	sprites.push_back(spr);
 
+	//メッシュバッファの初期化処理
 	meshBuffer.Init(1'000'000 * sizeof(Mesh::Vertex), 3'000'000 * sizeof(GLushort));
 	meshBuffer.LoadMesh("Res/red_pine_tree.gltf");
 	meshBuffer.LoadMesh("Res/bikuni.gltf");
 	meshBuffer.LoadMesh("Res/oni_small.gltf");
 	meshBuffer.LoadMesh("Res/TestTree.gltf");
+	meshBuffer.LoadMesh("Res/wall_stone.gltf");
 
 	//ハイトマップを作成する
 	if (!heightMap.LoadFromFile("Res/Terrain3.tga", 20.0f, 0.5f)) {
@@ -82,7 +84,8 @@ bool MainGameScene::Initialize() {
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
 	SpawnKooni(50);
-	SpawnTree(500);
+	SpawnTree(1);
+	CreateStoneWall(startPos);
 
 	return true;
 }
@@ -144,6 +147,7 @@ void MainGameScene::Update(float deltaTime) {
 	player->Update(deltaTime);
 	enemies.Update(deltaTime);
 	trees.Update(deltaTime);
+	objects.Update(deltaTime);
 
 	player->position.y = heightMap.Height(player->position);
 	DetectCollision(player, enemies, PlayerCollisionHandler);
@@ -153,6 +157,7 @@ void MainGameScene::Update(float deltaTime) {
 	player->UpdateDrawData(deltaTime);
 	enemies.UpdateDrawData(deltaTime);
 	trees.UpdateDrawData(deltaTime);
+	objects.UpdateDrawData(deltaTime);
 
 	const float w = static_cast<float>(window.Width());
 	const float h = static_cast<float>(window.Height());
@@ -171,6 +176,7 @@ void MainGameScene::Render() {
 	const glm::vec2 screenSize(window.Width(), window.Height());
 	spriteRenderer.Draw(screenSize);
 	fontRenderer.Draw(screenSize);
+
 
 	const glm::mat4 matView = glm::lookAt(camera.position, camera.target, camera.up);
 
@@ -193,6 +199,7 @@ void MainGameScene::Render() {
 	player->Draw();
 	enemies.Draw();
 	trees.Draw();
+	objects.Draw();
 }
 
 /**
@@ -255,4 +262,19 @@ void MainGameScene::SpawnTree(int n) {
 		p->colLocal = Collision::CreateCapsule(glm::vec3(0, 0, 0), glm::vec3(0, 4, 0), 0.4f);
 		trees.Add(p);
 	}
+}
+
+/**
+*	石壁の作成処理
+*/
+void MainGameScene::CreateStoneWall(glm::vec3 start){
+
+	const Mesh::FilePtr meshStoneWall = meshBuffer.GetFile("Res/wall_stone.gltf");
+	glm::vec3 position = start + glm::vec3(-3, 0, -3);
+	position.y = heightMap.Height(position);
+	StaticMeshActorPtr p = std::make_shared<StaticMeshActor>(
+		meshStoneWall, "StoneWall", 100, position, glm::vec3(0, 0.5f, 0));
+	p->colLocal = Collision::CreateOBB(glm::vec3(0, 0, 0),
+		glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec3(2, 2, 0.5f));
+	objects.Add(p);
 }

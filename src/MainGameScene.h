@@ -28,6 +28,7 @@ public:
 
 	void SpawnKooni(int n);
 	void SpawnTree(int n);
+	void CreateStoneWall(glm::vec3 s);
 
 private:
 
@@ -40,6 +41,7 @@ private:
 	StaticMeshActorPtr player;
 	ActorList enemies;
 	ActorList trees;
+	ActorList objects;
 
 	struct Camera {
 		glm::vec3 target = glm::vec3(100, 0, 100);
