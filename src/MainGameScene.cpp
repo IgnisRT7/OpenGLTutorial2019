@@ -37,6 +37,9 @@ void PlayerCollisionHandler(const ActorPtr& a, const ActorPtr& b, const glm::vec
 
 		//a->colWorld.center += vn * distance;
 		a->colWorld.s.center += vn * distance;
+		if (a->velocity.y < 0 && vn.y >= glm::cos(glm::radians(60.0f))) {
+			a->velocity.y = 0;
+		}
 	}
 	else {
 		//移動を取り消す(距離が近すぎる場合の例外処理)
@@ -79,8 +82,9 @@ bool MainGameScene::Initialize() {
 	//プレイヤーの作成処理
 	glm::vec3 startPos(100, 0, 100);
 	startPos.y = heightMap.Height(startPos);
-	player = std::make_shared<StaticMeshActor>(meshBuffer.GetFile("Res/bikuni.gltf"), "Player", 20, startPos);
+	//player = std::make_shared<StaticMeshActor>(meshBuffer.GetFile("Res/bikuni.gltf"), "Player", 20, startPos);
 	//player->colLocal = Collision::Sphere(glm::vec3(0), 0.5f);
+	player = std::make_shared<PlayerActor>(meshBuffer.GetFile("Res/bikuni.gltf"), startPos, glm::vec3(0), &heightMap);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
 	SpawnKooni(50);
@@ -118,7 +122,14 @@ void MainGameScene::ProcessInput() {
 		velocity *= 6.0f;
 	}
 	//	camera.velocity = velocity;
-	player->velocity = velocity;
+	//player->velocity = velocity;
+	player->velocity.x = velocity.x;
+	player->velocity.z = velocity.z;
+
+	//ジャンプ
+	if (gamepad.buttonDown & GamePad::B) {
+		player->Jump();
+	}
 
 	if (!frag) {
 		frag = true;
@@ -152,6 +163,7 @@ void MainGameScene::Update(float deltaTime) {
 	player->position.y = heightMap.Height(player->position);
 	DetectCollision(player, enemies, PlayerCollisionHandler);
 	DetectCollision(player, trees, PlayerCollisionHandler);
+	DetectCollision(player, objects, PlayerCollisionHandler);
 	player->position.y = heightMap.Height(player->position);
 
 	player->UpdateDrawData(deltaTime);
