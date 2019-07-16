@@ -160,11 +160,9 @@ void MainGameScene::Update(float deltaTime) {
 	trees.Update(deltaTime);
 	objects.Update(deltaTime);
 
-	player->position.y = heightMap.Height(player->position);
 	DetectCollision(player, enemies, PlayerCollisionHandler);
 	DetectCollision(player, trees, PlayerCollisionHandler);
 	DetectCollision(player, objects, PlayerCollisionHandler);
-	player->position.y = heightMap.Height(player->position);
 
 	player->UpdateDrawData(deltaTime);
 	enemies.UpdateDrawData(deltaTime);
