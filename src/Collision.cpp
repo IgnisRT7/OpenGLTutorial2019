@@ -217,8 +217,6 @@ namespace Collision{
 			}
 		}
 
-
-
 		return false;
 	}
 }

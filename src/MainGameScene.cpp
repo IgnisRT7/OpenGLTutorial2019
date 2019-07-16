@@ -87,8 +87,8 @@ bool MainGameScene::Initialize() {
 	player = std::make_shared<PlayerActor>(meshBuffer.GetFile("Res/bikuni.gltf"), startPos, glm::vec3(0), &heightMap);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
-	SpawnKooni(50);
-	SpawnTree(1);
+	SpawnKooni(100);
+	SpawnTree(100);
 	CreateStoneWall(startPos);
 
 	return true;
@@ -149,7 +149,6 @@ void MainGameScene::ProcessInput() {
 void MainGameScene::Update(float deltaTime) {
 
 	GLFWEW::Window& window = GLFWEW::Window::Instance();
-
 	{
 		camera.target = player->position;
 		camera.position = camera.target + glm::vec3(0, 50, 50);
@@ -187,6 +186,7 @@ void MainGameScene::Render() {
 	spriteRenderer.Draw(screenSize);
 	fontRenderer.Draw(screenSize);
 
+	glEnable(GL_DEPTH);
 
 	const glm::mat4 matView = glm::lookAt(camera.position, camera.target, camera.up);
 
@@ -206,10 +206,11 @@ void MainGameScene::Render() {
 	const glm::mat4 matTreeModel = glm::translate(glm::mat4(1), treePos) * glm::scale(glm::mat4(1), glm::vec3(3));
 	Mesh::Draw(meshBuffer.GetFile("Res/red_pine_tree.gltf"), matTreeModel);
 
-	player->Draw();
+
 	enemies.Draw();
 	trees.Draw();
 	objects.Draw();
+	player->Draw();
 }
 
 /**
