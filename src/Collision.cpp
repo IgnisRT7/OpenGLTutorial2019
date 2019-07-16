@@ -40,6 +40,26 @@ namespace Collision{
 	}
 
 	/**
+	*	有向境界ボックス形状を作成する
+	*
+	*	@param center	有向境界ボックスの中心座標
+	*	@param axisX	X軸の向き
+	*	@param axisY	Y軸の向き
+	*	@param axisZ	Z軸の向き
+	*	@param e		XYZ軸方向の幅
+	*	
+	*	@return 有向境界ボックスを保持する凡庸衝突形状オブジェクト
+	*/
+	Shape CreateOBB(const glm::vec3& center, const glm::vec3& axisX, const glm::vec3& axisY,
+		const glm::vec3& axisZ, const glm::vec3& e){
+
+		Shape result;
+		result.type = Shape::Type::obb;
+		result.obb = OrientedBoundingBox{ center,{normalize(axisX),normalize(axisY),normalize(axisZ)},e };
+		return result;
+	}
+
+	/**
 	*	弾と弾が衝突しているか調べる
 	*
 	*	@param s0	判定対象の球その1
@@ -99,6 +119,48 @@ namespace Collision{
 	}
 
 	/**
+	*	OBBと点の最近接点を調べる
+	*	
+	*	@param obb	有向境界ボックス
+	*	@param p	点
+	*	
+	*	@return obbとpの最近接点
+	*/
+	glm::vec3 ClosetPointOBB(const OrientedBoundingBox& obb, const glm::vec3& p) {
+
+		const glm::vec3 d = p - obb.center;
+		glm::vec3 q = obb.center;
+		for (int i = 0; i < 3; ++i) {
+			float distance = dot(d, obb.axis[i]);
+			if (distance >= obb.e[i]) {
+				distance = obb.e[i];
+			}
+			else if (distance <= -obb.e[i]) {
+				distance = -obb.e[i];
+			}
+			q += distance * obb.axis[i];
+		}
+		return q;
+	}
+
+	/**
+	*	球とOBBが衝突しているか調べる
+	*
+	*	@param s	球
+	*	@param obb	有向境界ボックス
+	*	@param p	最近接点の格納先
+	*	
+	*	@retval true	衝突している
+	*	@retval false	衝突していない
+	*/
+	bool TestSphereOBB(const Sphere& s, const OrientedBoundingBox& obb, glm::vec3* p) {
+
+		*p = ClosetPointOBB(obb, s.center);
+		const glm::vec3 distance = *p - s.center;
+		return dot(distance, distance) <= s.r * s.r;
+	}
+
+	/**
 	*	シェイプ同士が衝突しているか調べる
 	*
 	*	@param a	判定対象のシェイプその1
@@ -111,6 +173,7 @@ namespace Collision{
 	*/
 	bool TestShapeShape(const Shape& a, const Shape& b, glm::vec3* pa, glm::vec3* pb) {
 
+		//TYPEA : 円形コリジョン
 		if (a.type == Shape::Type::sphere) {
 			if (b.type == Shape::Type::sphere) {
 				if (TestSphereSphere(a.s, b.s)) {
@@ -125,7 +188,14 @@ namespace Collision{
 					return true;
 				}
 			}
+			else if (b.type == Shape::Type::obb) {
+				if (TestSphereOBB(a.s, b.obb, pb)) {
+					*pa = a.s.center;
+					return true;
+				}
+			}
 		}
+		//TYPEA : カプセルコリジョン
 		else if (a.type == Shape::Type::capsule) {
 			if (b.type == Shape::Type::sphere) {
 				if (TestSphereCapsule(b.s, a.c, pa)) {
@@ -137,6 +207,18 @@ namespace Collision{
 				std::cout << __func__ << "[警告]: カプセルとカプセルの衝突判定は対応外です\n";
 			}
 		}
+		//TYPEA : OBBコリジョン
+		else if (a.type == Shape::Type::obb) {
+			if (b.type == Shape::Type::sphere) {
+				if (TestSphereOBB(b.s, a.obb, pa)) {
+					*pb = b.s.center;
+					return true;
+				}
+			}
+		}
+
+
+
 		return false;
 	}
 }
