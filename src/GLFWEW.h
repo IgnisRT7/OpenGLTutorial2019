@@ -23,6 +23,7 @@ namespace GLFWEW {
 		void SwapBuffers() const;
 		const GamePad& GetGamePad() const;
 		void UpdateGamePad();
+		void UpdateDeltaTime();
 
 		enum class KeyState : char {
 			release,
@@ -51,6 +52,8 @@ namespace GLFWEW {
 		bool isInitialized = false;
 		GLFWwindow* window = nullptr;
 		GamePad gamepad;
+		float deltaTime = 0;
+		float prevTime = 0;
 
 		int width = 0;
 		int height = 0;

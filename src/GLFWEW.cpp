@@ -273,6 +273,17 @@ namespace GLFWEW {
 	}
 
 	/**
+	*	FPSの更新処理
+	*/
+	void Window::UpdateDeltaTime(){
+
+		float nowTime = glfwGetTime();
+		deltaTime = std::min(nowTime - prevTime, 0.25f);
+		prevTime = nowTime;
+		std::cout << "deltaTime =" << deltaTime << std::endl;
+	}
+
+	/**
 	* キーが押された瞬間か調べる.
 	*
 	* @param key 調べるキーのID(GLFW_KEY_Aなど).

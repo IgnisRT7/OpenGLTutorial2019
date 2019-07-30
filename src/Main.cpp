@@ -30,9 +30,8 @@ int main() {
 		//GLコンテキストのパラメータを設定
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		
 
-		const float deltaTime = 1.0f / 60.0f;
+		window.UpdateDeltaTime();
 
 		window.UpdateGamePad();
 
@@ -46,7 +45,7 @@ int main() {
 		//スケルタル・アニメーション用データの作成準備
 		Mesh::SkeletalAnimation::ResetUniformData();
 
-		sceneStack.Update(deltaTime);
+		sceneStack.Update(window.DeltaTime());
 
 		//スケルタル・アニメーション用データをGPUメモリに転送
 		Mesh::SkeletalAnimation::UploadUniformData();
