@@ -15,12 +15,17 @@ int main() {
 		return 0;
 	}
 
+	//スケルタル・アニメーションを利用可能にする
+	Mesh::SkeletalAnimation::Initialize();
+
 	SceneStack& sceneStack = SceneStack::Instance();
 	sceneStack.Push(std::make_shared<TitleScene>());
 
 	while(!window.ShouldClose()) {
 
-		//バックバッファを消去する TODO : コメントアウト対象
+		//スケルタル・アニメーション用データの作成準備
+		Mesh::SkeletalAnimation::ResetUniformData();
+
 		
 		glClearColor(0.8f,0.2f,0.1f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -34,7 +39,6 @@ int main() {
 
 		window.UpdateGamePad();
 
-		// TODO : コメントアウト対象
 		//ESCキーが押されたら終了ウインドウを表示
 		if (window.KeyPressed(GLFW_KEY_ESCAPE)) {
 			if (MessageBox(nullptr, "ゲームを終了しますか?", "終了", MB_OKCANCEL) == IDOK) {
@@ -42,11 +46,17 @@ int main() {
 			}
 		}
 
+		//スケルタル・アニメーション用データをGPUメモリに転送
+		Mesh::SkeletalAnimation::UploadUniformData();
+
 		sceneStack.Update(deltaTime);
 		sceneStack.Render();
 
 		window.SwapBuffers();
 	}
+
+	//スケルタル・アニメーションの利用を終了する
+	Mesh::SkeletalAnimation::Finalize();
 
 	return 0;
 }
