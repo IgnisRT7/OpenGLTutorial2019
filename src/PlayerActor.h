@@ -25,6 +25,8 @@ public:
 	virtual ~PlayerActor() = default;
 
 	virtual void Update(float) override;
+	virtual void OnHit(const ActorPtr&, const glm::vec3&) override;
+
 	void Jump();
 	void ProcessInput();
 	void SetBoardingActor(ActorPtr);

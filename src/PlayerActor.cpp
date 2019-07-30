@@ -206,3 +206,37 @@ void PlayerActor::SetBoardingActor(ActorPtr p) {
 		isInAir = false;
 	}
 }
+
+/**
+*	衝突ハンドラ
+*/
+void PlayerActor::OnHit(const ActorPtr& b, const glm::vec3& p) {
+
+	const glm::vec3 v = colWorld.s.center - p;
+	//衝突位置との距離が近すぎないか調べる
+	if (dot(v, v) > FLT_EPSILON) {
+		//aをbに重ならない位置まで移動
+		const glm::vec3 vn = normalize(v);
+		//const float radiusSum = a->colWorld.r + b->colWorld.r;
+		float radiusSum = colWorld.s.r;
+		switch (b->colWorld.type) {
+		case Collision::Shape::Type::sphere: radiusSum += b->colWorld.s.r; break;
+		case Collision::Shape::Type::capsule: radiusSum += b->colWorld.c.r; break;
+		}
+
+		const float distance = radiusSum - glm::length(v) + 0.01f;
+		position += vn * distance;
+
+		colWorld.s.center += vn * distance;
+		if (velocity.y < 0 && vn.y >= glm::cos(glm::radians(60.0f))) {
+			velocity.y = 0;
+		}
+	}
+	else {
+		//移動を取り消す(距離が近すぎる場合の例外処理)
+		const float dletaTime = static_cast<float>(GLFWEW::Window::Instance().DeltaTime());
+		const glm::vec3 deltaVelocity = velocity * static_cast<float>(GLFWEW::Window::Instance().DeltaTime());;
+		colWorld.s.center -= deltaVelocity;
+	}
+	SetBoardingActor(b);
+}
