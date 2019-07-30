@@ -45,7 +45,7 @@ void PlayerCollisionHandler(const ActorPtr& a, const ActorPtr& b, const glm::vec
 	else {
 		//移動を取り消す(距離が近すぎる場合の例外処理)
 		const float dletaTime = static_cast<float>(GLFWEW::Window::Instance().DeltaTime());
-		const glm::vec3 deltaVelocity;
+		const glm::vec3 deltaVelocity = a->velocity * static_cast<float>(GLFWEW::Window::Instance().DeltaTime());;
 		a->colWorld.s.center -= deltaVelocity;
 	}
 }
@@ -67,11 +67,10 @@ bool MainGameScene::Initialize() {
 	//メッシュバッファの初期化処理
 	meshBuffer.Init(1'000'000 * sizeof(Mesh::Vertex), 3'000'000 * sizeof(GLushort));
 	meshBuffer.LoadMesh("Res/red_pine_tree.gltf");
-	meshBuffer.LoadMesh("Res/bikuni.gltf");
 	meshBuffer.LoadMesh("Res/TestTree.gltf");
 	meshBuffer.LoadMesh("Res/wall_stone.gltf");
-	//meshBuffer.LoadMesh("Res/oni_small.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/oni_small.gltf");
+	meshBuffer.LoadSkeletalmesh("Res/bikuni.gltf");
 
 	//ハイトマップを作成する
 	if (!heightMap.LoadFromFile("Res/Terrain3.tga", 20.0f, 0.5f)) {
@@ -84,13 +83,11 @@ bool MainGameScene::Initialize() {
 	//プレイヤーの作成処理
 	glm::vec3 startPos(100, 0, 100);
 	startPos.y = heightMap.Height(startPos);
-	//player = std::make_shared<StaticMeshActor>(meshBuffer.GetFile("Res/bikuni.gltf"), "Player", 20, startPos);
-	//player->colLocal = Collision::Sphere(glm::vec3(0), 0.5f);
-	player = std::make_shared<PlayerActor>(meshBuffer.GetFile("Res/bikuni.gltf"), startPos, glm::vec3(0), &heightMap);
+	player = std::make_shared<PlayerActor>(&heightMap, meshBuffer, startPos);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
 	SpawnKooni(100);
-	SpawnTree(100);
+	//SpawnTree(100);
 	CreateStoneWall(startPos);
 
 	return true;
@@ -104,34 +101,7 @@ void MainGameScene::ProcessInput() {
 	GLFWEW::Window& window = GLFWEW::Window::Instance();
 	const GamePad gamepad = window.GetGamePad();
 
-	//プレイヤー操作
-	glm::vec3 velocity(0);
-	if (gamepad.buttons&GamePad::DPAD_LEFT) {
-		velocity.x = -1;
-	}
-	else if (gamepad.buttons&GamePad::DPAD_RIGHT) {
-		velocity.x = 1;
-	}
-	if (gamepad.buttons&GamePad::DPAD_DOWN) {
-		velocity.z = 1;
-	}
-	else if (gamepad.buttons&GamePad::DPAD_UP) {
-		velocity.z = -1;
-	}
-	if (velocity.x || velocity.z) {
-		velocity = glm::normalize(velocity);
-		player->rotation.y = std::atan2(-velocity.z, velocity.x) + glm::radians(90.0f);
-		velocity *= 6.0f;
-	}
-	//	camera.velocity = velocity;
-	//player->velocity = velocity;
-	player->velocity.x = velocity.x;
-	player->velocity.z = velocity.z;
-
-	//ジャンプ
-	if (gamepad.buttonDown & GamePad::B) {
-		player->Jump();
-	}
+	player->ProcessInput();
 
 	if (!frag) {
 		frag = true;
@@ -173,9 +143,10 @@ void MainGameScene::Update(float deltaTime) {
 	const float w = static_cast<float>(window.Width());
 	const float h = static_cast<float>(window.Height());
 	const float lineHeight = fontRenderer.LineHeight();
-	fontRenderer.BeginUpdate();
-	fontRenderer.AddString(glm::vec2(-w * 0.5f + 32, h*0.5f - lineHeight), L"メインゲーム画面");
-	fontRenderer.EndUpdate();
+	//TODO: エラー発生中
+//	fontRenderer.BeginUpdate();
+//	fontRenderer.AddString(glm::vec2(-w * 0.5f + 32, h*0.5f - lineHeight), L"メインゲーム画面");
+//	fontRenderer.EndUpdate();
 }
 
 /**
@@ -207,7 +178,6 @@ void MainGameScene::Render() {
 	treePos.y = heightMap.Height(treePos);
 	const glm::mat4 matTreeModel = glm::translate(glm::mat4(1), treePos) * glm::scale(glm::mat4(1), glm::vec3(3));
 	Mesh::Draw(meshBuffer.GetFile("Res/red_pine_tree.gltf"), matTreeModel);
-
 
 	enemies.Draw();
 	trees.Draw();
@@ -242,7 +212,7 @@ void MainGameScene::SpawnKooni(int n) {
 		//StaticMeshActorPtr p = std::make_shared<StaticMeshActor>(mesh, "Kooni", 13, position, rotation);
 		const Mesh::SkeletalMeshPtr mesh = meshBuffer.GetSkeletalMesh("oni_small");
 		SkeletalMeshActorPtr p = std::make_shared<SkeletalMeshActor>(mesh, "Kooni", 13, position, rotation);
-		p->GetMesh()->Play("Run");
+		p->GetMesh()->Play("Attack");
 
 		//p->colLocal = Collision::Sphere(glm::vec3(0), 1.0f);
 		p->colLocal = Collision::CreateCapsule(glm::vec3(0, 0.5f, 0), glm::vec3(0, 1, 0), 0.5f);
