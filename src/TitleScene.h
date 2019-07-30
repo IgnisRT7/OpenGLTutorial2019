@@ -7,6 +7,7 @@
 #include <vector>
 #include "Sprite.h"
 #include "Font.h"
+#include "SkeletalMesh.h"
 
 /**
 *	ƒ^ƒCƒgƒ‹‰æ–Ê

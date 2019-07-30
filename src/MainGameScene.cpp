@@ -6,6 +6,7 @@
 #include "StatusScene.h"
 #include "GameOverScene.h"
 #include "GLFWEW.h"
+#include "SkeletalMeshActor.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include <random>
@@ -67,9 +68,10 @@ bool MainGameScene::Initialize() {
 	meshBuffer.Init(1'000'000 * sizeof(Mesh::Vertex), 3'000'000 * sizeof(GLushort));
 	meshBuffer.LoadMesh("Res/red_pine_tree.gltf");
 	meshBuffer.LoadMesh("Res/bikuni.gltf");
-	meshBuffer.LoadMesh("Res/oni_small.gltf");
 	meshBuffer.LoadMesh("Res/TestTree.gltf");
 	meshBuffer.LoadMesh("Res/wall_stone.gltf");
+	//meshBuffer.LoadMesh("Res/oni_small.gltf");
+	meshBuffer.LoadSkeletalmesh("Res/oni_small.gltf");
 
 	//ハイトマップを作成する
 	if (!heightMap.LoadFromFile("Res/Terrain3.tga", 20.0f, 0.5f)) {
@@ -226,7 +228,7 @@ void MainGameScene::SpawnKooni(int n) {
 	//敵を配置
 	const size_t oniCount = n;
 	enemies.Reserve(oniCount);
-	const Mesh::FilePtr mesh = meshBuffer.GetFile("Res/oni_small.gltf");
+	//const Mesh::FilePtr mesh = meshBuffer.GetFile("Res/oni_small.gltf");
 	for (size_t i = 0; i < oniCount; ++i) {
 		//敵の位置を(50,50)-(150,150)の範囲からランダムに選択
 		glm::vec3 position(0);
@@ -237,7 +239,11 @@ void MainGameScene::SpawnKooni(int n) {
 		//敵の向きをランダムに選択
 		glm::vec3 rotation(0);
 		rotation.y = std::uniform_real_distribution<float>(0, 6.3f)(rand);
-		StaticMeshActorPtr p = std::make_shared<StaticMeshActor>(mesh, "Kooni", 13, position, rotation);
+		//StaticMeshActorPtr p = std::make_shared<StaticMeshActor>(mesh, "Kooni", 13, position, rotation);
+		const Mesh::SkeletalMeshPtr mesh = meshBuffer.GetSkeletalMesh("oni_small");
+		SkeletalMeshActorPtr p = std::make_shared<SkeletalMeshActor>(mesh, "Kooni", 13, position, rotation);
+		p->GetMesh()->Play("Run");
+
 		//p->colLocal = Collision::Sphere(glm::vec3(0), 1.0f);
 		p->colLocal = Collision::CreateCapsule(glm::vec3(0, 0.5f, 0), glm::vec3(0, 1, 0), 0.5f);
 		enemies.Add(p);

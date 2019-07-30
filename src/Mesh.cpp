@@ -372,6 +372,13 @@ namespace Mesh {
 			return false;
 		}
 
+		//スケルタルメッシュ用のシェーダを読み込む
+		progSkeletalMesh = Shader::Program::Create("Res/SkeletalMesh.vert", "Res/SkeletalMesh.frag");
+		if (progSkeletalMesh->IsNull()) {
+			return false;
+		}
+		SkeletalAnimation::BindUniformBlock(progSkeletalMesh);
+
 		vboEnd = 0;
 		iboEnd = 0;
 		files.reserve(100);
@@ -465,6 +472,7 @@ namespace Mesh {
 		m.baseColor = color;
 		m.texture = texture;
 		m.program = progStaticMesh;
+		m.progSkeltalMesh = progSkeletalMesh;
 		return m;
 	}
 
@@ -585,6 +593,8 @@ namespace Mesh {
 
 		progStaticMesh->Use();
 		progStaticMesh->SetViewProjectionMatrix(matVP);
+		progSkeletalMesh->Use();
+		progSkeletalMesh->SetViewProjectionMatrix(matVP);
 		glUseProgram(0);
 	}
 
