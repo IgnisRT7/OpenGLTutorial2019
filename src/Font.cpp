@@ -179,7 +179,7 @@ bool FontRenderer::AddString(const glm::vec2& position, const wchar_t* str) {
 /**
 *	•¶š—ñ‚Ì’Ç‰Á‚ğI—¹‚·‚é
 */
-void FontRenderer::EndUpdate() {
+void FontRenderer::EndUpdate() { //TODO: ‚±‚±‚ÅBufferObject ‚Ì“]‘—ƒGƒ‰[”­¶
 	spriteRenderer.EndUpdate();
 }
 
