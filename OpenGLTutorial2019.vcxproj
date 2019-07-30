@@ -170,6 +170,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="res\SkeletalMesh.frag" />
+    <None Include="res\SkeletalMesh.vert" />
     <None Include="res\Sprite.frag" />
     <None Include="res\Sprite.vert" />
     <None Include="res\StaticMesh.frag" />

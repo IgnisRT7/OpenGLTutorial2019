@@ -154,5 +154,11 @@
     <None Include="res\StaticMesh.vert">
       <Filter>Res</Filter>
     </None>
+    <None Include="res\SkeletalMesh.vert">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\SkeletalMesh.frag">
+      <Filter>Res</Filter>
+    </None>
   </ItemGroup>
 </Project>
