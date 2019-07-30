@@ -12,6 +12,9 @@
 #include <memory>
 #include <functional>
 
+class Actor;
+using ActorPtr = std::shared_ptr<Actor>;
+
 /**
 *	シーンに配置するオブジェクト
 */
@@ -25,6 +28,7 @@ public:
 	virtual void Update(float);
 	virtual void UpdateDrawData(float);
 	virtual void Draw();
+	virtual void OnHit(const ActorPtr&, const glm::vec3& ){}
 
 public:
 
@@ -40,7 +44,6 @@ public:
 	Collision::Shape colLocal;
 	Collision::Shape colWorld;
 };
-using ActorPtr = std::shared_ptr<Actor>;
 
 /**
 *	メッシュ表示機能付きのアクター
@@ -92,8 +95,8 @@ private:
 
 using CollisionhandlerType =
 std::function<void(const ActorPtr&, const ActorPtr&, const glm::vec3&)>;
-void DetectCollision(const ActorPtr& a, const ActorPtr& b, CollisionhandlerType handler);
-void DetectCollision(const ActorPtr& a, ActorList& b, CollisionhandlerType handler);
-void DetectCollision(ActorList& a, ActorList& b, CollisionhandlerType handler);
+void DetectCollision(const ActorPtr& a, const ActorPtr& b, CollisionhandlerType handler = nullptr);
+void DetectCollision(const ActorPtr& a, ActorList& b, CollisionhandlerType handler = nullptr);
+void DetectCollision(ActorList& a, ActorList& b, CollisionhandlerType handler = nullptr);
 
 #endif

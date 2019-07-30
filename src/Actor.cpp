@@ -208,12 +208,15 @@ void DetectCollision(const ActorPtr& a, const ActorPtr& b, CollisionhandlerType 
 		return;
 	}
 
-//	if (Collision::TestSphereSphere(a->colWorld, b->colWorld)) {
-//		handler(a, b, b->colWorld.center);
-//	}
 	glm::vec3 pa, pb;
 	if (Collision::TestShapeShape(a->colWorld, b->colWorld, &pa, &pb)) {
-		handler(a, b, pb);
+		if (handler) {
+			handler(a, b, pb);
+		}
+		else {
+			a->OnHit(b, pb);
+			b->OnHit(a, pa);
+		}
 	}
 }
 
@@ -234,11 +237,16 @@ void DetectCollision(const ActorPtr& a, ActorList& b, CollisionhandlerType handl
 			continue;
 		}
 
-		//if (Collision::TestSphereSphere(a->colWorld, actorB->colWorld)) {
-		//	handler(a, actorB, actorB->colWorld.center);
 		glm::vec3 pa, pb;
 		if (Collision::TestShapeShape(a->colWorld, actorB->colWorld, &pa, &pb)) {
-			handler(a, actorB, pb);
+			if (handler) {
+				handler(a, actorB, pb);
+			}
+			else {
+				a->OnHit(actorB, pb);
+				actorB->OnHit(a, pa);
+			}
+
 			if(a->health <= 0){
 				break;
 			}
@@ -263,11 +271,17 @@ void DetectCollision(ActorList& a, ActorList& b, CollisionhandlerType handler) {
 			if (actorB->health <= 0) {
 				continue;
 			}
-			//if (Collision::TestSphereSphere(actorA->colWorld, actorB->colWorld)) {
-			//	handler(actorA, actorB, actorB->colWorld.center);
+
 			glm::vec3 pa, pb;
 			if (Collision::TestShapeShape(actorA->colWorld, actorB->colWorld, &pa, &pb)) {
-				handler(actorA, actorB, pb);
+				if (handler) {
+					handler(actorA, actorB, pb);
+				}
+				else {
+					actorA->OnHit(actorB, pb);
+					actorB->OnHit(actorA, pa);
+				}
+
 				if (actorA->health <= 0) {
 					break;
 				}
