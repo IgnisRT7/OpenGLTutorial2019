@@ -5,6 +5,7 @@
 #include "TitleScene.h"
 #include "GLFWEW.h"
 #include <Windows.h>
+#include "SkeletalMesh.h"
 
 //エントリーポイント
 int main() {
@@ -22,10 +23,6 @@ int main() {
 	sceneStack.Push(std::make_shared<TitleScene>());
 
 	while(!window.ShouldClose()) {
-
-		//スケルタル・アニメーション用データの作成準備
-		Mesh::SkeletalAnimation::ResetUniformData();
-
 		
 		glClearColor(0.8f,0.2f,0.1f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -45,11 +42,15 @@ int main() {
 				break;
 			}
 		}
+		
+		//スケルタル・アニメーション用データの作成準備
+		Mesh::SkeletalAnimation::ResetUniformData();
+
+		sceneStack.Update(deltaTime);
 
 		//スケルタル・アニメーション用データをGPUメモリに転送
 		Mesh::SkeletalAnimation::UploadUniformData();
 
-		sceneStack.Update(deltaTime);
 		sceneStack.Render();
 
 		window.SwapBuffers();
