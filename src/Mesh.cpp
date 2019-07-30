@@ -3,6 +3,7 @@
 */
 #define NOMINMAX
 #include "Mesh.h"
+#include "SkeletalMesh.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -433,16 +434,16 @@ namespace Mesh {
 	*
 	*	@return 作成したPrimitive構造体
 	*/
-	Primitive Buffer::CreatePrimitive(size_t count, GLenum type, size_t ioffset, size_t voffset) const {
+	Primitive Buffer::CreatePrimitive(size_t count, GLenum type, size_t ioffset, size_t vOffset) const {
 
 		//プリミティブ用のVAOを作成
 		std::shared_ptr<VertexArrayObject> vao = std::make_shared<VertexArrayObject>();
 
 		vao->Create(vbo.Id(), ibo.Id());
 		vao->Bind();
-		vao->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), offsetof(Vertex, position));
-		vao->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), offsetof(Vertex, texCoord));
-		vao->VertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), offsetof(Vertex, normal));
+		vao->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), vOffset + offsetof(Vertex, position));
+		vao->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), vOffset + offsetof(Vertex, texCoord));
+		vao->VertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), vOffset + offsetof(Vertex, normal));
 		vao->UnBind();
 
 		//プリミティブのメンバ変数を設定
@@ -451,7 +452,7 @@ namespace Mesh {
 		p.count = static_cast<GLsizei>(count);
 		p.type = type;
 		p.indices = reinterpret_cast<const GLvoid*>(ioffset);
-		p.baseVertex = voffset / sizeof(Vertex);
+		p.baseVertex = 0;
 		p.vao = vao;
 		p.material = 0;	//マテリアルは0番で固定
 
@@ -472,7 +473,7 @@ namespace Mesh {
 		m.baseColor = color;
 		m.texture = texture;
 		m.program = progStaticMesh;
-		m.progSkeltalMesh = progSkeletalMesh;
+		m.progSkeletalMesh = progSkeletalMesh;
 		return m;
 	}
 

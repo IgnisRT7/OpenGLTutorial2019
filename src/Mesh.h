@@ -17,10 +17,11 @@
 
 namespace Mesh {
 
+	//先行宣言
 	struct Mesh;
 	using MeshPtr = std::shared_ptr<Mesh>;
 	class Buffer;
-	using MeshBufferPtr = std::shared_ptr<?>;
+	using MeshBufferPtr = std::shared_ptr<Buffer>;
 
 	//スケルタルメッシュ用先行宣言
 	struct Node;
@@ -35,15 +36,14 @@ namespace Mesh {
 		glm::vec3 normal;
 	};
 
-	/**
+	/*
 	*	プリミティブの材質
 	*/
 	struct Material {
 		glm::vec4 baseColor = glm::vec4(1);	/// 色データ
 		Texture::Image2DPtr texture;		/// テクスチャデータ
 		Shader::ProgramPtr program;			/// 使用するプログラム
-		Shader::ProgramPtr progSkeltalMesh;	/// スケルタルメッシュ用プログラム
-		
+		Shader::ProgramPtr progSkeletalMesh;	/// スケルタルメッシュ用プログラム
 	};
 
 	/**
