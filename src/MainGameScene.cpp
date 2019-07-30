@@ -17,7 +17,7 @@
 *	@param a	衝突したアクターその１
 *	@param b	衝突したアクターその２
 *	@param p	衝突位置
-*/
+*
 void PlayerCollisionHandler(const ActorPtr& a, const ActorPtr& b, const glm::vec3& p) {
 
 	//const glm::vec3 v = a->colWorld.center - p;
@@ -48,7 +48,7 @@ void PlayerCollisionHandler(const ActorPtr& a, const ActorPtr& b, const glm::vec
 		const glm::vec3 deltaVelocity = a->velocity * static_cast<float>(GLFWEW::Window::Instance().DeltaTime());;
 		a->colWorld.s.center -= deltaVelocity;
 	}
-}
+}*/
 
 /**
 *	初期化処理
@@ -131,9 +131,9 @@ void MainGameScene::Update(float deltaTime) {
 	trees.Update(deltaTime);
 	objects.Update(deltaTime);
 
-	DetectCollision(player, enemies, PlayerCollisionHandler);
-	DetectCollision(player, trees, PlayerCollisionHandler);
-	DetectCollision(player, objects, PlayerCollisionHandler);
+	DetectCollision(player, enemies);
+	DetectCollision(player, trees);
+	DetectCollision(player, objects);
 
 	player->UpdateDrawData(deltaTime);
 	enemies.UpdateDrawData(deltaTime);
