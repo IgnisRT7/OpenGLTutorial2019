@@ -71,6 +71,7 @@ bool MainGameScene::Initialize() {
 	meshBuffer.LoadMesh("Res/wall_stone.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/oni_small.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/bikuni.gltf");
+	meshBuffer.LoadSkeletalmesh("Res/ue4modeltest.gltf");
 
 	//ハイトマップを作成する
 	if (!heightMap.LoadFromFile("Res/Terrain3.tga", 20.0f, 0.5f)) {
@@ -113,6 +114,8 @@ void MainGameScene::ProcessInput() {
 	}
 }
 
+#include <iostream>
+
 /**
 *	更新処理
 *
@@ -125,6 +128,8 @@ void MainGameScene::Update(float deltaTime) {
 		camera.target = player->position;
 		camera.position = camera.target + glm::vec3(0, 50, 50);
 	}
+
+	//std::cout << deltaTime;
 
 	player->Update(deltaTime);
 	enemies.Update(deltaTime);
@@ -198,7 +203,6 @@ void MainGameScene::SpawnKooni(int n) {
 	//敵を配置
 	const size_t oniCount = n;
 	enemies.Reserve(oniCount);
-	//const Mesh::FilePtr mesh = meshBuffer.GetFile("Res/oni_small.gltf");
 	for (size_t i = 0; i < oniCount; ++i) {
 		//敵の位置を(50,50)-(150,150)の範囲からランダムに選択
 		glm::vec3 position(0);
@@ -208,13 +212,13 @@ void MainGameScene::SpawnKooni(int n) {
 
 		//敵の向きをランダムに選択
 		glm::vec3 rotation(0);
+		std::string enemyName = true ? "SK_Mannequin_LOD0.001" : "oni_small";
+		std::string animName = true ? "walk" : "Attack";
 		rotation.y = std::uniform_real_distribution<float>(0, 6.3f)(rand);
-		//StaticMeshActorPtr p = std::make_shared<StaticMeshActor>(mesh, "Kooni", 13, position, rotation);
-		const Mesh::SkeletalMeshPtr mesh = meshBuffer.GetSkeletalMesh("oni_small");
+		const Mesh::SkeletalMeshPtr mesh = meshBuffer.GetSkeletalMesh(enemyName.c_str());
 		SkeletalMeshActorPtr p = std::make_shared<SkeletalMeshActor>(mesh, "Kooni", 13, position, rotation);
-		p->GetMesh()->Play("Attack");
+		p->GetMesh()->Play(animName.c_str());
 
-		//p->colLocal = Collision::Sphere(glm::vec3(0), 1.0f);
 		p->colLocal = Collision::CreateCapsule(glm::vec3(0, 0.5f, 0), glm::vec3(0, 1, 0), 0.5f);
 		enemies.Add(p);
 	}
