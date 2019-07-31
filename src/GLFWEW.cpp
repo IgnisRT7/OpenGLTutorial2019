@@ -280,7 +280,6 @@ namespace GLFWEW {
 		float nowTime = glfwGetTime();
 		deltaTime = std::min(nowTime - prevTime, 0.25f);
 		prevTime = nowTime;
-		std::cout << "deltaTime =" << deltaTime << std::endl;
 	}
 
 	/**
