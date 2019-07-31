@@ -45,7 +45,7 @@ void PlayerActor::Update(float deltaTime) {
 		//æ‚Á‚Ä‚¢‚é•¨‘Ì‚©‚ç—£‚ê‚½‚ç‹ó’†”»’è‚É‚·‚é
 		if (boardingActor) {
 			Collision::Shape col = colWorld;
-			col.c.r += 0.1f;	//Õ“Ë”»’è‚ğ­‚µ‘å‚«‚­‚·‚é
+			col.s.r += 0.1f;	//Õ“Ë”»’è‚ğ­‚µ‘å‚«‚­‚·‚é
 			glm::vec3 pa, pb;
 			if (!Collision::TestShapeShape(col, boardingActor->colWorld, &pa, &pb)) {
 				boardingActor.reset();
@@ -86,7 +86,7 @@ void PlayerActor::Update(float deltaTime) {
 			state = State::jump;
 		}
 		else {
-			const float horizontalSpeed = velocity.x * velocity.x * velocity.z * velocity.z;
+			const float horizontalSpeed = velocity.x * velocity.x + velocity.z * velocity.z;
 			if (horizontalSpeed != 0) {
 				GetMesh()->Play("Run");
 				state = State::run;
