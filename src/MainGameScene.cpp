@@ -114,8 +114,6 @@ void MainGameScene::ProcessInput() {
 	}
 }
 
-#include <iostream>
-
 /**
 *	XVˆ—
 *
@@ -128,8 +126,6 @@ void MainGameScene::Update(float deltaTime) {
 		camera.target = player->position;
 		camera.position = camera.target + glm::vec3(0, 50, 50);
 	}
-
-	//std::cout << deltaTime;
 
 	player->Update(deltaTime);
 	enemies.Update(deltaTime);
