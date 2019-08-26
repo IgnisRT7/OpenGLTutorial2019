@@ -93,9 +93,9 @@ namespace Texture {
 		return n;
 	}
 
-	/**
-	* FOURCCを作成する.
-	*/
+/**
+* FOURCCを作成する.
+*/
 #define MAKE_FOURCC(a, b, c, d) \
   static_cast<uint32_t>(a + (b << 8) + (c << 16) + (d << 24))
 
@@ -193,6 +193,7 @@ namespace Texture {
 		const uint8_t* buf, DDSHeader* pHeader,ImageData* imageData)
 	{
 
+		//DDSファイルチェック
 		if (st.st_size < 128) {
 			std::cerr << "WARNING: " << filename << "はDDSファイルではありません." << std::endl;
 			return 0;
@@ -203,12 +204,15 @@ namespace Texture {
 			return 0;
 		}
 
+
 		GLenum iformat = GL_RGBA8;
 		GLenum format = GL_RGBA;
 		uint32_t blockSize = 16;
 		bool isCompressed = false;
+
 		if (header.ddspf.flgas & 0x04) {
 			// 圧縮フォーマット
+
 			switch (header.ddspf.fourCC) {
 			case MAKE_FOURCC('D', 'X', 'T', '1'):
 				iformat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -242,6 +246,7 @@ namespace Texture {
 		}
 		else if (header.ddspf.flgas & 0x40) {
 			// 無圧縮フォーマット
+
 			if (header.ddspf.redBitMask == 0xff) {
 				iformat = header.ddspf.alphaBitMask ? GL_RGBA8 : GL_RGB8;
 				format = header.ddspf.alphaBitMask ? GL_RGBA : GL_RGB;
@@ -264,31 +269,41 @@ namespace Texture {
 		const GLenum target = isCubemap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D;
 		const int faceCount = isCubemap ? 6 : 1;
 
+		//テクスチャの作成
 		GLuint texId;
 		glGenTextures(1, &texId);
 		glBindTexture(isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texId);
 		const uint8_t* data = buf + 128;
+
 		for (int faceIndex = 0; faceIndex < faceCount; ++faceIndex) {
+
 			GLsizei curWidth = header.width;
 			GLsizei curHeight = header.height;
-			for (int mipLevel = 0; mipLevel < static_cast<int>(header.mipMapCount);
-				++mipLevel) {
+			for (int mipLevel = 0; mipLevel < static_cast<int>(header.mipMapCount); ++mipLevel) {
+				//ミップレベル数分の処理
+
 				uint32_t imageBytes;
 				if (isCompressed) {
+					//圧縮テクスチャの割り当て
+
 					imageBytes = ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * blockSize;
 					glCompressedTexImage2D(target + faceIndex, mipLevel, iformat,
 						curWidth, curHeight, 0, imageBytes, data);
 				}
 				else {
+					//非圧縮テクスチャの割り当て
+
 					imageBytes = curWidth * curHeight * 4;
 					glTexImage2D(target + faceIndex, mipLevel, iformat,
 						curWidth, curHeight, 0, format, GL_UNSIGNED_BYTE, data);
 				}
+
 				const GLenum result = glGetError();
 				if (result != GL_NO_ERROR) {
 					std::cerr << "WARNING: " << filename << "の読み込みに失敗("
 						<< std::hex << result << ")." << std::endl;
 				}
+
 				curWidth = std::max(1, curWidth / 2);
 				curHeight = std::max(1, curHeight / 2);
 				data += imageBytes;
@@ -302,6 +317,7 @@ namespace Texture {
 		imageData->format = format;
 		imageData->type = type;
 
+		//パラメータ設定 TODO: 後にパラメータ修正できるようにしたい
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, header.mipMapCount - 1);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, header.mipMapCount <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -408,6 +424,8 @@ namespace Texture {
 		}
 		buf.clear();
 
+		/// その他ファイルからの読み込み
+
 		if (!LoadImage2D(path, &imageData)) {
 			return 0;
 		}
@@ -425,7 +443,6 @@ namespace Texture {
 	*	@retval false	読み込み失敗
 	*/
 	bool LoadImage2D(const char* path,ImageData* imageData){
-
 
 		// TGAヘッダを読み込む.
 		std::basic_ifstream<uint8_t> ifs;
