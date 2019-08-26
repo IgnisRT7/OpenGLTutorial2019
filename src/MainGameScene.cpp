@@ -7,6 +7,7 @@
 #include "GameOverScene.h"
 #include "GLFWEW.h"
 #include "SkeletalMeshActor.h"
+#include "TerrainGenerator.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include <random>
@@ -73,10 +74,24 @@ bool MainGameScene::Initialize() {
 	meshBuffer.LoadSkeletalmesh("Res/bikuni.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/ue4modeltest.gltf");
 
+	TerrainGenerator::Controller controller;
+	controller.Generate();
+
 	//ハイトマップを作成する
-	if (!heightMap.LoadFromFile("Res/Terrain3.tga", 20.0f, 0.5f)) {
-		return false;
+
+	bool isAutoGenerate = true;
+
+	if (isAutoGenerate) {
+		if (!heightMap.LoadFromTextureImage(controller.ImageData(), 10, 0)) {
+			return false;
+		}
 	}
+	else {
+		if (!heightMap.LoadFromFile("Res/Terrain4.tga", 20.0f, 0.5f)) {
+			return false;
+		}
+	}
+
 	if (!heightMap.CreateMesh(meshBuffer, "Terrain")) {
 		return false;
 	}
@@ -87,7 +102,7 @@ bool MainGameScene::Initialize() {
 	player = std::make_shared<PlayerActor>(&heightMap, meshBuffer, startPos);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
-	SpawnKooni(100);
+	SpawnKooni(1);
 	//SpawnTree(100);
 	CreateStoneWall(startPos);
 
@@ -124,7 +139,7 @@ void MainGameScene::Update(float deltaTime) {
 	GLFWEW::Window& window = GLFWEW::Window::Instance();
 	{
 		camera.target = player->position;
-		camera.position = camera.target + glm::vec3(0, 50, 50);
+		camera.position = camera.target + glm::vec3(0, 100, 50);
 	}
 
 	player->Update(deltaTime);
@@ -167,14 +182,23 @@ void MainGameScene::Render() {
 	const float aspectRatio = static_cast<float>(window.Width() / static_cast<float>(window.Height()));
 	const glm::mat4 matProj = glm::perspective(glm::radians(30.0f), aspectRatio, 1.0f, 1000.0f);
 
+	meshBuffer.SetViewProjectionMatrix(matProj * matView);
+
+	//キューブの行列変換
 	glm::vec3 cubePos(120, 0, 120);
 	cubePos.y = heightMap.Height(cubePos);
 	const glm::mat4 matModel = glm::translate(glm::mat4(1), cubePos);
-	meshBuffer.SetViewProjectionMatrix(matProj *matView);
-
 	Mesh::Draw(meshBuffer.GetFile("Cube"), matModel);
-	Mesh::Draw(meshBuffer.GetFile("Terrain"), glm::mat4(1));
 
+	//地形の行列変換 TODO: 外部からビュー射影変換行列を設定するコードが無いためここで設定している
+	//const glm::mat4 matTerrainModel = glm::scale(glm::mat4(1), glm::vec3(10, 1, 10));
+	//const glm::mat4 matTerrainModel = glm::translate(glm::mat4(1), glm::vec3(100, 0, 100));
+	const Mesh::FilePtr& terrainFile = meshBuffer.GetFile("Terrain");
+	terrainFile->materials[0].program->Use();
+	terrainFile->materials[0].program->SetViewProjectionMatrix(matProj * matView);
+	Mesh::Draw(terrainFile, glm::mat4(1));
+
+	//木の行列変換
 	glm::vec3 treePos(110, 0, 110);
 	treePos.y = heightMap.Height(treePos);
 	const glm::mat4 matTreeModel = glm::translate(glm::mat4(1), treePos) * glm::scale(glm::mat4(1), glm::vec3(3));
