@@ -8,7 +8,14 @@
 
 /// 地形に関するクラス等を格納する名前空間
 namespace Terrain {
+	HeightMap::HeightMap(){
 
+		progTerrain = Shader::Program::Create("res/Terrain.vert", "res/Terrain.frag");
+		if (progTerrain->IsNull()) {
+			std::cout << "[警告]: " << "Terrain" << __func__ << " 地形描画用のシェーダが読み込まれませんでした。\n"
+				"スタティックメッシュ描画用のシェーダを使用します\n";
+		}
+	}
 	/**
 	*	画像ファイルから地形データを読み込む
 	*
@@ -40,10 +47,41 @@ namespace Terrain {
 		for (int y = 0; y < size.y; ++y) {
 			const int offsetY = (size.y - 1) - y;	//上下反転
 			for (int x = 0; x < size.x; ++x) {
-				const glm::vec4 color = imageData.GetColor(x, y);
+				glm::vec4 color = imageData.GetColor(x, y);
 				heights[offsetY * size.x + x] = (color.r - baseLevel) * scale;
 			}
 		}
+		return true;
+	}
+
+	/**
+	*	作成されたイメージデータからハイトマップを作成する
+	*
+	*	@param ImageData	作成されたイメージデータ
+	*	@param scale		高さに掛ける係数	
+	*	@param 高さ0とみなす高さ値(色データ0.0~1.0のどこを高さ0とするか)
+	*
+	*	@retval true	作成成功
+	*	@retval false	作成失敗
+	*/
+	bool HeightMap::LoadFromTextureImage(const Texture::ImageData& imageData, float scale, float baseLevel){
+
+		//画像の大きさを保存
+		size = glm::ivec2(imageData.width, imageData.height);
+
+		//画像データは下から上に向かって格納されているので、上下反転しながら高さデータに変換
+		heights.resize(imageData.data.size());
+		for (int y = 0; y < size.y; ++y) {
+			const int offsetY = (size.y - 1) - y;	//上下反転
+			for (int x = 0; x < size.x; ++x) {
+				const glm::vec4 color = imageData.GetColor(x, y);
+				heights[y * size.x + x] = (color.r - baseLevel) * scale;
+			}
+		}
+
+		name = "Res/Terrain4.tga";
+
+		return true;
 	}
 
 	/**
@@ -164,8 +202,16 @@ namespace Terrain {
 			m.texture = Texture::Image2D::Create(texName);
 		}
 		else {
-			m.texture = Texture::Image2D::Create(name.c_str());
+			if (name.size() != 0) {
+				m.texture = Texture::Image2D::Create(name.c_str());
+			}
+			else {
+				m.texture = Texture::Image2D::Create("res/Player.dds");
+				//std::cerr << "[警告] Terrain::" << __func__ << "テクスチャがnullでした\n";				
+			}
 		}
+		m.program = progTerrain;
+
 		meshBuffer.AddMesh(meshName, p, m);
 
 		return true;

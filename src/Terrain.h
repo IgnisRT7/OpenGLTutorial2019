@@ -21,10 +21,11 @@ namespace Terrain {
 	class HeightMap {
 	public:
 
-		HeightMap() = default;
+		HeightMap();
 		~HeightMap() = default;
 
 		bool LoadFromFile(const char* path, float scale, float baseLevel);
+		bool LoadFromTextureImage(const Texture::ImageData&, float, float);
 		float Height(const glm::vec3& pos) const;
 		const glm::ivec2 Size() const;
 		bool CreateMesh(Mesh::Buffer& meshBuffer, const char* meshName, const char* texName = nullptr) const;
@@ -36,6 +37,8 @@ namespace Terrain {
 		std::vector<float> heights;					///< ハイトマップの大きさ
 
 		glm::vec3 CalcNormal(int x, int z) const;	///< 高さデータ
+
+		Shader::ProgramPtr progTerrain = 0;
 	};
 
 
