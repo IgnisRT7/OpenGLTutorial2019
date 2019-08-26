@@ -141,6 +141,7 @@
     <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\StatusScene.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
+    <ClCompile Include="src\TerrainGenerator.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\TitleScene.cpp" />
     <ClCompile Include="src\UniformBuffer.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="src\Sprite.h" />
     <ClInclude Include="src\StatusScene.h" />
     <ClInclude Include="src\Terrain.h" />
+    <ClInclude Include="src\TerrainGenerator.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\TitleScene.h" />
     <ClInclude Include="src\UniformBuffer.h" />
@@ -177,6 +179,8 @@
     <None Include="res\Sprite.vert" />
     <None Include="res\StaticMesh.frag" />
     <None Include="res\StaticMesh.vert" />
+    <None Include="res\Terrain.frag" />
+    <None Include="res\Terrain.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
