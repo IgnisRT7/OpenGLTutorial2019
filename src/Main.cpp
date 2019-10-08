@@ -6,6 +6,7 @@
 #include "GLFWEW.h"
 #include <Windows.h>
 #include "SkeletalMesh.h"
+#include "Audio.h"
 
 //エントリーポイント
 int main() {
@@ -16,12 +17,21 @@ int main() {
 		return 0;
 	}
 
+	///音声再生プログラムを初期化する
+	Audio::Engine& audioEngine = Audio::Engine::Instance();
+	if (!audioEngine.Initialize()) {
+		return 1;
+	}
+
 	//スケルタル・アニメーションを利用可能にする
 	Mesh::SkeletalAnimation::Initialize();
 
 	SceneStack& sceneStack = SceneStack::Instance();
 	sceneStack.Push(std::make_shared<TitleScene>());
+	
+	float previousTime = glfwGetTime();
 
+	//メインループ
 	while(!window.ShouldClose()) {
 		
 		glClearColor(0.8f,0.2f,0.1f,1.0f);
@@ -31,7 +41,10 @@ int main() {
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 
-		window.UpdateDeltaTime();
+//		window.UpdateDeltaTime();
+		float nowTime = glfwGetTime();
+		float deltaTime = nowTime - previousTime;
+		previousTime = nowTime;
 
 		window.UpdateGamePad();
 
@@ -45,10 +58,13 @@ int main() {
 		//スケルタル・アニメーション用データの作成準備
 		Mesh::SkeletalAnimation::ResetUniformData();
 
-		sceneStack.Update(window.DeltaTime());
+		sceneStack.Update(deltaTime);
 
 		//スケルタル・アニメーション用データをGPUメモリに転送
 		Mesh::SkeletalAnimation::UploadUniformData();
+
+		//音声再生プログラムを更新する
+		audioEngine.Update();
 
 		sceneStack.Render();
 
@@ -57,6 +73,9 @@ int main() {
 
 	//スケルタル・アニメーションの利用を終了する
 	Mesh::SkeletalAnimation::Finalize();
+
+	//音声再生プログラムを終了する
+	audioEngine.Finalize();
 
 	return 0;
 }

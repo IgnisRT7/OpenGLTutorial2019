@@ -3,6 +3,7 @@
 */
 #include "Actor.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <algorithm>
 
 /**
 *	コンストラクタ
@@ -96,6 +97,8 @@ void Actor::Draw() {
 *	@param scale	拡大率
 *
 *	指定されたメッシュ、名前、耐久力、位置、回転拡大率によってアクターを初期化する
+
+*	TODO: 引数1をFilePtrからMeshPtrに変更
 */
 StaticMeshActor::StaticMeshActor(const Mesh::FilePtr& m, const std::string& name, int hp,
 	const glm::vec3& position,const glm::vec3& rotation,const glm::vec3& scale):
@@ -115,6 +118,8 @@ void StaticMeshActor::Draw() {
 		const glm::mat4 matR_XZY = glm::rotate(matR_ZY, rotation.x, glm::vec3(1, 0, 0));
 		const glm::mat4 matS = glm::scale(glm::mat4(1), scale);
 		const glm::mat4 matModel = matT * matR_XZY*matS;
+
+		//TODO: ここでMesh::FilePtr を渡しているが講義資料ではmesh->Draw(matModel)となっている
 		Mesh::Draw(mesh, matModel);
 	}
 }

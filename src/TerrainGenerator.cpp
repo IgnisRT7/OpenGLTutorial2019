@@ -26,15 +26,20 @@ namespace TerrainGenerator {
 
 		 for (int x = 0; x < size.x; x++) {
 
-			 auto centeredZ = x - center;
-
 			 //1 - 3x² + 2|x|³
-			 auto r = 1 - 3 * centeredZ * centeredZ + 2 * abs(centeredZ) * centeredZ * centeredZ;
-			 std::cout << "x: " << x << " = " << r << std::endl;
+			 float wavelet = 1 - 3 * x * x + 2 * abs(x) * x * x;
+			 //float ax1 = 
+
+
+			 auto lineA = (rand() % 10 - 5) * x;
+			 auto lineB = (rand() % 10 - 5) * x;
 
 			 for (int z = 0; z < size.y; z++) {
 
 
+				 //
+				 auto waveletA = wavelet * lineA;
+				 auto waveletB = wavelet * lineB;
 
 				 switch (type) {
 				 case GenerateType::STD_RAND:
@@ -46,7 +51,7 @@ namespace TerrainGenerator {
 					 break;
 
 				 case GenerateType::PARLIN:			 
-					 buf.push_back(static_cast<uint8_t>(r));
+					 buf.push_back(static_cast<uint8_t>(waveletA + (waveletB - waveletA) * (x / 128.0f)));
 					 break;
 				 
 				 }

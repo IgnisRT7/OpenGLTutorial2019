@@ -5,51 +5,13 @@
 #include "MainGameScene.h"
 #include "StatusScene.h"
 #include "GameOverScene.h"
-#include "GLFWEW.h"
+
 #include "SkeletalMeshActor.h"
 #include "TerrainGenerator.h"
+#include "JizoActor.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
-#include <random>
 
-/**
-*	衝突を解決する
-*
-*	@param a	衝突したアクターその１
-*	@param b	衝突したアクターその２
-*	@param p	衝突位置
-*
-void PlayerCollisionHandler(const ActorPtr& a, const ActorPtr& b, const glm::vec3& p) {
-
-	//const glm::vec3 v = a->colWorld.center - p;
-	const glm::vec3 v = a->colWorld.s.center - p;
-	//衝突位置との距離が近すぎないか調べる
-	if (dot(v, v) > FLT_EPSILON) {
-		//aをbに重ならない位置まで移動
-		const glm::vec3 vn = normalize(v);
-		//const float radiusSum = a->colWorld.r + b->colWorld.r;
-		float radiusSum = a->colWorld.s.r;
-		switch (b->colWorld.type) {
-		case Collision::Shape::Type::sphere: radiusSum += b->colWorld.s.r; break;
-		case Collision::Shape::Type::capsule: radiusSum += b->colWorld.c.r; break;
-		}
-
-		const float distance = radiusSum - glm::length(v) + 0.01f;
-		a->position += vn * distance;
-
-		//a->colWorld.center += vn * distance;
-		a->colWorld.s.center += vn * distance;
-		if (a->velocity.y < 0 && vn.y >= glm::cos(glm::radians(60.0f))) {
-			a->velocity.y = 0;
-		}
-	}
-	else {
-		//移動を取り消す(距離が近すぎる場合の例外処理)
-		const float dletaTime = static_cast<float>(GLFWEW::Window::Instance().DeltaTime());
-		const glm::vec3 deltaVelocity = a->velocity * static_cast<float>(GLFWEW::Window::Instance().DeltaTime());;
-		a->colWorld.s.center -= deltaVelocity;
-	}
-}*/
 
 /**
 *	初期化処理
@@ -65,11 +27,14 @@ bool MainGameScene::Initialize() {
 	spr.Scale(glm::vec2(2));
 	sprites.push_back(spr);
 
+	randGen.seed(0);
+
 	//メッシュバッファの初期化処理
 	meshBuffer.Init(1'000'000 * sizeof(Mesh::Vertex), 3'000'000 * sizeof(GLushort));
 	meshBuffer.LoadMesh("Res/red_pine_tree.gltf");
 	meshBuffer.LoadMesh("Res/TestTree.gltf");
 	meshBuffer.LoadMesh("Res/wall_stone.gltf");
+	meshBuffer.LoadMesh("Res/jizo_statue.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/oni_small.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/bikuni.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/ue4modeltest.gltf");
@@ -79,7 +44,7 @@ bool MainGameScene::Initialize() {
 
 	//ハイトマップを作成する
 
-	bool isAutoGenerate = true;
+	bool isAutoGenerate = false;
 
 	if (isAutoGenerate) {
 		if (!heightMap.LoadFromTextureImage(controller.ImageData(), 10, 0)) {
@@ -87,7 +52,7 @@ bool MainGameScene::Initialize() {
 		}
 	}
 	else {
-		if (!heightMap.LoadFromFile("Res/Terrain4.tga", 20.0f, 0.5f)) {
+		if (!heightMap.LoadFromFile("Res/Terrain.tga", 10.0f, 0.5f)) {
 			return false;
 		}
 	}
@@ -102,9 +67,33 @@ bool MainGameScene::Initialize() {
 	player = std::make_shared<PlayerActor>(&heightMap, meshBuffer, startPos);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
+	//お地蔵様を配置
+	for (int i = 0; i < 4; ++i) {
+		glm::vec3 position(0);
+		position.x = static_cast<float>(std::uniform_int_distribution<>(50, 150)(randGen));
+		position.z = static_cast<float>(std::uniform_int_distribution<>(50, 150)(randGen));
+		position.y = heightMap.Height(position);
+
+		glm::vec3 rotation(0);
+		rotation.y = std::uniform_real_distribution<float>(0.0f, 3.14f * 2.0f)(randGen);
+		JizoActorPtr p = std::make_shared<JizoActor>(meshBuffer.GetFile("Res/jizo_statue.gltf"), position, i, this);
+
+		p->scale = glm::vec3(3);//見つけやすいように拡大
+		objects.Add(p);
+	}
+
+#if 0
 	SpawnKooni(1);
+#endif
+
 	//SpawnTree(100);
 	CreateStoneWall(startPos);
+
+	bgm = Audio::Engine::Instance().Prepare("Res/Audio/mainScene.wav");
+	bgm->Play(Audio::Flag_Loop);
+
+
+
 
 	return true;
 }
@@ -119,13 +108,12 @@ void MainGameScene::ProcessInput() {
 
 	player->ProcessInput();
 
-	if (!frag) {
-		frag = true;
-		//	SceneStack::Instance().Push(std::make_shared<StatusScene>());
+	if (gamepad.buttonDown & GamePad::R) {
+		Audio::Engine::Instance().Prepare("Res/Audio/select.wav")->Play();
+		SceneStack::Instance().Push(std::make_shared<StatusScene>());
 	}
-	else {
-
-		//	SceneStack::Instance().Replace(std::make_shared<GameOverScene>());
+	else if (gamepad.buttonDown&GamePad::L) {
+		SceneStack::Instance().Replace(std::make_shared<GameOverScene>());
 	}
 }
 
@@ -139,7 +127,7 @@ void MainGameScene::Update(float deltaTime) {
 	GLFWEW::Window& window = GLFWEW::Window::Instance();
 	{
 		camera.target = player->position;
-		camera.position = camera.target + glm::vec3(0, 100, 50);
+		camera.position = camera.target + glm::vec3(0, 50, 50);
 	}
 
 	player->Update(deltaTime);
@@ -150,6 +138,51 @@ void MainGameScene::Update(float deltaTime) {
 	DetectCollision(player, enemies);
 	DetectCollision(player, trees);
 	DetectCollision(player, objects);
+
+	//プレイヤーの攻撃判定
+	ActorPtr attackCollision = player->GetAttackCollision();
+	if (attackCollision) {
+		bool hit = false;
+		DetectCollision(attackCollision, enemies, [this, &hit](const ActorPtr& a, const ActorPtr& b, const glm::vec3&p) {
+			SkeletalMeshActorPtr bb = std::static_pointer_cast<SkeletalMeshActor>(b);
+			bb->health -= a->health;
+			if (bb->health <= 0) {
+				bb->colLocal = Collision::Shape{};
+				bb->health = 1;
+				bb->GetMesh()->Play("Down", false);
+			}
+			else {
+				bb->GetMesh()->Play("Hit", false);
+			}
+			hit = true;
+		});
+
+		if (hit) {
+			attackCollision->health = 0;
+		}
+	}
+
+	//死亡アニメーションの終わった敵を消す
+	for (auto& e : enemies) {
+		SkeletalMeshActorPtr enemy = std::static_pointer_cast<SkeletalMeshActor>(e);
+		Mesh::SkeletalMeshPtr mesh = enemy->GetMesh();
+		if (mesh->IsFinished()) {
+			if (mesh->GetAnimation() == "Down") {
+				enemy->health = 0;
+			}
+			else {
+				mesh->Play("Wait");
+			}
+		}
+	}
+
+	//敵を全滅させたら目的達成フラグをgtrueにする
+	if (jizoId >= 0) {
+		if (enemies.Empty()) {
+			achivements[jizoId] = true;
+			jizoId = -1;
+		}
+	}
 
 	player->UpdateDrawData(deltaTime);
 	enemies.UpdateDrawData(deltaTime);
@@ -190,9 +223,7 @@ void MainGameScene::Render() {
 	const glm::mat4 matModel = glm::translate(glm::mat4(1), cubePos);
 	Mesh::Draw(meshBuffer.GetFile("Cube"), matModel);
 
-	//地形の行列変換 TODO: 外部からビュー射影変換行列を設定するコードが無いためここで設定している
-	//const glm::mat4 matTerrainModel = glm::scale(glm::mat4(1), glm::vec3(10, 1, 10));
-	//const glm::mat4 matTerrainModel = glm::translate(glm::mat4(1), glm::vec3(100, 0, 100));
+	//地形の行列変換
 	const Mesh::FilePtr& terrainFile = meshBuffer.GetFile("Terrain");
 	terrainFile->materials[0].program->Use();
 	terrainFile->materials[0].program->SetViewProjectionMatrix(matProj * matView);
@@ -211,14 +242,67 @@ void MainGameScene::Render() {
 }
 
 /**
+*	終了処理
+*/
+void MainGameScene::Finalize(){
+
+	bgm->Stop();
+}
+
+/**
+*	お地蔵さまに触れたときの処理
+*
+*	@param id	お地蔵様の番号
+*	@param pos	お地蔵様の座標
+*
+*	@retval true	処理成功
+*	@retval false	既に戦闘中なので処理しなかった
+*/
+bool MainGameScene::HandleJizoEffects(int id, const glm::vec3& pos){
+
+	if (jizoId >= 0) {
+		return false;
+	}
+	jizoId = id;
+	const size_t oniCount = 8;
+	for (size_t i = 0; i < oniCount; i++) {
+
+		glm::vec3 position(pos);
+		position.x += std::uniform_real_distribution<float>(-15, 15)(randGen);
+		position.z += std::uniform_real_distribution<float>(-15, 15)(randGen);
+		position.y = heightMap.Height(position);
+
+		glm::vec3 rotation(0);
+		rotation.y = std::uniform_real_distribution<float>(0, 3.14f * 2.0f)(randGen);
+		const Mesh::SkeletalMeshPtr mesh = meshBuffer.GetSkeletalMesh("oni_small");
+		SkeletalMeshActorPtr p = std::make_shared<SkeletalMeshActor>(mesh, "Kooni", 13, position, rotation);
+		p->GetMesh()->Play("Run");
+		p->colLocal = Collision::CreateSphere(glm::vec3(0), 1.0f);
+		enemies.Add(p);
+	}
+
+	return true;
+}
+
+/**
+*	再生処理
+*/
+void MainGameScene::Play(){
+
+}
+
+/**
+*	停止処理
+*/
+void MainGameScene::Stop(){
+}
+
+/**
 *	小鬼のスポーン処理
 *
 *	@param n	スポーン数
 */
 void MainGameScene::SpawnKooni(int n) {
-	
-	std::mt19937 rand;
-	rand.seed(0);
 
 	//敵を配置
 	const size_t oniCount = n;
@@ -226,15 +310,15 @@ void MainGameScene::SpawnKooni(int n) {
 	for (size_t i = 0; i < oniCount; ++i) {
 		//敵の位置を(50,50)-(150,150)の範囲からランダムに選択
 		glm::vec3 position(0);
-		position.x = std::uniform_real_distribution<float>(50, 150)(rand);
-		position.z = std::uniform_real_distribution<float>(50, 150)(rand);
+		position.x = std::uniform_real_distribution<float>(50, 150)(randGen);
+		position.z = std::uniform_real_distribution<float>(50, 150)(randGen);
 		position.y = heightMap.Height(position);
 
 		//敵の向きをランダムに選択
 		glm::vec3 rotation(0);
 		std::string enemyName = true ? "SK_Mannequin_LOD0.001" : "oni_small";
 		std::string animName = true ? "walk" : "Attack";
-		rotation.y = std::uniform_real_distribution<float>(0, 6.3f)(rand);
+		rotation.y = std::uniform_real_distribution<float>(0, 6.3f)(randGen);
 		const Mesh::SkeletalMeshPtr mesh = meshBuffer.GetSkeletalMesh(enemyName.c_str());
 		SkeletalMeshActorPtr p = std::make_shared<SkeletalMeshActor>(mesh, "Kooni", 13, position, rotation);
 		p->GetMesh()->Play(animName.c_str());
@@ -250,9 +334,6 @@ void MainGameScene::SpawnKooni(int n) {
 *	@param n	スポーン数
 */
 void MainGameScene::SpawnTree(int n) {
-	
-	std::mt19937 rand;
-	rand.seed(0);
 
 	//木を配置
 	const size_t treeCount = n;
@@ -261,13 +342,13 @@ void MainGameScene::SpawnTree(int n) {
 	for (size_t i = 0; i < treeCount; ++i) {
 		//木の位置を(50,50)-(150,150)の範囲からランダムに選択
 		glm::vec3 position(0);
-		position.x = std::uniform_real_distribution<float>(50, 150)(rand);
-		position.z = std::uniform_real_distribution<float>(50, 150)(rand);
+		position.x = std::uniform_real_distribution<float>(50, 150)(randGen);
+		position.z = std::uniform_real_distribution<float>(50, 150)(randGen);
 		position.y = heightMap.Height(position);
 
 		//木の向きをランダムに選択
 		glm::vec3 rotation(0);
-		rotation.y = std::uniform_real_distribution<float>(0, 6.3f)(rand);
+		rotation.y = std::uniform_real_distribution<float>(0, 6.3f)(randGen);
 		StaticMeshActorPtr p = std::make_shared<StaticMeshActor>(mesh, "Tree", 13, position, rotation);
 		//p->colLocal = Collision::Sphere(glm::vec3(0), 1.0f);
 		p->colLocal = Collision::CreateCapsule(glm::vec3(0, 0, 0), glm::vec3(0, 4, 0), 0.4f);

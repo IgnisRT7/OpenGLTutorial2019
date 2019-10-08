@@ -80,6 +80,12 @@
     <ClCompile Include="src\TerrainGenerator.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Audio.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JizoActor.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -149,6 +155,12 @@
       <Filter>Src</Filter>
     </ClInclude>
     <ClInclude Include="src\TerrainGenerator.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Audio.h">
+      <Filter>Src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JizoActor.h">
       <Filter>Src</Filter>
     </ClInclude>
   </ItemGroup>

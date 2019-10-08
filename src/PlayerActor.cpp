@@ -33,10 +33,14 @@ void PlayerActor::Update(float deltaTime) {
 	//座標の更新
 	SkeletalMeshActor::Update(deltaTime);
 
+	if (attackCollision) {
+		attackCollision->Update(deltaTime);
+	}
+
 	//接地判定
 	static const float gravity = 9.8f;
 	const float groundHeight = heightMap->Height(position);
-	if (position.y < groundHeight) {
+	if (position.y <= groundHeight) {
 		position.y = groundHeight;
 		velocity.y = 0;
 		isInAir = false;
@@ -51,17 +55,17 @@ void PlayerActor::Update(float deltaTime) {
 				boardingActor.reset();
 			}
 		}
-	}
 
-	//落下判定
-	const bool isFloating = position.y > groundHeight + 0.1f;	// 地面から浮いているか
-	if (!isInAir && isFloating && !boardingActor) {
-		isInAir = true;
-	}
+		//落下判定
+		const bool isFloating = position.y > groundHeight + 0.1f;	// 地面から浮いているか
+		if (!isInAir && isFloating && !boardingActor) {
+			isInAir = true;
+		}
 
-	//重力を加える
-	if (isInAir) {
-		velocity.y -= gravity * deltaTime;
+		//重力を加える
+		if (isInAir) {
+			velocity.y -= gravity * deltaTime;
+		}
 	}
 
 	//アニメーションの更新
@@ -100,7 +104,33 @@ void PlayerActor::Update(float deltaTime) {
 			state = State::idle;
 		}
 		break;
+
+	case State::attack:
+		attackTimer += deltaTime;
+		if (attackTimer > 0.05f && attackTimer < 0.6f) {
+			if (!attackCollision) {
+				static const float radian = 1.0f;
+				const glm::vec3 front = glm::rotate(glm::mat4(1), rotation.y, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, 1.5f, 1);
+				attackCollision = std::make_shared<Actor>("PlayerAttackCollision", 5, position + front + glm::vec3(0, 1, 0), glm::vec3(0), glm::vec3(radian));
+				attackCollision->colLocal = Collision::CreateSphere(glm::vec3(0), radian);
+				
+			}
+			
+		}
+		else {
+			attackCollision.reset();
+			
+		}
+		if (GetMesh()->IsFinished()) {
+			attackCollision.reset();
+			GetMesh()->Play("Idle");
+			state = State::idle;
+			
+		}
+		break;
+		
 	}
+
 
 }
 
@@ -112,6 +142,7 @@ void PlayerActor::ProcessInput() {
 	const GamePad gamepad = GLFWEW::Window::Instance().GetGamePad();
 	CheckRun(gamepad);
 	CheckJump(gamepad);
+	CheckAttack(gamepad);
 }
 
 /**
@@ -186,6 +217,25 @@ void PlayerActor::CheckJump(const GamePad& gamepad) {
 }
 
 /**
+*	攻撃操作を処理する
+*
+*	@param gamepad	ゲームパッド入力
+*/
+void PlayerActor::CheckAttack(const GamePad& gamepad){
+
+	if (isInAir) {
+		return;
+	}
+
+	if (gamepad.buttonDown & GamePad::A) {
+
+		GetMesh()->Play("Attack.Light", false);
+		attackTimer = 0;
+		state = State::attack;
+	}
+}
+
+/**
 *	ジャンプさせる
 */
 void PlayerActor::Jump() {
@@ -217,7 +267,6 @@ void PlayerActor::OnHit(const ActorPtr& b, const glm::vec3& p) {
 	if (dot(v, v) > FLT_EPSILON) {
 		//aをbに重ならない位置まで移動
 		const glm::vec3 vn = normalize(v);
-		//const float radiusSum = a->colWorld.r + b->colWorld.r;
 		float radiusSum = colWorld.s.r;
 		switch (b->colWorld.type) {
 		case Collision::Shape::Type::sphere: radiusSum += b->colWorld.s.r; break;
@@ -228,14 +277,12 @@ void PlayerActor::OnHit(const ActorPtr& b, const glm::vec3& p) {
 		position += vn * distance;
 
 		colWorld.s.center += vn * distance;
-		if (velocity.y < 0 && vn.y >= glm::cos(glm::radians(60.0f))) {
-			velocity.y = 0;
-		}
 	}
 	else {
 		//移動を取り消す(距離が近すぎる場合の例外処理)
-		const float dletaTime = static_cast<float>(GLFWEW::Window::Instance().DeltaTime());
-		const glm::vec3 deltaVelocity = velocity * static_cast<float>(GLFWEW::Window::Instance().DeltaTime());;
+		const float deltaTime = static_cast<float>(GLFWEW::Window::Instance().DeltaTime());
+		const glm::vec3 deltaVelocity = velocity * deltaTime;
+		position -= deltaVelocity;
 		colWorld.s.center -= deltaVelocity;
 	}
 	SetBoardingActor(b);

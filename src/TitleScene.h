@@ -7,7 +7,7 @@
 #include <vector>
 #include "Sprite.h"
 #include "Font.h"
-
+#include "Audio.h"
 
 /**
 *	ƒ^ƒCƒgƒ‹‰æ–Ê
@@ -29,6 +29,9 @@ private:
 	std::vector<Sprite> sprites;
 	SpriteRenderer spriteRenderer;
 	FontRenderer fontRenderer;
+	float timer = 0;
+
+	Audio::SoundPtr bgm;
 };
 
 

@@ -81,6 +81,7 @@ public:
 	void Update(float);
 	void UpdateDrawData(float);
 	void Draw();
+	bool Empty() const { return actors.empty(); }
 
 	//イテレーターを取得する関数
 	iterator begin() { return actors.begin(); }

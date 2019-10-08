@@ -3,6 +3,8 @@
 */
 #ifndef MAINGAMESCENE_H_INCLUDE
 #define MAINGAMESCENE_H_INCLUDE
+
+#include "GLFWEW.h"
 #include "Scene.h"
 #include "Sprite.h"
 #include "Font.h"
@@ -10,7 +12,9 @@
 #include "Terrain.h"
 #include "Actor.h"
 #include "PlayerActor.h"
+#include "Audio.h"
 #include <vector>
+#include <random>
 
 /**
 *	メインゲーム画面
@@ -25,7 +29,12 @@ public:
 	virtual void ProcessInput() override;
 	virtual void Update(float) override;
 	virtual void Render() override;
-	virtual void Finalize() override {}
+	virtual void Finalize() override;
+
+	bool HandleJizoEffects(int id, const glm::vec3& pos);
+
+	virtual void Play() override;
+	virtual void Stop() override;
 
 	void SpawnKooni(int n);
 	void SpawnTree(int n);
@@ -33,16 +42,22 @@ public:
 
 private:
 
+	int jizoId = -1;					///< 現在戦闘中のお地蔵様のID
+	bool achivements[4] = { false,false,false,false };	///< 敵討伐状態
+
 	bool frag = false;
-	SpriteRenderer spriteRenderer;
-	FontRenderer fontRenderer;
-	Mesh::Buffer meshBuffer;
-	std::vector<Sprite> sprites;
-	Terrain::HeightMap heightMap;
-	PlayerActorPtr player;
-	ActorList enemies;
-	ActorList trees;
-	ActorList objects;
+	SpriteRenderer spriteRenderer;		///< スプライト描画管理クラス
+	FontRenderer fontRenderer;			///< フォント描画管理クラス
+	Mesh::Buffer meshBuffer;			///< メッシュバッファ管理クラス
+	std::vector<Sprite> sprites;		///< スプライト群
+	Terrain::HeightMap heightMap;		///< 地形ハイトデータ
+	PlayerActorPtr player;				///< プレイヤーデータ
+	ActorList enemies;					///< 敵リストデータ
+	ActorList trees;					///< 木リストデータ
+	ActorList objects;					///< オブジェクトリストデータ
+	Audio::SoundPtr bgm;				///< BGMデータ
+
+	std::mt19937 randGen;
 
 	struct Camera {
 		glm::vec3 target = glm::vec3(100, 0, 100);

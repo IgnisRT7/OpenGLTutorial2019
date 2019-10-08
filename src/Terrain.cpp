@@ -59,7 +59,7 @@ namespace Terrain {
 	*
 	*	@param ImageData	作成されたイメージデータ
 	*	@param scale		高さに掛ける係数	
-	*	@param 高さ0とみなす高さ値(色データ0.0~1.0のどこを高さ0とするか)
+	*	@param baseLevel	高さ0とみなす高さ値(色データ0.0~1.0のどこを高さ0とするか)
 	*
 	*	@retval true	作成成功
 	*	@retval false	作成失敗
@@ -161,7 +161,7 @@ namespace Terrain {
 		Mesh::Vertex v;
 		std::vector<Mesh::Vertex> vertices;
 		vertices.reserve(size.x * size.y);
-		for (int z = 0; z < size.y; z++) {
+		for (int z = 0; z < size.y; ++z) {
 			for (int x = 0; x < size.x; ++x) {
 
 				//テクスチャ座標は上がプラスなので、向きを逆にする必要がある
@@ -210,7 +210,8 @@ namespace Terrain {
 				//std::cerr << "[警告] Terrain::" << __func__ << "テクスチャがnullでした\n";				
 			}
 		}
-		m.program = progTerrain;
+		//TODO: 地形描画用シェーダ切り替えs
+	//	m.program = progTerrain;
 
 		meshBuffer.AddMesh(meshName, p, m);
 
