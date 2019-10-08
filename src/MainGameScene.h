@@ -13,6 +13,7 @@
 #include "Actor.h"
 #include "PlayerActor.h"
 #include "Audio.h"
+#include "Light.h"
 #include <vector>
 #include <random>
 
@@ -55,6 +56,9 @@ private:
 	ActorList enemies;					///< 敵リストデータ
 	ActorList trees;					///< 木リストデータ
 	ActorList objects;					///< オブジェクトリストデータ
+	
+	LightBuffer lightBuffer;
+	ActorList lights;
 	Audio::SoundPtr bgm;				///< BGMデータ
 
 	std::mt19937 randGen;

@@ -97,8 +97,6 @@ void Actor::Draw() {
 *	@param scale	拡大率
 *
 *	指定されたメッシュ、名前、耐久力、位置、回転拡大率によってアクターを初期化する
-
-*	TODO: 引数1をFilePtrからMeshPtrに変更
 */
 StaticMeshActor::StaticMeshActor(const Mesh::FilePtr& m, const std::string& name, int hp,
 	const glm::vec3& position,const glm::vec3& rotation,const glm::vec3& scale):
@@ -119,8 +117,38 @@ void StaticMeshActor::Draw() {
 		const glm::mat4 matS = glm::scale(glm::mat4(1), scale);
 		const glm::mat4 matModel = matT * matR_XZY*matS;
 
-		//TODO: ここでMesh::FilePtr を渡しているが講義資料ではmesh->Draw(matModel)となっている
-		Mesh::Draw(mesh, matModel);
+		if (!mesh->materials.empty()) {
+
+			const Shader::ProgramPtr p = mesh->materials[0].program;
+			if (p) {
+				p->Use();
+				p->SetPointLightIndex(pointLightCount, pointLihgtIndex);
+				p->SetSpotLightIndex(spotLightCount, spotLightIndex);
+			}
+			Mesh::Draw(mesh, matModel);
+		}
+	}
+}
+
+/**
+*	アクターに影響するポイントライトのインデックスを設定する
+*/
+void StaticMeshActor::SetPointLightList(const std::vector<int>& v) {
+
+	pointLightCount = v.size();
+	for (int i = 0; i < 8 && static_cast<int>(v.size()); ++i) {
+		pointLihgtIndex[i] = v[i];
+	}
+}
+
+/**
+*	アクターに影響するスポットライトのインデックスを設定する
+*/
+void StaticMeshActor::SetSpotLightList(const std::vector<int>& v) {
+
+	spotLightCount = v.size();
+	for (int i = 0; i < 8 && i < static_cast<int>(v.size()); ++i) {
+		spotLightIndex[i] = v[i];
 	}
 }
 
@@ -161,6 +189,20 @@ bool ActorList::Remove(const ActorPtr& actor) {
 }
 
 /**
+*	指定された座標に対応する格子のインデックスを取得する
+*
+*	@param pos	インデックスのもとになる位置
+*
+*	@return posに対応する格子のインデックス
+*/
+glm::ivec2 ActorList::CalcMapIndex(const glm::vec3& pos) const {
+
+	const int x = std::max(0, std::min(sepalationSizeX - 1, static_cast<int>(pos.x / mapGridSizeX)));
+	const int y = std::max(0, std::min(sepalationSizeY - 1, static_cast<int>(pos.z / mapGridSizeY)));
+	return glm::ivec2(x, y);
+}
+
+/**
 *	アクターの状態を更新する
 *
 *	@param deltaTime	前回の更新からの経過時間
@@ -171,6 +213,19 @@ void ActorList::Update(float deltaTime) {
 		if (e && e->health > 0) {
 			e->Update(deltaTime);
 		}
+	}
+	//TODO: 
+
+	//格子状空間にアクターを割り当てる
+	for (int y = 0; y < sepalationSizeY; ++y) {
+		for (int x = 0; x < sepalationSizeX; ++x) {
+			grid[y][x].clear();
+		}
+	}
+
+	for (auto i = actors.begin(); i != actors.end(); ++i) {
+		const glm::ivec2 mapIndex = CalcMapIndex((*i)->position);
+		grid[mapIndex.y][mapIndex.x].push_back(*i);
 	}
 }
 
@@ -198,6 +253,43 @@ void ActorList::Draw() {
 			e->Draw();
 		}
 	}
+}
+
+/**
+*	指定された座標の近傍にあるアクターリストを取得する
+*
+*	@param pos			検索の起点となる座標
+*	@param maxDistance	近傍とみなす最大距離(m)
+*
+*	@return Actor::Positionがposから半径maxDistance以内にあるアクターの配列
+*/
+std::vector<ActorPtr> ActorList::FindNearbyActors(const glm::vec3& pos, float maxDistance) const {
+
+	std::vector<std::pair<float, ActorPtr> > buffer;
+	buffer.reserve(1000);
+
+	const glm::ivec2 mapIndex = CalcMapIndex(pos);
+	const glm::ivec2 min = glm::max(mapIndex - 1, 0);
+	const glm::ivec2 max = glm::min(mapIndex + 1, glm::ivec2(sepalationSizeX - 1, sepalationSizeY - 1));
+
+	for (int y = min.y; y <= max.y; ++y) {
+		for (int x = min.x; x <= max.x; ++x) {
+			const std::vector<ActorPtr>& list = grid[y][x];
+			for (auto actor : list) {
+				const float distance = glm::distance(glm::vec3(actor->position), pos);
+				buffer.push_back(std::make_pair(distance, actor));
+			}
+		}
+	}
+
+	std::vector<ActorPtr> result;
+	result.reserve(100);
+	for (const auto& e : buffer) {
+		if (e.first <= maxDistance) {
+			result.push_back(e.second);
+		}
+	}
+	return result;
 }
 
 /**

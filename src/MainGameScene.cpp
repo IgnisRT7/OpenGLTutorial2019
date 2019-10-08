@@ -39,6 +39,9 @@ bool MainGameScene::Initialize() {
 	meshBuffer.LoadSkeletalmesh("Res/bikuni.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/ue4modeltest.gltf");
 
+	lightBuffer.Init(1);
+	lightBuffer.BindToShader(meshBuffer.GetStaticMeshShader());
+
 	TerrainGenerator::Controller controller;
 	controller.Generate();
 
@@ -66,6 +69,17 @@ bool MainGameScene::Initialize() {
 	startPos.y = heightMap.Height(startPos);
 	player = std::make_shared<PlayerActor>(&heightMap, meshBuffer, startPos);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
+
+	//ライトを配置
+	lights.Add(std::make_shared<DirectionalLightActor>("DirectionalLight", glm::vec3(0.2f), glm::normalize(glm::vec3(1, -2, -1))));
+	for (int i = 0; i < 50; ++i) {
+		glm::vec3 color(1, 0.8f, 0.5f);
+		glm::vec3 position(0);
+		position.x = static_cast<float>(std::uniform_int_distribution<>(80, 120)(randGen));
+		position.z = static_cast<float>(std::uniform_int_distribution<>(80, 120)(randGen));
+		position.y = heightMap.Height(position) + 1;
+		lights.Add(std::make_shared<PointLightActor>("PointLight", color, position));
+	}
 
 	//お地蔵様を配置
 	for (int i = 0; i < 4; ++i) {
@@ -134,6 +148,7 @@ void MainGameScene::Update(float deltaTime) {
 	enemies.Update(deltaTime);
 	trees.Update(deltaTime);
 	objects.Update(deltaTime);
+	lights.Update(deltaTime);
 
 	DetectCollision(player, enemies);
 	DetectCollision(player, trees);
@@ -176,6 +191,35 @@ void MainGameScene::Update(float deltaTime) {
 		}
 	}
 
+	//ライトの更新
+	glm::vec3 ambientColor(0.1f, 0.05f, 0.15f);
+	lightBuffer.Update(lights, ambientColor);
+	for (auto e : trees) {
+		const std::vector<ActorPtr> neighborhood = lights.FindNearbyActors(e->position, 20);
+		std::vector<int> pointLightIndex;
+		std::vector<int> spotLightIndex;
+		pointLightIndex.reserve(neighborhood.size());
+		spotLightIndex.reserve(neighborhood.size());
+		for (auto light : neighborhood) {
+
+			if (PointLightActorPtr p = std::dynamic_pointer_cast<PointLightActor>(light)) {
+				if (pointLightIndex.size() < 8) {
+					pointLightIndex.push_back(p->index);
+				}
+			}
+			else if (SpotLightActorPtr p = std::dynamic_pointer_cast<SpotLightActor>(light)) {
+				if (spotLightIndex.size() < 8) {
+					spotLightIndex.push_back(p->index);
+				}
+			}
+		}
+
+		StaticMeshActorPtr p = std::static_pointer_cast<StaticMeshActor>(e);
+		p->SetPointLightList(pointLightIndex);
+		p->SetSpotLightList(spotLightIndex);
+	}
+
+
 	//敵を全滅させたら目的達成フラグをgtrueにする
 	if (jizoId >= 0) {
 		if (enemies.Empty()) {
@@ -209,6 +253,9 @@ void MainGameScene::Render() {
 	fontRenderer.Draw(screenSize);
 
 	glEnable(GL_DEPTH);
+
+	lightBuffer.Upload();
+	lightBuffer.Bind();
 
 	const glm::mat4 matView = glm::lookAt(camera.position, camera.target, camera.up);
 

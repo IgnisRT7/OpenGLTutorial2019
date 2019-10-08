@@ -103,6 +103,8 @@ namespace Mesh {
 		bool LoadSkeletalmesh(const char* path);
 		SkeletalMeshPtr GetSkeletalMesh(const char* meshName) const;
 
+		const Shader::ProgramPtr& GetStaticMeshShader() const { return progStaticMesh; }
+
 	private:
 
 		BufferObject vbo;
