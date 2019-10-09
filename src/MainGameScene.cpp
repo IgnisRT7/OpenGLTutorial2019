@@ -100,7 +100,7 @@ bool MainGameScene::Initialize() {
 	SpawnKooni(1);
 #endif
 
-	//SpawnTree(100);
+	SpawnTree(100);
 	CreateStoneWall(startPos);
 
 	bgm = Audio::Engine::Instance().Prepare("Res/Audio/mainScene.wav");
