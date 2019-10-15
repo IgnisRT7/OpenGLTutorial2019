@@ -196,5 +196,14 @@
     <None Include="res\Terrain.vert">
       <Filter>Res</Filter>
     </None>
+    <None Include="res\font.fnt">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\TerrainTutorial.frag">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\TerrainTutorial.vert">
+      <Filter>Res</Filter>
+    </None>
   </ItemGroup>
 </Project>

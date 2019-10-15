@@ -8,6 +8,16 @@
 #include "SkeletalMesh.h"
 #include "Audio.h"
 
+//#define GEFORCE_USED
+#ifdef GEFORCE_USED
+
+extern "C" {
+	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
+
+#endif
+
+
 //エントリーポイント
 int main() {
 

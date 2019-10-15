@@ -179,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="res\font.fnt" />
     <None Include="res\SkeletalMesh.frag" />
     <None Include="res\SkeletalMesh.vert" />
     <None Include="res\Sprite.frag" />
@@ -187,6 +188,8 @@
     <None Include="res\StaticMesh.vert" />
     <None Include="res\Terrain.frag" />
     <None Include="res\Terrain.vert" />
+    <None Include="res\TerrainTutorial.frag" />
+    <None Include="res\TerrainTutorial.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

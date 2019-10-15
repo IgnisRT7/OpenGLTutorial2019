@@ -41,7 +41,9 @@ bool MainGameScene::Initialize() {
 
 	lightBuffer.Init(1);
 	lightBuffer.BindToShader(meshBuffer.GetStaticMeshShader());
+	lightBuffer.BindToShader(meshBuffer.GetTerrainShader());
 
+	//地形ジェネレータの初期化
 	TerrainGenerator::Controller controller;
 	controller.Generate();
 
@@ -71,7 +73,7 @@ bool MainGameScene::Initialize() {
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
 	//ライトを配置
-	lights.Add(std::make_shared<DirectionalLightActor>("DirectionalLight", glm::vec3(0.2f), glm::normalize(glm::vec3(1, -2, -1))));
+	lights.Add(std::make_shared<DirectionalLightActor>("DirectionalLight", glm::vec3(0.2), glm::normalize(glm::vec3(1, -2, -1))));
 	for (int i = 0; i < 50; ++i) {
 		glm::vec3 color(1, 0.8f, 0.5f);
 		glm::vec3 position(0);

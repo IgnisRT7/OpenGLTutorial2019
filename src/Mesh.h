@@ -41,7 +41,7 @@ namespace Mesh {
 	*/
 	struct Material {
 		glm::vec4 baseColor = glm::vec4(1);	/// 色データ
-		Texture::Image2DPtr texture;		/// テクスチャデータ
+		Texture::Image2DPtr texture[8];		/// テクスチャデータ配列
 		Shader::ProgramPtr program;			/// 使用するプログラム
 		Shader::ProgramPtr progSkeletalMesh;	/// スケルタルメッシュ用プログラム
 	};
@@ -50,10 +50,10 @@ namespace Mesh {
 	*	頂点データの描画パラメータ
 	*/
 	struct Primitive {
-		GLenum mode;
-		GLsizei count;
-		GLenum type;
-		const GLvoid* indices;
+		GLenum mode = GL_STATIC_DRAW;
+		GLsizei count = 0;
+		GLenum type = GL_NONE;
+		const GLvoid* indices = nullptr;
 		GLint baseVertex = 0;
 		std::shared_ptr<VertexArrayObject> vao;
 		int material = 0;
@@ -104,6 +104,7 @@ namespace Mesh {
 		SkeletalMeshPtr GetSkeletalMesh(const char* meshName) const;
 
 		const Shader::ProgramPtr& GetStaticMeshShader() const { return progStaticMesh; }
+		const Shader::ProgramPtr& GetTerrainShader() const { return progTerrain; }
 
 	private:
 
@@ -112,10 +113,11 @@ namespace Mesh {
 		GLintptr vboEnd = 0;
 		GLintptr iboEnd = 0;
 		std::unordered_map<std::string, FilePtr> files;
-		Shader::ProgramPtr progStaticMesh;
 
-		//スケルタル・アニメーションに対応したメッシュを保持するメンバ変数
+		Shader::ProgramPtr progStaticMesh;
 		Shader::ProgramPtr progSkeletalMesh;
+		Shader::ProgramPtr progTerrain;
+
 		struct MeshIndex {
 			ExtendedFilePtr file;
 			const Node* node = nullptr;

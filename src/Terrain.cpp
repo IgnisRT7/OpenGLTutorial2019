@@ -198,20 +198,12 @@ namespace Terrain {
 		//頂点データとインデックスデータからメッシュを作成
 		Mesh::Primitive p = meshBuffer.CreatePrimitive(indices.size(), GL_UNSIGNED_INT, iOffset, vOffset);
 		Mesh::Material m = meshBuffer.CreateMaterial(glm::vec4(1), nullptr);
-		if (texName) {
-			m.texture = Texture::Image2D::Create(texName);
-		}
-		else {
-			if (name.size() != 0) {
-				m.texture = Texture::Image2D::Create(name.c_str());
-			}
-			else {
-				m.texture = Texture::Image2D::Create("res/Player.dds");
-				//std::cerr << "[警告] Terrain::" << __func__ << "テクスチャがnullでした\n";				
-			}
-		}
-		//TODO: 地形描画用シェーダ切り替えs
-	//	m.program = progTerrain;
+
+		m.texture[0] = Texture::Image2D::Create("Res/Terrain_Ratio.tga");
+		m.texture[1] = Texture::Image2D::Create("Res/Terrain_Soil.tga");
+		m.texture[2] = Texture::Image2D::Create("Res/Terrain_Rock.tga");
+		m.texture[3] = Texture::Image2D::Create("Res/Terrain_Plant.tga");
+		m.program = meshBuffer.GetTerrainShader();
 
 		meshBuffer.AddMesh(meshName, p, m);
 

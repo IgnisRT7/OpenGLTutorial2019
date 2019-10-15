@@ -368,6 +368,7 @@ namespace Mesh {
 			return false;
 		}
 
+		//スタティックメッシュ用のシェーダを読み込む
 		progStaticMesh = Shader::Program::Create("Res/StaticMesh.vert", "Res/StaticMesh.frag");
 		if (progStaticMesh->IsNull()) {
 			return false;
@@ -379,6 +380,15 @@ namespace Mesh {
 			return false;
 		}
 		SkeletalAnimation::BindUniformBlock(progSkeletalMesh);
+
+		//地形描画用のシェーダを読み込む
+		progTerrain = Shader::Program::Create("Res/TerrainTutorial.vert", "Res/TerrainTutorial.frag");
+		if (progSkeletalMesh->IsNull()) {
+			return false;
+		}
+
+
+
 
 		vboEnd = 0;
 		iboEnd = 0;
@@ -471,7 +481,7 @@ namespace Mesh {
 
 		Material m;
 		m.baseColor = color;
-		m.texture = texture;
+		m.texture[0] = texture;
 		m.program = progStaticMesh;
 		m.progSkeletalMesh = progSkeletalMesh;
 		return m;
@@ -622,14 +632,18 @@ namespace Mesh {
 				const Material& m = file->materials[p.material];
 				m.program->Use();
 				m.program->SetModelMatrix(matM);
-				glActiveTexture(GL_TEXTURE0);
 
 				//テクスチャがあるとkは、そのテクスチャIDを設定する、無いときは0を設定する
-				if (m.texture) {
-					glBindTexture(GL_TEXTURE_2D, m.texture->Get());
-				}
-				else {
-					glBindTexture(GL_TEXTURE_2D, 0);
+				for (int i = 0; i < sizeof(m.texture) / sizeof(m.texture[0]); ++i) {
+
+					glActiveTexture(GL_TEXTURE0 + i);
+
+					if (m.texture[i]) {
+						glBindTexture(GL_TEXTURE_2D, m.texture[i]->Get());
+					}
+					else {
+						glBindTexture(GL_TEXTURE_2D, 0);
+					}
 				}
 
 				glDrawElementsBaseVertex(p.mode, p.count, p.type, p.indices, p.baseVertex);
