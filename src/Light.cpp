@@ -45,7 +45,7 @@ bool LightBuffer::BindToShader(const Shader::ProgramPtr& program) {
 	glUniformBlockBinding(id, blockIndex, ubo[0]->BindingPoint());
 	const GLenum result = glGetError();
 	if (result != GL_NO_ERROR) {
-		std::cerr << "[エラー] Uniformブロック'" << UniformBlockName << "'のバインドに失敗";
+		std::cerr << "[エラー] Uniformブロック'" << UniformBlockName << "'のバインドに失敗\n";
 		return false;
 	}
 	return true;
