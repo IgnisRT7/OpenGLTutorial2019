@@ -83,6 +83,10 @@ bool MainGameScene::Initialize() {
 		lights.Add(std::make_shared<PointLightActor>("PointLight", color, position));
 	}
 
+	lights.Update(0);
+	lightBuffer.Update(lights, glm::vec3(0.1f, 0.05f, 0.15f));
+	heightMap.UpdateLightIndex(lights);
+
 	//お地蔵様を配置
 	for (int i = 0; i < 4; ++i) {
 		glm::vec3 position(0);

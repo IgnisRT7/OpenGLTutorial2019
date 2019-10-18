@@ -4,6 +4,7 @@
 #ifndef TEXTURE_H_INCLUDED
 #define TEXTURE_H_INCLUDED
 #include <GL/glew.h>
+#include "BufferObject.h"
 #include <memory>
 #include <string>
 #include <glm/glm.hpp>
@@ -11,8 +12,14 @@
 
 namespace Texture {
 
+	class Interface;
+	using InterfacePtr = std::shared_ptr <Interface>;
+
 	class Image2D;
 	using Image2DPtr = std::shared_ptr<Image2D>;
+
+	class Buffer;
+	using BufferPtr = std::shared_ptr<Buffer>;
 
 	/**
 	*	画像データ
@@ -35,9 +42,24 @@ namespace Texture {
 	bool LoadImage2D(const char* path, ImageData* imageData);
 
 	/**
+	*	テクスチャ操作インターフェイス
+	*/
+	class Interface {
+	public:
+		Interface() = default;
+		virtual ~Interface() = default;
+		virtual bool IsNull() const = 0;
+		virtual GLuint Get() const = 0;
+		virtual GLint Width() const = 0;
+		virtual GLint Height() const = 0;
+		virtual GLenum Target() const = 0;
+
+	};
+
+	/**
 	*	画像クラス
 	*/
-	class Image2D {
+	class Image2D : public Interface {
 	public:
 
 		static Image2DPtr Create(const char*);
@@ -46,10 +68,11 @@ namespace Texture {
 		explicit Image2D(GLuint texId);
 		~Image2D();
 		void Reset(GLuint texId);
-		bool IsNull() const;
-		GLuint Get() const;
-		GLint Width() const { return width; }
-		GLint Height() const { return height; }
+		virtual bool IsNull() const override;
+		virtual GLuint Get() const override;
+		virtual GLint Width() const override { return width; }
+		virtual GLint Height() const override { return height; }
+		virtual GLenum Target() const override { return GL_TEXTURE_2D; }
 		const std::string& Name() const { return name; }
 		void Name(std::string& s) { name = s; }
 
@@ -59,6 +82,32 @@ namespace Texture {
 		GLuint id = 0;
 		GLint width = 0;
 		GLint height = 0;
+	};
+
+	/**
+	*	バッファテクスチャ
+	*/
+	class Buffer : public Interface {
+	public:
+
+		static BufferPtr Create(GLenum internalFormat, GLsizeiptr size, const GLvoid* data = nullptr, GLenum usage = GL_STATIC_DRAW);
+		Buffer() = default;
+		virtual ~Buffer();
+
+		virtual bool IsNull() const override { return !id; }
+		virtual GLuint Get() const override { return id; }
+		virtual GLint Width() const override { return bo.Size(); }
+		virtual GLint Height() const override { return 1; }
+		virtual GLenum Target() const override { return GL_TEXTURE_BUFFER; }
+
+		bool BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data);
+		GLuint BufferId() const { return bo.Id(); }
+		GLsizeiptr Size() const { return bo.Size(); }
+
+	private:
+
+		GLuint id = 0;
+		BufferObject bo;
 	};
 
 } // namespace Texture

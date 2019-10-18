@@ -5,6 +5,8 @@
 #define TERRAIN_H_INCLUDE
 
 #include "Mesh.h"
+#include "Texture.h"
+#include "Light.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
@@ -29,12 +31,14 @@ namespace Terrain {
 		float Height(const glm::vec3& pos) const;
 		const glm::ivec2 Size() const;
 		bool CreateMesh(Mesh::Buffer& meshBuffer, const char* meshName, const char* texName = nullptr) const;
+		void UpdateLightIndex(const ActorList& lights);
 
 	private:
 
 		std::string name;
 		glm::ivec2 size = glm::ivec2(0);			///< もとになった画像ふぁぃるめい
 		std::vector<float> heights;					///< ハイトマップの大きさ
+		Texture::BufferPtr lightIndex[2];
 
 		glm::vec3 CalcNormal(int x, int z) const;	///< 高さデータ
 

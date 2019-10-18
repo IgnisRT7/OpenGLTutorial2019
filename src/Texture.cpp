@@ -22,7 +22,7 @@ namespace Texture {
 	*			色要素がデータに存在しない場合、RGBは0.0、Aは1.0になる
 	*/
 	glm::vec4 ImageData::GetColor(int x, int y) const {
-		
+
 		//座標を画像の範囲に制限
 		x = std::max(0, std::min(x, width - 1));
 		y = std::max(0, std::min(y, height - 1));
@@ -54,11 +54,12 @@ namespace Texture {
 
 			return color / 255.0f;
 
-		} else if (type == GL_UNSIGNED_SHORT_1_5_5_5_REV) {
+		}
+		else if (type == GL_UNSIGNED_SHORT_1_5_5_5_REV) {
 			//色が2バイトに詰め込まれたデータ
 			glm::vec4 color(0, 0, 0, 1);
 
-			const uint8_t*p = &data[x * 2 + y * (width * 2)];
+			const uint8_t* p = &data[x * 2 + y * (width * 2)];
 			const uint16_t c = p[0] + p[1] * 0x100;
 			if (format == GL_BGRA) {
 				//16ビットのデータから各色を取り出す
@@ -93,9 +94,9 @@ namespace Texture {
 		return n;
 	}
 
-/**
-* FOURCCを作成する.
-*/
+	/**
+	* FOURCCを作成する.
+	*/
 #define MAKE_FOURCC(a, b, c, d) \
   static_cast<uint32_t>(a + (b << 8) + (c << 16) + (d << 24))
 
@@ -190,7 +191,7 @@ namespace Texture {
 	* @retval 0     作成失敗.
 	*/
 	GLuint LoadDDS(const char* filename, const struct stat& st,
-		const uint8_t* buf, DDSHeader* pHeader,ImageData* imageData)
+		const uint8_t* buf, DDSHeader* pHeader, ImageData* imageData)
 	{
 
 		//DDSファイルチェック
@@ -442,7 +443,7 @@ namespace Texture {
 	*	@retval true	読み込む成功
 	*	@retval false	読み込み失敗
 	*/
-	bool LoadImage2D(const char* path,ImageData* imageData){
+	bool LoadImage2D(const char* path, ImageData* imageData) {
 
 		// TGAヘッダを読み込む.
 		std::basic_ifstream<uint8_t> ifs;
@@ -581,7 +582,7 @@ namespace Texture {
 	*
 	*	@return	作成したテクスチャオブジェクト
 	*/
-	Image2DPtr Image2D::Create(const char *path){
+	Image2DPtr Image2D::Create(const char* path) {
 
 		auto image = std::make_shared<Image2D>(LoadImage2D(path));
 		std::string str(path);
@@ -590,6 +591,52 @@ namespace Texture {
 		image->Name(str);
 		return image;
 
+	}
+
+	/**
+	*	バッファ・テクスチャを作成する
+	*	
+	*	@param internalFormat	バッファのデータ形式
+	*	@param size				バッファのサイズ
+	*	@param data				バッファに転送するデータ
+	*	@param usage			バッファのアクセスタイプ
+	*
+	*	@return 作成したテクスチャオブジェクト
+	*/
+	BufferPtr Buffer::Create(GLenum internalFormat, GLsizeiptr size, const GLvoid* data, GLenum usage) {
+
+		BufferPtr buffer = std::make_shared<Buffer>();
+		if (!buffer->bo.Create(GL_TEXTURE_BUFFER, size, data, usage)) {
+			return false;
+		}
+
+		glGenTextures(1, &buffer->id);
+		glBindTexture(GL_TEXTURE_BUFFER, buffer->id);
+		glTexBuffer(GL_TEXTURE_BUFFER, internalFormat, buffer->bo.Id());
+		glBindTexture(GL_TEXTURE_BUFFER, 0);
+
+		return buffer;
+	}
+
+	/**
+	*	デストラクタ
+	*/
+	Buffer::~Buffer() {
+		glDeleteTextures(1, &id);
+	}
+
+	/**
+	*	バッファにデータを転送する
+	*
+	*	@param offset	転送開始位置(バイト単位)
+	*	@param size		転送するバイト数
+	*	@param data		転送するデータへのポインタ
+	*
+	*	@retval true	転送成功
+	*	@retval false	転送失敗
+	*/
+	bool Buffer::BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data) {
+		return bo.BufferSubData(offset, size, data);
 	}
 
 } // namespace Texture
