@@ -41,7 +41,7 @@ namespace Mesh {
 	*/
 	struct Material {
 		glm::vec4 baseColor = glm::vec4(1);	/// 色データ
-		Texture::InterfacePtr texture[8];		/// テクスチャデータ配列
+		Texture::InterfacePtr texture[16];		/// テクスチャデータ配列
 		Shader::ProgramPtr program;			/// 使用するプログラム
 		Shader::ProgramPtr progSkeletalMesh;	/// スケルタルメッシュ用プログラム
 	};

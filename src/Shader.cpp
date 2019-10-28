@@ -201,7 +201,7 @@ namespace Shader {
 			glUniform1i(texColorLoc, 0);
 		}
 
-
+		//テクスチャリストのリセット処理
 		for (GLint i = 0; i < 8; ++i) {
 			std::string name("texColorArray[");
 			name += static_cast<char>('0' + i);
@@ -209,6 +209,17 @@ namespace Shader {
 			const GLint texColorLoc = glGetUniformLocation(id, name.c_str());
 			if (texColorLoc >= 0) {
 				glUniform1i(texColorLoc, i);
+			}
+		}
+
+		//法線テクスチャリストのリセット処理
+		for (GLint i = 0; i < 8; ++i) {
+			std::string name("texNormalArray[");
+			name += static_cast<char>('0' + i);
+			name += ']';
+			const GLint texColorLoc = glGetUniformLocation(id, name.c_str());
+			if (texColorLoc >= 0) {
+				glUniform1i(texColorLoc, i + 8);
 			}
 		}
 
