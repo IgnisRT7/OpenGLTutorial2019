@@ -40,6 +40,7 @@ namespace GLFWEW {
 
 		//TODO: Œã‚ÉC³‚ª•K—v
 		float DeltaTime() { return 1.0f / 60.0f; }
+		double Time() const;
 
 	private:
 

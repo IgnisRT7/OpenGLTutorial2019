@@ -29,8 +29,15 @@ namespace GLFWEW {
 	}
 
 	/**
-	*	コンストラクタ
+	*	総経過時間
+	*
+	*	@return GLFWが初期化されてからの経過時間(秒)
 	*/
+	double Window::Time() const
+	{
+		return glfwGetTime();
+	}
+
 	Window::Window() :
 		isGLFWInitialized(false),
 		isInitialized(false),
