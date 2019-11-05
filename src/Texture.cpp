@@ -639,4 +639,70 @@ namespace Texture {
 		return bo.BufferSubData(offset, size, data);
 	}
 
+	/**
+	*	キューブマップ・テクスチャを作成する
+	*
+	*	@param pathList	キューブマップ用画像ファイル名のリスト
+	*	
+	*	@return	作成したテクスチャオブジェクト
+	*/
+	CubePtr Cube::Create(const std::vector<std::string>& pathList) {
+
+		if (pathList.size() < 0) {
+			std::cerr << "[エラー]" << __func__ << "キューブマップには6枚の画像が必要ですが" <<
+				pathList.size() << "枚しか指定されていません。\n";
+			for (size_t i = 0; i < pathList.size(); ++i) {
+				std::cerr << " pathList[" << i << "]" << pathList[i] << "\n";
+			}
+			return nullptr;
+		}
+
+		std::vector<ImageData> imageDataList;
+		imageDataList.resize(6);
+		for (int i = 0; i < 6; ++i) {
+			if (!LoadImage2D(pathList[i].c_str(), &imageDataList[i])) {
+				return nullptr;
+			}
+		}
+
+		GLuint id;
+		glGenTextures(1, &id);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+		for (int i = 0; i < 6; i++) {
+			const ImageData& image = imageDataList[i];
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, 
+				image.width, image.height, 0, image.format, image.type, image.data.data());
+
+			const GLenum result = glGetError();
+			if (result != GL_NO_ERROR) {
+				std::cerr << "[エラー]" << pathList[i] << "の読み込みに失敗(" << std::hex << result << ")\n";
+
+				glDeleteTextures(1, &id);
+				return nullptr;
+			}
+		}
+
+		//テクスチャのパラメータを設定する
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+		CubePtr p = std::make_shared <  Cube>();
+		p->id = id;
+		p->width = imageDataList[0].width;
+		p->height = imageDataList[0].height;
+		return p;
+	}
+
+	/**
+	*	デストラクタ
+	*/
+	Cube::~Cube() {
+		glDeleteTextures(1, &id);
+	}
+
+
 } // namespace Texture
