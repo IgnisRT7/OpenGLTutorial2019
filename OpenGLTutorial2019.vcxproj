@@ -190,6 +190,7 @@
     <None Include="res\Terrain.vert" />
     <None Include="res\TerrainTutorial.frag" />
     <None Include="res\TerrainTutorial.vert" />
+    <None Include="Water.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

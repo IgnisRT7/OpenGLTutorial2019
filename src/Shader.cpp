@@ -56,11 +56,16 @@ namespace Shader {
 	*/
 	GLuint Build(const GLchar* vsCode, const GLchar* fsCode)
 	{
+
+		std::cout << "\tcompile vs shader..." << std::endl;
 		GLuint vs = Compile(GL_VERTEX_SHADER, vsCode);
+		std::cout << "\tcompile fs shader..." << std::endl;
 		GLuint fs = Compile(GL_FRAGMENT_SHADER, fsCode);
 		if (!vs || !fs) {
 			return 0;
 		}
+		std::cout << "\tsuccesful compilation." << std::endl <<"\tlink status...";
+
 		GLuint program = glCreateProgram();
 		glAttachShader(program, fs);
 		glDeleteShader(fs);
@@ -83,6 +88,8 @@ namespace Shader {
 			glDeleteProgram(program);
 			return 0;
 		}
+
+		std::cout << "successful." << std:: endl;
 		return program;
 	}
 
@@ -98,7 +105,7 @@ namespace Shader {
 		std::basic_ifstream<GLchar> ifs;
 		ifs.open(path, std::ios_base::binary);
 		if (!ifs.is_open()) {
-			std::cerr << "ERROR: " << path << " を開けません\n";
+			std::cerr << "[ERROR]: Shader ReadFile\n\t" << path << " を開けません\n";
 			return {};
 		}
 		ifs.seekg(0, std::ios_base::end);
@@ -120,6 +127,9 @@ namespace Shader {
 	*/
 	GLuint BuildFromFile(const char* vsPath, const char* fsPath)
 	{
+		std::cout << "[Info]: Program::BuildFromFile " << std::endl <<
+			"\tvs: " << vsPath << "\tfs: " << fsPath << std::endl;
+		
 		const std::vector<GLchar> vsCode = ReadFile(vsPath);
 		const std::vector<GLchar> fsCode = ReadFile(fsPath);
 		return Build(vsCode.data(), fsCode.data());
@@ -193,6 +203,8 @@ namespace Shader {
 		locPointLightIndex = glGetUniformLocation(id, "pointLightIndex");
 		locSpotLightCount = glGetUniformLocation(id, "spotLightCount");
 		locSpotLightIndex = glGetUniformLocation(id, "spotLightIndex");
+		locCameraPosition = glGetUniformLocation(id, "cameraPosition");
+		locTime = glGetUniformLocation(id, "time");
 
 		glUseProgram(id);
 		const GLint texColorLoc = glGetUniformLocation(id, "texColor");
@@ -230,6 +242,11 @@ namespace Shader {
 		const GLint locTexSpotLightIndex = glGetUniformLocation(id, "texSpotLightIndex");
 		if (locTexSpotLightIndex >= 0) {
 			glUniform1i(locTexSpotLightIndex, 4);
+		}
+
+		const GLint locTexCubeMap = glGetUniformLocation(id, "texCubeMap");
+		if (locTexCubeMap >= 0) {
+			glUniform1i(locTexCubeMap, 6);
 		}
 
 		glUseProgram(0);
@@ -335,5 +352,32 @@ namespace Shader {
 			glUniform1iv(locSpotLightIndex, count, indexList);
 		}
 	}
+
+	/**
+	*	カメラ座標を設定する
+	*
+	*	@param pos	カメラ座標
+	*/
+	void Program::SetCameraPosition(const glm::vec3& pos) {
+	
+		if (locCameraPosition) {
+			glUniform3fv(locCameraPosition, 1, &pos.x);
+		}
+	}
+
+	/**
+	* 総経過時間を設定する.
+	*
+	* @param time 総経過時間.
+	*/
+	void Program::SetTime(float time){
+		
+		if (locTime >= 0) {
+			glUniform1f(locTime, time);
+			
+		}
+	}
+
+
 
 } // namespace Shader

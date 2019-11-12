@@ -42,6 +42,7 @@ bool MainGameScene::Initialize() {
 	lightBuffer.Init(1);
 	lightBuffer.BindToShader(meshBuffer.GetStaticMeshShader());
 	lightBuffer.BindToShader(meshBuffer.GetTerrainShader());
+	lightBuffer.BindToShader(meshBuffer.GetWaterShader());
 
 	//地形ジェネレータの初期化
 	TerrainGenerator::Controller controller;
@@ -57,7 +58,7 @@ bool MainGameScene::Initialize() {
 		}
 	}
 	else {
-		if (!heightMap.LoadFromFile("Res/Terrain.tga", 10.0f, 0.5f)) {
+		if (!heightMap.LoadFromFile("Res/Terrain.tga", 50.0f, 0.5f)) {
 			return false;
 		}
 	}
@@ -65,6 +66,10 @@ bool MainGameScene::Initialize() {
 	if (!heightMap.CreateMesh(meshBuffer, "Terrain")) {
 		return false;
 	}
+	if (!heightMap.CreateWaterMesh(meshBuffer, "Water", -15)) {
+		return false;
+	}
+
 
 	//プレイヤーの作成処理
 	glm::vec3 startPos(100, 0, 100);
@@ -72,10 +77,12 @@ bool MainGameScene::Initialize() {
 	player = std::make_shared<PlayerActor>(&heightMap, meshBuffer, startPos);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
-	//ライトを配置
-	lights.Add(std::make_shared<DirectionalLightActor>("DirectionalLight", glm::vec3(0.2), glm::normalize(glm::vec3(1, -2, -1))));
+	//ディレクショナルライトを配置
+	lights.Add(std::make_shared<DirectionalLightActor>("DirectionalLight", glm::vec3(0.8), glm::normalize(glm::vec3(1, -2, -1))));
+
+	//ポイントライトを配置
 	for (int i = 0; i < 50; ++i) {
-		glm::vec3 color(1, 0.8f, 0.5f);
+		glm::vec3 color(10, 0.8f, 0.5f);
 		glm::vec3 position(0);
 		position.x = static_cast<float>(std::uniform_int_distribution<>(80, 120)(randGen));
 		position.z = static_cast<float>(std::uniform_int_distribution<>(80, 120)(randGen));
@@ -226,7 +233,7 @@ void MainGameScene::Update(float deltaTime) {
 	}
 
 
-	//敵を全滅させたら目的達成フラグをgtrueにする
+	//敵を全滅させたら目的達成フラグをtrueにする
 	if (jizoId >= 0) {
 		if (enemies.Empty()) {
 			achivements[jizoId] = true;
@@ -269,6 +276,8 @@ void MainGameScene::Render() {
 	const glm::mat4 matProj = glm::perspective(glm::radians(30.0f), aspectRatio, 1.0f, 1000.0f);
 
 	meshBuffer.SetViewProjectionMatrix(matProj * matView);
+	meshBuffer.SetCameraPosition(camera.position);
+	meshBuffer.SetTime(window.Time());
 
 	//キューブの行列変換
 	glm::vec3 cubePos(120, 0, 120);
@@ -287,6 +296,9 @@ void MainGameScene::Render() {
 	treePos.y = heightMap.Height(treePos);
 	const glm::mat4 matTreeModel = glm::translate(glm::mat4(1), treePos) * glm::scale(glm::mat4(1), glm::vec3(3));
 	Mesh::Draw(meshBuffer.GetFile("Res/red_pine_tree.gltf"), matTreeModel);
+
+	//水の描画処理
+	Mesh::Draw(meshBuffer.GetFile("Water"), glm::mat4(1));
 
 	enemies.Draw();
 	trees.Draw();

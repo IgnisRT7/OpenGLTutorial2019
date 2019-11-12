@@ -387,8 +387,11 @@ namespace Mesh {
 			return false;
 		}
 
-
-
+		//水描画用シェーダを読み込む
+		progWater = Shader::Program::Create("Res/TerrainTutorial.vert", "Res/Water.frag");
+		if (progWater->IsNull()) {
+			return false;
+		}
 
 		vboEnd = 0;
 		iboEnd = 0;
@@ -606,6 +609,43 @@ namespace Mesh {
 		progStaticMesh->SetViewProjectionMatrix(matVP);
 		progSkeletalMesh->Use();
 		progSkeletalMesh->SetViewProjectionMatrix(matVP);
+		progWater->Use();
+		progWater->SetViewProjectionMatrix(matVP);
+		glUseProgram(0);
+	}
+
+	/**
+	*	@param pos	カメラのワールド座標
+	*/
+	void Buffer::SetCameraPosition(const glm::vec3& pos) const {
+
+		progStaticMesh->Use();
+		progStaticMesh->SetCameraPosition(pos);
+		progSkeletalMesh->Use();
+		progSkeletalMesh->SetCameraPosition(pos);
+		progTerrain->Use();
+		progTerrain->SetCameraPosition(pos);
+		progWater->Use();
+		progWater->SetCameraPosition(pos);
+		glUseProgram(0);
+	}
+
+	/**
+	* シェーダーにアプリが起動してからの経過時間を設定する.
+	*
+	* @param time アプリが起動してからの経過時間(秒).
+	*/
+	void Buffer::SetTime(double time) const{
+
+		const float ftime = static_cast<float>(std::fmod(time, 24 * 60 * 60));
+		progStaticMesh->Use();
+		progStaticMesh->SetTime(ftime);
+		progSkeletalMesh->Use();
+		progSkeletalMesh->SetTime(ftime);
+		progTerrain->Use();
+		progTerrain->SetTime(ftime);
+		progWater->Use();
+		progWater->SetTime(ftime);
 		glUseProgram(0);
 	}
 

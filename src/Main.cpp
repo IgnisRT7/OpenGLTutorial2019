@@ -16,7 +16,7 @@ extern "C" {
 }
 
 #endif
-
+#include <iostream>
 
 //エントリーポイント
 int main() {

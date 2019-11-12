@@ -445,18 +445,20 @@ namespace Texture {
 	*/
 	bool LoadImage2D(const char* path, ImageData* imageData) {
 
+		std::cout << "[info]: Texture::LoadImage2D" << std::endl <<
+			"\t texture name: " << path << std::endl;
+
 		// TGAヘッダを読み込む.
 		std::basic_ifstream<uint8_t> ifs;
 
 		ifs.open(path, std::ios_base::binary);
 		if (!ifs) {
-			std::cerr << "WARNING: " << path << "を開けません.\n";
+			std::cerr << "[Warning]: " << path << "を開けません.\n";
 			return 0;
 		}
 		std::vector<uint8_t> tmp(1024 * 1024);
 		ifs.rdbuf()->pubsetbuf(tmp.data(), tmp.size());
 
-		std::cout << "INFO: " << path << "を読み込み中…";
 		uint8_t tgaHeader[18];
 		ifs.read(tgaHeader, 18);
 
@@ -494,7 +496,7 @@ namespace Texture {
 			}
 			buf.swap(tmp);
 		}
-		std::cout << "完了\n";
+		std::cout << "\tsuccessful\n";
 
 		GLenum type = GL_UNSIGNED_BYTE;
 		GLenum format = GL_BGRA;
@@ -648,11 +650,13 @@ namespace Texture {
 	*/
 	CubePtr Cube::Create(const std::vector<std::string>& pathList) {
 
-		if (pathList.size() < 0) {
+		std::cout << "[Info]: texture::Cube::Create" << std::endl;
+
+		if (pathList.size() < 6) {
 			std::cerr << "[エラー]" << __func__ << "キューブマップには6枚の画像が必要ですが" <<
 				pathList.size() << "枚しか指定されていません。\n";
 			for (size_t i = 0; i < pathList.size(); ++i) {
-				std::cerr << " pathList[" << i << "]" << pathList[i] << "\n";
+				std::cerr << " pathList[" << i << "]=" << pathList[i] << "\n";
 			}
 			return nullptr;
 		}
@@ -668,7 +672,7 @@ namespace Texture {
 		GLuint id;
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 6; ++i) {
 			const ImageData& image = imageDataList[i];
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, 
 				image.width, image.height, 0, image.format, image.type, image.data.data());
@@ -690,7 +694,7 @@ namespace Texture {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-		CubePtr p = std::make_shared <  Cube>();
+		CubePtr p = std::make_shared <Cube>();
 		p->id = id;
 		p->width = imageDataList[0].width;
 		p->height = imageDataList[0].height;

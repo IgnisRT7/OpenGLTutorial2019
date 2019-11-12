@@ -96,6 +96,8 @@ namespace Mesh {
 		bool LoadMesh(const char* path);
 		FilePtr GetFile(const char* name) const;
 		void SetViewProjectionMatrix(const glm::mat4&) const;
+		void SetCameraPosition(const glm::vec3&) const;
+		void SetTime(double) const;
 
 		void AddCube(const char* name);
 
@@ -105,6 +107,7 @@ namespace Mesh {
 
 		const Shader::ProgramPtr& GetStaticMeshShader() const { return progStaticMesh; }
 		const Shader::ProgramPtr& GetTerrainShader() const { return progTerrain; }
+		const Shader::ProgramPtr& GetWaterShader() const { return progWater; }
 
 	private:
 
@@ -117,6 +120,7 @@ namespace Mesh {
 		Shader::ProgramPtr progStaticMesh;
 		Shader::ProgramPtr progSkeletalMesh;
 		Shader::ProgramPtr progTerrain;
+		Shader::ProgramPtr progWater;
 
 		struct MeshIndex {
 			ExtendedFilePtr file;

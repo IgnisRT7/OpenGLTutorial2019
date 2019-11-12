@@ -41,6 +41,9 @@ namespace Shader {
 		void SetPointLightIndex(int count, const int* indexList);
 		void SetSpotLightIndex(int count, const int* indexList);
 
+		void SetCameraPosition(const glm::vec3&);
+		void SetTime(float);
+
 		/// ƒvƒƒOƒ‰ƒ€ID‚ğæ“¾‚·‚é
 		GLuint Get() const { return id; }
 
@@ -55,6 +58,9 @@ namespace Shader {
 		GLint locPointLightIndex = -1;
 		GLint locSpotLightCount = -1;
 		GLint locSpotLightIndex = -1;
+		GLint locCameraPosition = -1;
+		GLint locTime = -1;
+
 
 		glm::mat4 matVP = glm::mat4(1);
 	};
