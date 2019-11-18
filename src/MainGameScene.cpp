@@ -93,8 +93,6 @@ bool MainGameScene::Initialize() {
 		position.y = heightMap.Height(position) + 1;
 		lights.Add(std::make_shared<PointLightActor>("PointLight", color, position));
 
-		std::cout << "[info]: SetPointLight pos:" <<
-			position.x << ',' << position.y << ',' << position.z << std::endl;
 	}
 
 	lights.Update(0);
@@ -419,10 +417,12 @@ void MainGameScene::SpawnTree(int n) {
 	//	position.x = std::uniform_real_distribution<float>(50, 150)(randGen);
 	//	position.z = std::uniform_real_distribution<float>(50, 150)(randGen);
 	//	position.y = heightMap.Height(position);
+		//const ActorPtr& lightActor = lights.Get(i);
 		auto lightActor = lights.Get(i);
-		if (lightActor != nullptr) {
-			position
+		if (!lightActor.expired()) {
+			position = lightActor.lock()->position;
 		}
+
 
 		//–Ø‚ÌŒü‚«‚ðƒ‰ƒ“ƒ_ƒ€‚É‘I‘ð
 		glm::vec3 rotation(0);
