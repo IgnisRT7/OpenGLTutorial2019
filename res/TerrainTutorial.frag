@@ -63,8 +63,8 @@ void main(){
 	//法線ベクトルの計算
 	mat3 matTBN = mat3(normalize(inTBN[0]),normalize(inTBN[1]),normalize(inTBN[2]));
 	vec3 normal = matTBN * (texture(texNormalArray[0], uv).rgb * 2.0 - 1.0) * baseRatio;
-	normal = matTBN * (texture(texNormalArray[0], uv).rgb * 2.0 - 1.0) * ratio.r;
-	normal = matTBN * (texture(texNormalArray[1], uv).rgb * 2.0 - 1.0) * ratio.g;
+	normal += matTBN * (texture(texNormalArray[1], uv).rgb * 2.0 - 1.0) * ratio.r;
+	normal += matTBN * (texture(texNormalArray[2], uv).rgb * 2.0 - 1.0) * ratio.g;
 	normal = normalize(normal);
 	
 	vec3 lightColor = ambientLight.color.rgb;
