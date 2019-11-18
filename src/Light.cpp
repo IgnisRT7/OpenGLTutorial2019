@@ -35,6 +35,7 @@ bool LightBuffer::Init(GLuint bindingPoint){
 */
 bool LightBuffer::BindToShader(const Shader::ProgramPtr& program) {
 
+	//シェーダにユニファームブロックがあるかどうか検索
 	const GLuint id = program->Get();
 	const GLuint blockIndex = glGetUniformBlockIndex(id, UniformBlockName);
 	if (blockIndex == GL_INVALID_INDEX) {

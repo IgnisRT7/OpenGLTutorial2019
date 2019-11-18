@@ -11,6 +11,7 @@
 #include "JizoActor.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
+#include <iostream>
 
 
 /**
@@ -73,7 +74,7 @@ bool MainGameScene::Initialize() {
 
 	//プレイヤーの作成処理
 	glm::vec3 startPos(100, 0, 100);
-	startPos.y = heightMap.Height(startPos);
+	startPos.y= heightMap.Height(startPos);
 	player = std::make_shared<PlayerActor>(&heightMap, meshBuffer, startPos);
 	player->colLocal = Collision::CreateSphere(glm::vec3(0, 0.7f, 0), 0.7f);
 
@@ -82,12 +83,18 @@ bool MainGameScene::Initialize() {
 
 	//ポイントライトを配置
 	for (int i = 0; i < 50; ++i) {
+
+		std::string pointLightName = "PointLight";
+		pointLightName += std::to_string(i);
 		glm::vec3 color(10, 0.8f, 0.5f);
 		glm::vec3 position(0);
 		position.x = static_cast<float>(std::uniform_int_distribution<>(80, 120)(randGen));
 		position.z = static_cast<float>(std::uniform_int_distribution<>(80, 120)(randGen));
 		position.y = heightMap.Height(position) + 1;
 		lights.Add(std::make_shared<PointLightActor>("PointLight", color, position));
+
+		std::cout << "[info]: SetPointLight pos:" <<
+			position.x << ',' << position.y << ',' << position.z << std::endl;
 	}
 
 	lights.Update(0);
@@ -297,13 +304,13 @@ void MainGameScene::Render() {
 	const glm::mat4 matTreeModel = glm::translate(glm::mat4(1), treePos) * glm::scale(glm::mat4(1), glm::vec3(3));
 	Mesh::Draw(meshBuffer.GetFile("Res/red_pine_tree.gltf"), matTreeModel);
 
-	//水の描画処理
-	Mesh::Draw(meshBuffer.GetFile("Water"), glm::mat4(1));
-
 	enemies.Draw();
 	trees.Draw();
 	objects.Draw();
 	player->Draw();
+
+	//水の描画処理
+	Mesh::Draw(meshBuffer.GetFile("Water"), glm::mat4(1));
 }
 
 /**
@@ -403,13 +410,19 @@ void MainGameScene::SpawnTree(int n) {
 	//木を配置
 	const size_t treeCount = n;
 	trees.Reserve(treeCount);
-	const Mesh::FilePtr mesh = meshBuffer.GetFile("Res/TestTree.gltf");
-	for (size_t i = 0; i < treeCount; ++i) {
+	const Mesh::FilePtr mesh = meshBuffer.GetFile("Res/red_pine_tree.gltf");
+	//for (size_t i = 0; i < treeCount; ++i) {
+	for(size_t i=0;i<lights.Size();++i){
+
 		//木の位置を(50,50)-(150,150)の範囲からランダムに選択
 		glm::vec3 position(0);
-		position.x = std::uniform_real_distribution<float>(50, 150)(randGen);
-		position.z = std::uniform_real_distribution<float>(50, 150)(randGen);
-		position.y = heightMap.Height(position);
+	//	position.x = std::uniform_real_distribution<float>(50, 150)(randGen);
+	//	position.z = std::uniform_real_distribution<float>(50, 150)(randGen);
+	//	position.y = heightMap.Height(position);
+		auto lightActor = lights.Get(i);
+		if (lightActor != nullptr) {
+			position
+		}
 
 		//木の向きをランダムに選択
 		glm::vec3 rotation(0);
