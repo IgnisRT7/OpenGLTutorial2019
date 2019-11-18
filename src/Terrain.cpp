@@ -214,7 +214,7 @@ namespace Terrain {
 		m.texture[5] = lightIndex[1];
 		m.texture[8] = Texture::Image2D::Create("Res/Terrain_Soil_Normal.tga");
 		m.texture[9] = Texture::Image2D::Create("Res/Terrain_Rock_Normal.tga");
-		m.texture[10] = Texture::Image2D::Create("Res/Terrain_Plant_Normal");
+		m.texture[10] = Texture::Image2D::Create("Res/Terrain_Plant_Normal.tga");
 		m.program =  meshBuffer.GetTerrainShader();
 
 		meshBuffer.AddMesh(meshName, p, m);
@@ -311,6 +311,8 @@ namespace Terrain {
 				glm::i8vec4& pointLight = pointLightIndex[y * size.x + x];
 				int spotLightCount = 0;
 				glm::i8vec4& spotLight = spotLightIndex[y * size.x + x];
+
+				//std::cout << "UpdateLightIndex FindNearbyActorsResult:" << neiborhood.size() << std::endl;
 
 				for (auto light : neiborhood) {
 
