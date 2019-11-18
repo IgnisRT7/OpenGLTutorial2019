@@ -91,7 +91,10 @@ public:
 	void Draw();
 	bool Empty() const { return actors.empty(); }
 	size_t Size()const { return actors.size(); }
-	const ActorPtr& Get(int index) const { return actors.size() > index ? actors[index] : nullptr; }
+	const std::weak_ptr<Actor> Get(int index) const {
+		auto var = (actors.size() > index ? actors[index] : nullptr);
+		return var;
+	}
 
 	//イテレーターを取得する関数
 	iterator begin() { return actors.begin(); }
