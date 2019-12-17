@@ -342,13 +342,18 @@ namespace Texture {
 	* @retval 0以外  作成したテクスチャ・オブジェクトのID.
 	* @retval 0      テクスチャの作成に失敗.
 	*/
-	GLuint CreateImage2D(GLsizei width, GLsizei height, const GLvoid* data, GLenum format, GLenum type)
-	{
+	GLuint CreateImage2D(GLsizei width, GLsizei height, const GLvoid* data, GLenum format, GLenum type) {
+
+		return CreateImage2D(width, height, data, format, type, GL_RGBA8);
+	}
+
+	GLuint CreateImage2D(GLsizei width, GLsizei height, const GLvoid* data, GLenum format, GLenum type, GLenum internalFormat){
+
 		GLuint id;
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, type, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		const GLenum result = glGetError();
 		if (result != GL_NO_ERROR) {
