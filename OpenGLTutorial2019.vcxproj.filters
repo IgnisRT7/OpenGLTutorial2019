@@ -89,6 +89,9 @@
     <ClCompile Include="src\Light.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\FramebufferObject.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -169,6 +172,9 @@
     <ClInclude Include="src\Light.h">
       <Filter>Src</Filter>
     </ClInclude>
+    <ClInclude Include="src\FramebufferObject.h">
+      <Filter>Src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -208,5 +214,16 @@
     <None Include="Water.frag">
       <Filter>Res</Filter>
     </None>
+    <None Include="res\DepthOfField.vert">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="DepthOfField.frag">
+      <Filter>Res</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\Text.txt">
+      <Filter>Res</Filter>
+    </Text>
   </ItemGroup>
 </Project>

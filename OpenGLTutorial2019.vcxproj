@@ -128,6 +128,7 @@
     <ClCompile Include="src\BufferObject.cpp" />
     <ClCompile Include="src\Collision.cpp" />
     <ClCompile Include="src\Font.cpp" />
+    <ClCompile Include="src\FramebufferObject.cpp" />
     <ClCompile Include="src\GameOverScene.cpp" />
     <ClCompile Include="src\GLFWEW.cpp" />
     <ClCompile Include="src\JizoActor.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\Collision.h" />
     <ClInclude Include="src\Font.h" />
+    <ClInclude Include="src\FramebufferObject.h" />
     <ClInclude Include="src\GameOverScene.h" />
     <ClInclude Include="src\Geometory.h" />
     <ClInclude Include="src\Geometry.h" />
@@ -178,7 +180,9 @@
     <ClInclude Include="src\UniformBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="DepthOfField.frag" />
     <None Include="packages.config" />
+    <None Include="res\DepthOfField.vert" />
     <None Include="res\font.fnt" />
     <None Include="res\SkeletalMesh.frag" />
     <None Include="res\SkeletalMesh.vert" />
@@ -191,6 +195,9 @@
     <None Include="res\TerrainTutorial.frag" />
     <None Include="res\TerrainTutorial.vert" />
     <None Include="Water.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\Text.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
