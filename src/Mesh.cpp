@@ -701,7 +701,7 @@ namespace Mesh {
 					glActiveTexture(GL_TEXTURE0 + i);
 
 					if (m.texture[i]) {
-						glBindTexture(GL_TEXTURE_2D, m.texture[i]->Get());
+						glBindTexture(m.texture[i]->Target(), m.texture[i]->Get());
 					}
 					else {
 						glBindTexture(GL_TEXTURE_2D, 0);
