@@ -46,7 +46,7 @@ FramebufferObject::~FramebufferObject(){
 *
 *	@return FBO‚ÌID
 */
-GLuint FramebufferObject::GLFramebuffer() const{
+GLuint FramebufferObject::GetFramebuffer() const{
 
 	return id;
 }

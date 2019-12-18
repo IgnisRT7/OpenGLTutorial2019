@@ -21,7 +21,7 @@ public:
 	FramebufferObject() = default;
 	~FramebufferObject();
 
-	GLuint GLFramebuffer() const;
+	GLuint GetFramebuffer() const;
 	const Texture::Image2DPtr& GetColorTexture() const;
 	const Texture::Image2DPtr& GetDepthTexture() const;
 
