@@ -45,6 +45,19 @@ bool MainGameScene::Initialize() {
 	lightBuffer.BindToShader(meshBuffer.GetTerrainShader());
 	lightBuffer.BindToShader(meshBuffer.GetWaterShader());
 
+	//FBOを作成する
+	const GLFWEW::Window& window = GLFWEW::Window::Instance();
+	fboMain = FramebufferObject::Create(window.Width(), window.Height());
+	Mesh::FilePtr rt = meshBuffer.AddPlane("RenderTarget");
+	if (rt) {
+		rt->materials[0].program = Shader::Program::Create("Res/DepthOfField.vert", "Res/DepthOfField.frag");
+		rt->materials[0].texture[0] = fboMain->GetColorTexture();
+		rt->materials[0].texture[1] = fboMain->GetDepthTexture();
+	}
+	if (!rt || !rt->materials[0].program) {
+		return false;
+	}
+
 	//地形ジェネレータの初期化
 	TerrainGenerator::Controller controller;
 	controller.Generate();
@@ -159,7 +172,7 @@ void MainGameScene::Update(float deltaTime) {
 	GLFWEW::Window& window = GLFWEW::Window::Instance();
 	{
 		camera.target = player->position;
-		camera.position = camera.target + glm::vec3(0, 50, 50);
+		camera.position = camera.target + glm::vec3(0, 8, 13);
 	}
 
 	player->Update(deltaTime);
@@ -275,10 +288,18 @@ void MainGameScene::Render() {
 	lightBuffer.Upload();
 	lightBuffer.Bind();
 
+	// FBOに描画
+	glBindFramebuffer(GL_FRAMEBUFFER, fboMain->GetFramebuffer());
+	glClearColor(0.5f, 0.6f, 0.8f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+
 	const glm::mat4 matView = glm::lookAt(camera.position, camera.target, camera.up);
 
 	const float aspectRatio = static_cast<float>(window.Width() / static_cast<float>(window.Height()));
-	const glm::mat4 matProj = glm::perspective(glm::radians(30.0f), aspectRatio, 1.0f, 1000.0f);
+	const glm::mat4 matProj = glm::perspective(camera.fov, aspectRatio, camera.near, camera.far);
 
 	meshBuffer.SetViewProjectionMatrix(matProj * matView);
 	meshBuffer.SetCameraPosition(camera.position);
@@ -309,6 +330,20 @@ void MainGameScene::Render() {
 
 	//水の描画処理
 	Mesh::Draw(meshBuffer.GetFile("Water"), glm::mat4(1));
+
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+
+		Mesh::FilePtr mesh = meshBuffer.GetFile("RenderTarget");
+		Mesh::Draw(mesh, glm::mat4(1));
+
+		//fontRenderer.Draw(screenSize);
+	}
 }
 
 /**
@@ -353,6 +388,23 @@ bool MainGameScene::HandleJizoEffects(int id, const glm::vec3& pos){
 
 	return true;
 }
+
+/**
+*	カメラのparameterを更新する
+*
+*	@param matView 更新に使用するビュー行列
+*/
+void MainGameScene::Camera::Update(const glm::mat4& matView) {
+
+	const glm::vec4 pos = matView * glm::vec4(target, 1);
+	focalPlane = pos.z * -1000.0f;
+
+	const float imageDistance = sensorSize * 0.5f / glm::tan(fov * 0.5f);
+	focallength = 1.0f / ((1.0f / focalPlane) + (1.0f / imageDistance));
+
+	aperture = focallength / fNumber;
+}
+
 
 /**
 *	再生処理
@@ -448,3 +500,4 @@ void MainGameScene::CreateStoneWall(glm::vec3 start){
 		glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec3(2, 2, 0.5f));
 	objects.Add(p);
 }
+
