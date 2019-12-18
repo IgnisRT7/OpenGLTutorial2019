@@ -194,7 +194,7 @@
     <None Include="res\Terrain.vert" />
     <None Include="res\TerrainTutorial.frag" />
     <None Include="res\TerrainTutorial.vert" />
-    <None Include="Water.frag" />
+    <None Include="res\Water.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Text.txt" />

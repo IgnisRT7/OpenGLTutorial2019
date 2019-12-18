@@ -211,13 +211,13 @@
     <None Include="res\TerrainTutorial.vert">
       <Filter>Res</Filter>
     </None>
-    <None Include="Water.frag">
-      <Filter>Res</Filter>
-    </None>
     <None Include="res\DepthOfField.vert">
       <Filter>Res</Filter>
     </None>
     <None Include="DepthOfField.frag">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\Water.frag">
       <Filter>Res</Filter>
     </None>
   </ItemGroup>
