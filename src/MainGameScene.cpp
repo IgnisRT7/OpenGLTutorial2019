@@ -339,7 +339,15 @@ void MainGameScene::Render() {
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_BLEND);
 
+		camera.Update(matView);
+
 		Mesh::FilePtr mesh = meshBuffer.GetFile("RenderTarget");
+
+		Shader::ProgramPtr prog = mesh->materials[0].program;
+		prog->Use();
+		prog->SetViewInfo(static_cast<float>(window.Width()), static_cast<float>(window.Height()),
+			camera.near, camera.far);
+
 		Mesh::Draw(mesh, glm::mat4(1));
 
 		//fontRenderer.Draw(screenSize);
