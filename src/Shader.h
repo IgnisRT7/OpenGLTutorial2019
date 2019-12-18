@@ -44,6 +44,10 @@ namespace Shader {
 		void SetCameraPosition(const glm::vec3&);
 		void SetTime(float);
 
+		void SetViewInfo(float w, float h, float near, float far);
+		void SetCameraInfo(float focalPlane, float focalLength, float aperture, float sensorSize);
+
+
 		/// ƒvƒƒOƒ‰ƒ€ID‚ğæ“¾‚·‚é
 		GLuint Get() const { return id; }
 
@@ -60,6 +64,9 @@ namespace Shader {
 		GLint locSpotLightIndex = -1;
 		GLint locCameraPosition = -1;
 		GLint locTime = -1;
+		GLint locViewInfo = -1;
+		GLint locCameraInfo = -1;
+
 
 
 		glm::mat4 matVP = glm::mat4(1);
