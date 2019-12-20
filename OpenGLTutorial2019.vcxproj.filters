@@ -220,6 +220,18 @@
     <None Include="res\Water.frag">
       <Filter>Res</Filter>
     </None>
+    <None Include="Simple.vert">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="Simple.frag">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="BrightPassFilter.frag">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="NormalBlur.frag">
+      <Filter>Res</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Text.txt">

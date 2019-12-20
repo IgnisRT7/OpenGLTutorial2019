@@ -180,7 +180,9 @@
     <ClInclude Include="src\UniformBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BrightPassFilter.frag" />
     <None Include="DepthOfField.frag" />
+    <None Include="NormalBlur.frag" />
     <None Include="packages.config" />
     <None Include="res\DepthOfField.vert" />
     <None Include="res\font.fnt" />
@@ -195,6 +197,8 @@
     <None Include="res\TerrainTutorial.frag" />
     <None Include="res\TerrainTutorial.vert" />
     <None Include="res\Water.frag" />
+    <None Include="Simple.frag" />
+    <None Include="Simple.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Text.txt" />
