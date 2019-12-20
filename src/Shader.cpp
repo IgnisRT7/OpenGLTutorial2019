@@ -213,6 +213,7 @@ namespace Shader {
 
 		locViewInfo = glGetUniformLocation(id, "viewInfo");
 		locCameraInfo = glGetUniformLocation(id, "cameraInfo");
+		locBlurDirection = glGetUniformLocation(id, "blurDirectoin");
 
 		glUseProgram(id);
 		const GLint texColorLoc = glGetUniformLocation(id, "texColor");
@@ -414,6 +415,18 @@ namespace Shader {
 		}
 	}
 
+	/**
+	*	ぼかし方向を設定する
+	*
+	*	@param x	左右のぼかし方向にテクセルサイズを掛けた値
+	*	@param y	上下のぼかし方向にテクセルサイズを掛けた値
+	*/
+	void Program::SetBlurDirection(float x, float y) {
+
+		if (locBlurDirection >= 0) {
+			glUniform2f(locBlurDirection, x, y);
+		}
+	}
 
 
 } // namespace Shader
