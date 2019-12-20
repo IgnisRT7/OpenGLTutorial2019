@@ -62,6 +62,8 @@ private:
 	ActorList lights;
 
 	FramebufferObjectPtr fboMain;			///< メインのフレームバッファオブジェクト
+	FramebufferObjectPtr fboDepthOfField;	
+	FramebufferObjectPtr fboBloom[6][2];	
 
 	Audio::SoundPtr bgm;				///< BGMデータ
 
