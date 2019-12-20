@@ -214,22 +214,22 @@
     <None Include="res\DepthOfField.vert">
       <Filter>Res</Filter>
     </None>
-    <None Include="DepthOfField.frag">
-      <Filter>Res</Filter>
-    </None>
     <None Include="res\Water.frag">
       <Filter>Res</Filter>
     </None>
-    <None Include="Simple.vert">
+    <None Include="res\Simple.vert">
       <Filter>Res</Filter>
     </None>
-    <None Include="Simple.frag">
+    <None Include="res\Simple.frag">
       <Filter>Res</Filter>
     </None>
-    <None Include="BrightPassFilter.frag">
+    <None Include="res\NormalBlur.frag">
       <Filter>Res</Filter>
     </None>
-    <None Include="NormalBlur.frag">
+    <None Include="res\BrightPassFilter.frag">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\DepthOfField.frag">
       <Filter>Res</Filter>
     </None>
   </ItemGroup>
