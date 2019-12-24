@@ -19,3 +19,5 @@ void main(){
 	fragColor += texture2D(texColor, inTexCoord - off1) * 0.3162162162;
 	fragColor += texture2D(texColor, inTexCoord + off2) * 0.0702702703;
 	fragColor += texture2D(texColor, inTexCoord - off2) * 0.0702702703;
+	fragColor = vec4(1);
+}
