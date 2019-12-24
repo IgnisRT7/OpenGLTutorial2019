@@ -78,7 +78,7 @@ bool MainGameScene::Initialize() {
 
 	//ブルーム・エフェクト用の平面ポリゴンメッシュを作成する
 	if (Mesh::FilePtr mesh = meshBuffer.AddPlane("BrightPassFilter")) {
-		Shader::ProgramPtr p = Shader::Program::Create("Res/Simple.vert", "Res/Simple.frag");
+		Shader::ProgramPtr p = Shader::Program::Create("Res/Simple.vert", "Res/BrightPassFilter.frag");
 		p->Use();
 		p->SetViewProjectionMatrix(glm::mat4(1));
 		mesh->materials[0].program = p;
