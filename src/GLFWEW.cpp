@@ -7,6 +7,12 @@
 ///GLFWとGLEWをラップするための名前空間
 namespace GLFWEW {
 
+	void APIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
+
+		std::cout << "receive gl message. " << message << std::endl;
+
+	}
+
 	/**
 	*	GLFWからのエラー報告を処理する
 	*
@@ -96,6 +102,10 @@ namespace GLFWEW {
 		for (auto e : keyState) {
 			e = KeyState::release;
 		}
+
+		// During init, enable debug output
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback(MessageCallback, this);
 
 		const GLubyte* renderer = glGetString(GL_RENDERER);
 		std::cout << "Renderer: " << renderer << std::endl;
