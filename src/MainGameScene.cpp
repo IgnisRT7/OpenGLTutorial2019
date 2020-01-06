@@ -325,8 +325,6 @@ void MainGameScene::Render() {
 	spriteRenderer.Draw(screenSize);
 	fontRenderer.Draw(screenSize);
 
-	glEnable(GL_DEPTH);
-
 	lightBuffer.Upload();
 	lightBuffer.Bind();
 
