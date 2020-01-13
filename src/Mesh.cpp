@@ -679,8 +679,6 @@ namespace Mesh {
 	*/
 	void Draw(const FilePtr& file, const glm::mat4& matM){
 
-		glEnable(GL_DEPTH_TEST);
-
 		if (!file || file->meshes.empty() || file->materials.empty()) {
 			return;
 		}

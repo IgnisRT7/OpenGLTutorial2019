@@ -391,6 +391,7 @@ void MainGameScene::Render() {
 
 		Shader::ProgramPtr prog = mesh->materials[0].program;
 		prog->Use();
+		prog->SetCameraInfo(camera.focalPlane, camera.focallength, camera.aperture, camera.sensorSize);
 		prog->SetViewInfo(static_cast<float>(window.Width()), static_cast<float>(window.Height()),
 			camera.near, camera.far);
 
