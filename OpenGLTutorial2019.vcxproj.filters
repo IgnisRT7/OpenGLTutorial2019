@@ -232,6 +232,12 @@
     <None Include="res\DepthOfField.frag">
       <Filter>Res</Filter>
     </None>
+    <None Include="res\Shadow.frag">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="res\NonTexturedShadow.frag">
+      <Filter>Res</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Text.txt">

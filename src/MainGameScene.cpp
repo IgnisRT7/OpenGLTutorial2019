@@ -100,6 +100,14 @@ bool MainGameScene::Initialize() {
 		return false;
 	}
 
+	//デプスシャドウマッピング用のFBOを作成する
+	fboShadow = FramebufferObject::Create(4096, 4096, GL_NONE, FrameBufferType::DepthOnly);
+
+	//sampler2DShadowの比較モードを設定する
+	glBindTexture(GL_TEXTURE_2D, fboShadow->GetDepthTexture()->Get());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+
 	//地形ジェネレータの初期化
 	TerrainGenerator::Controller controller;
 	controller.Generate();
@@ -322,6 +330,43 @@ void MainGameScene::Render() {
 
 	const GLFWEW::Window& window = GLFWEW::Window::Instance();
 	const glm::vec2 screenSize(window.Width(), window.Height());
+
+	//影用FBOに描画
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, fboShadow->GetFramebuffer());
+		auto tex = fboShadow->GetDepthTexture();
+		glViewport(0, 0, tex->Width(), tex->Height());
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+
+		//ディレクショナル・ライトの向きから影用ビュー行列を作成
+		//支店は、カメラの中視点からライト方向に100m移動した位置に設定する
+		glm::vec3 direction(0, -1, 0);
+		for (auto e : lights) {
+			if (auto p = std::dynamic_pointer_cast<DirectionalLightActor>(e)) {
+				direction = p->direction;
+				break;
+			}
+		}
+
+		const glm::vec3 position = camera.target - direction * 100.0f;
+		const glm::mat4 matView = glm::lookAt(position, camera.target, glm::vec3(0, 1, 0));
+
+		//平衡投影によるプロジェクション行列を作成
+		const float width = 100;	//描画範囲の幅
+		const float height = 100; //描画範囲の高さ
+		const float near = 10.0f;	//描画範囲の手前側の境界
+		const float far = 200.0f;	//描画範囲の奥川の境界
+		const glm::mat4 matProj = glm::ortho<float>(-width / 2, width / 2, -height / 2, height / 2, near, far);
+
+		//ビュー・プロジェクション行列を設定してメッシュを描画
+		meshBuffer.SetShadowViewProjectionMatrix(matProj * matView);
+		//meshBuffer.SetViewProjectionMatrix(matProj * matView);
+		RenderMesh(Mesh::DrawType::shadow);
+	}
+
 	spriteRenderer.Draw(screenSize);
 	fontRenderer.Draw(screenSize);
 
@@ -346,32 +391,11 @@ void MainGameScene::Render() {
 	meshBuffer.SetViewProjectionMatrix(matProj * matView);
 	meshBuffer.SetCameraPosition(camera.position);
 	meshBuffer.SetTime(window.Time());
+	meshBuffer.BindShadowTexture(fboShadow->GetDepthTexture());
 
-	//キューブの行列変換
-	glm::vec3 cubePos(120, 0, 120);
-	cubePos.y = heightMap.Height(cubePos);
-	const glm::mat4 matModel = glm::translate(glm::mat4(1), cubePos);
-	Mesh::Draw(meshBuffer.GetFile("Cube"), matModel);
+	RenderMesh(Mesh::DrawType::color);
 
-	//地形の行列変換
-	const Mesh::FilePtr& terrainFile = meshBuffer.GetFile("Terrain");
-	terrainFile->materials[0].program->Use();
-	terrainFile->materials[0].program->SetViewProjectionMatrix(matProj * matView);
-	Mesh::Draw(terrainFile, glm::mat4(1));
-
-	//木の行列変換
-	glm::vec3 treePos(110, 0, 110);
-	treePos.y = heightMap.Height(treePos);
-	const glm::mat4 matTreeModel = glm::translate(glm::mat4(1), treePos) * glm::scale(glm::mat4(1), glm::vec3(3));
-	Mesh::Draw(meshBuffer.GetFile("Res/red_pine_tree.gltf"), matTreeModel);
-
-	enemies.Draw();
-	trees.Draw();
-	objects.Draw();
-	player->Draw();
-
-	//水の描画処理
-	Mesh::Draw(meshBuffer.GetFile("Water"), glm::mat4(1));
+	meshBuffer.UnbindSadowTexture();
 
 	//被写界深度エフェクト
 	{
@@ -474,6 +498,19 @@ void MainGameScene::Render() {
 		simpleMesh->materials[0].texture[0] = fboBloom[0][0]->GetColorTexture();
 		Mesh::Draw(simpleMesh,glm::mat4(1));
 	}
+
+#if 0
+
+	//デバッグのために、影用の深度テクスチャを表示する
+	{
+		glDisable(GL_BLEND);
+		Mesh::FilePtr simpleMesh = meshBuffer.GetFile("Simple");
+		simpleMesh->materials[0].texture[0] = fboShadow->GetDepthTexture();
+		glm::mat4 m = glm::scale(glm::translate(glm::mat4(1), glm::vec3(-0.45, 0, 0)), glm::vec3(0.5f, -0.89f, 1));
+		Mesh::Draw(simpleMesh, m);
+	}
+
+#endif
 
 }
 
@@ -630,5 +667,35 @@ void MainGameScene::CreateStoneWall(glm::vec3 start){
 	p->colLocal = Collision::CreateOBB(glm::vec3(0, 0, 0),
 		glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec3(2, 2, 0.5f));
 	objects.Add(p);
+}
+
+/**
+*	メッシュを描画する
+*
+*	@param drawType	描画するデータの種類
+*/
+void MainGameScene::RenderMesh(Mesh::DrawType drawType){
+
+	//キューブの行列変換
+	glm::vec3 cubePos(120, 0, 120);
+	cubePos.y = heightMap.Height(cubePos);
+	const glm::mat4 matModel = glm::translate(glm::mat4(1), cubePos);
+	Mesh::Draw(meshBuffer.GetFile("Cube"), matModel, drawType);
+	Mesh::Draw(meshBuffer.GetFile("Terrain"), glm::mat4(1), drawType);
+
+	player->Draw(drawType);
+	enemies.Draw(drawType);
+	trees.Draw(drawType);
+	objects.Draw(drawType);
+
+	//木の行列変換
+	glm::vec3 treePos(110, 0, 110);
+	treePos.y = heightMap.Height(treePos);
+	const glm::mat4 matTreeModel = glm::translate(glm::mat4(1), treePos) * glm::scale(glm::mat4(1), glm::vec3(3));
+	Mesh::Draw(meshBuffer.GetFile("Res/red_pine_tree.gltf"), matTreeModel, drawType);
+
+	//水の描画処理
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	Mesh::Draw(meshBuffer.GetFile("Water"), glm::mat4(1),drawType);
 }
 

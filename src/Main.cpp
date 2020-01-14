@@ -8,7 +8,8 @@
 #include "SkeletalMesh.h"
 #include "Audio.h"
 
-//#define GEFORCE_USED
+
+#define GEFORCE_USED
 #ifdef GEFORCE_USED
 
 extern "C" {

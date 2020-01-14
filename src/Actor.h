@@ -27,7 +27,7 @@ public:
 
 	virtual void Update(float);
 	virtual void UpdateDrawData(float);
-	virtual void Draw();
+	virtual void Draw(Mesh::DrawType drawType);
 	virtual void OnHit(const ActorPtr&, const glm::vec3& ){}
 
 public:
@@ -54,7 +54,7 @@ public:
 	StaticMeshActor(const Mesh::FilePtr& m, const std::string& name, int hp,
 		const glm::vec3& position, const glm::vec3& rotation=glm::vec3(0),const glm::vec3& scale = glm::vec3(1));
 	virtual ~StaticMeshActor() = default;
-	virtual void Draw() override;
+	virtual void Draw(Mesh::DrawType drawType) override;
 
 	void SetPointLightList(const std::vector<int>& v);
 	void SetSpotLightList(const std::vector<int>& v);
@@ -88,7 +88,7 @@ public:
 	bool Remove(const ActorPtr&);
 	void Update(float);
 	void UpdateDrawData(float);
-	void Draw();
+	void Draw(Mesh::DrawType drawType);
 	bool Empty() const { return actors.empty(); }
 	size_t Size()const { return actors.size(); }
 	const std::weak_ptr<Actor> Get(int index) const {

@@ -467,9 +467,11 @@ namespace Mesh {
 	}
 
 	/**
-	* スケルタルメッシュを描画する.
+	*	スケルタルメッシュを描画する.
+	*
+	*	@param drawType	描画するデータの種類
 	*/
-	void SkeletalMesh::Draw() const
+	void SkeletalMesh::Draw(DrawType drawType) const
 	{
 		if (!file) {
 			return;
@@ -489,10 +491,14 @@ namespace Mesh {
 
 			if (prim.material >= 0 && prim.material < static_cast<int>(file->materials.size())) {
 				const Material& m = file->materials[prim.material];
-				if (!m.progSkeletalMesh) {
+				Shader::ProgramPtr program = m.progSkeletalMesh;
+				if (drawType == DrawType::shadow) {
+					program = m.progShadow;
+				}
+				if (!program) {
 					continue;
 				}
-				m.progSkeletalMesh->Use();
+				program->Use();
 
 				for (int i = 0; i < sizeof(m.texture) / sizeof(m.texture[0]); ++i) {
 					glActiveTexture(GL_TEXTURE0 + i);
@@ -504,7 +510,7 @@ namespace Mesh {
 					}
 				}
 
-				const GLint locMaterialColor = glGetUniformLocation(m.progSkeletalMesh->Get(), "materialColor");
+				const GLint locMaterialColor = glGetUniformLocation(program->Get(), "materialColor");
 				if (locMaterialColor >= 0) {
 					glUniform4fv(locMaterialColor, 1, &m.baseColor.x);
 				}
@@ -976,7 +982,10 @@ namespace Mesh {
 				if (!texturePath.empty()) {
 					tex = Texture::Image2D::Create(texturePath.c_str());
 				}
-				file.materials.push_back(CreateMaterial(col, tex));
+				//file.materials.push_back(CreateMaterial(col, tex));
+				Material m = CreateMaterial(col, tex);
+				m.progShadow = GetSkeletalShadowShader();
+				file.materials.push_back(m);
 			}
 		}
 

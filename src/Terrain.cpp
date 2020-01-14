@@ -158,7 +158,7 @@ namespace Terrain {
 	*		a--d
 	*/
 	bool HeightMap::CreateMesh(Mesh::Buffer& meshBuffer, const char* meshName, const char* texName) const {
-
+		
 		if (heights.empty()) {
 			std::cerr << "[エラー]" << __func__ << ": ハイトマップが読み込まれていません\n";
 			return false;
@@ -216,6 +216,7 @@ namespace Terrain {
 		m.texture[9] = Texture::Image2D::Create("Res/Terrain_Rock_Normal.tga");
 		m.texture[10] = Texture::Image2D::Create("Res/Terrain_Plant_Normal.tga");
 		m.program =  meshBuffer.GetTerrainShader();
+		m.progShadow = meshBuffer.GetNonTexturedShadowShader();
 
 		meshBuffer.AddMesh(meshName, p, m);
 		
@@ -287,6 +288,7 @@ namespace Terrain {
 		m.texture[8] = Texture::Image2D::Create("Res/Terrain_Water_Normal.tga");
 		m.program = meshBuffer.GetWaterShader();
 		meshBuffer.AddMesh(meshName, p, m);
+		m.progShadow = meshBuffer.GetNonTexturedShadowShader();
 
 		return true;
 	}

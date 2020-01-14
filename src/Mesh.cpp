@@ -84,7 +84,7 @@ namespace Mesh {
 	/**
 	*	JSONの配列データをglm::mat4に変換する
 	*
-	*	@param json	変換元となる配列データ	
+	*	@param json	変換元となる配列データ
 	*
 	*	@return jsonを変換してできたmat4の値
 	*/
@@ -97,7 +97,7 @@ namespace Mesh {
 		return glm::mat4(
 			a[0].number_value(), a[1].number_value(), a[2].number_value(), a[3].number_value(),
 			a[4].number_value(), a[5].number_value(), a[6].number_value(), a[7].number_value(),
-			a[8].number_value(), a[9].number_value(), a[10].number_value(), a[11].number_value(), 
+			a[8].number_value(), a[9].number_value(), a[10].number_value(), a[11].number_value(),
 			a[12].number_value(), a[13].number_value(), a[14].number_value(), a[15].number_value());
 	}
 
@@ -112,7 +112,7 @@ namespace Mesh {
 	*	@param pStride		取得したバイナリデータのデータ幅(頂点データの定義で使用)
 	*/
 	void GetBuffer(const json11::Json& accessor, const json11::Json& bufferViews,
-		const std::vector<std::vector<char> >&binFiles, const void** pp, size_t* pLength, int* pStride = nullptr) {
+		const std::vector<std::vector<char> >& binFiles, const void** pp, size_t* pLength, int* pStride = nullptr) {
 
 		const int bufferViewId = accessor["bufferView"].int_value();
 		const int byteOffset = accessor["byteOffset"].int_value();
@@ -150,7 +150,7 @@ namespace Mesh {
 				byteLength = 0;
 			}
 			else {
-				byteLength = std::min(byteLength, accessor["count"].int_value()*unitByteSize*typeSize);
+				byteLength = std::min(byteLength, accessor["count"].int_value() * unitByteSize * typeSize);
 			}
 		}
 
@@ -162,12 +162,12 @@ namespace Mesh {
 	}
 
 	/**
-	*	頂点属性を設定する	
+	*	頂点属性を設定する
 	*
-	*	@param prim			頂点データを設定するプリミティブ	
+	*	@param prim			頂点データを設定するプリミティブ
 	*	@param index		設定する頂点属性のインデックス
 	*	@param accessor		頂点データの格納場所
-	*	@param bufferViews	頂点データを参照するためのバッファ・ビュー配列	
+	*	@param bufferViews	頂点データを参照するためのバッファ・ビュー配列
 	*	@param binFiles		頂点データを格納しているバイナリデータ配列
 	*
 	*	@return true	設定成功
@@ -195,7 +195,7 @@ namespace Mesh {
 			return false;
 		}
 
-		const void*p;
+		const void* p;
 		size_t byteLength;
 		int byteStride;
 		GetBuffer(accessor, bufferViews, binFiles, &p, &byteLength, &byteStride);
@@ -211,7 +211,7 @@ namespace Mesh {
 
 	/**
 	*	glTFファイルを読み込む
-	*	
+	*
 	*	@param path	glTFファイル名
 	*
 	*	@retrun true	読み込み成功
@@ -351,7 +351,7 @@ namespace Mesh {
 
 	/**
 	*	メッシュバッファを初期化する
-	*		
+	*
 	*	@param vboSize	VBOのバイトサイズ
 	*	@param iboSize	IBOのバイトサイズ
 	*
@@ -383,13 +383,21 @@ namespace Mesh {
 
 		//地形描画用のシェーダを読み込む
 		progTerrain = Shader::Program::Create("Res/TerrainTutorial.vert", "Res/TerrainTutorial.frag");
-		if (progSkeletalMesh->IsNull()) {
+		if (progTerrain->IsNull()) {
 			return false;
 		}
 
 		//水描画用シェーダを読み込む
 		progWater = Shader::Program::Create("Res/TerrainTutorial.vert", "Res/Water.frag");
 		if (progWater->IsNull()) {
+			return false;
+		}
+
+		//影描画用シェーダープログラムを作成
+		progShadow = Shader::Program::Create("Res/StaticMesh.vert", "Res/Shadow.frag");
+		progNonTexturedShadow = Shader::Program::Create("Res/StaticMesh.vert", "Res/NonTexturedShadow.frag");
+		progSkeletalShadow = Shader::Program::Create("Res/SkeletalMesh.vert", "Res/Shadow.frag");
+		if (progShadow->IsNull() || progNonTexturedShadow->IsNull() || progSkeletalShadow->IsNull()) {
 			return false;
 		}
 
@@ -404,11 +412,11 @@ namespace Mesh {
 
 	/**
 	*	頂点データを追加する
-	*	
+	*
 	*	@param data	追加するデータのポインタ
 	*	@param size	追加するデータのバイト数
-	*	
-	*	@return データを追加した位置	
+	*
+	*	@return データを追加した位置
 	*			CreatePrimitiveのvoffsetパラメータとして使用する
 	*/
 	GLintptr Buffer::AddVertexData(const void* data, size_t size) {
@@ -437,7 +445,7 @@ namespace Mesh {
 	}
 
 	/**
-	*	プリミティブを作成する	
+	*	プリミティブを作成する
 	*
 	*	@param count	プリミティブのインデックスデータの数
 	*	@param type		インデックスデータの型
@@ -477,7 +485,7 @@ namespace Mesh {
 	*
 	*	@param color	マテリアルの基本色
 	*	@param texture	マテリアルのテクスチャ
-	*	
+	*
 	*	@return 作成したMaterial構造体
 	*/
 	Material Buffer::CreateMaterial(const glm::vec4& color, Texture::Image2DPtr texture) const {
@@ -487,6 +495,7 @@ namespace Mesh {
 		m.texture[0] = texture;
 		m.program = progStaticMesh;
 		m.progSkeletalMesh = progSkeletalMesh;
+		m.progShadow = progShadow;
 		return m;
 	}
 
@@ -540,7 +549,7 @@ namespace Mesh {
 	/**
 	*	立方体を追加する
 	*
-	*	@param name	立方体のメッシュ名	
+	*	@param name	立方体のメッシュ名
 	*/
 	void Buffer::AddCube(const char* name) {
 
@@ -594,7 +603,7 @@ namespace Mesh {
 		const size_t vOffset = AddVertexData(vertices.data(), vertices.size() * sizeof(Vertex));
 		const size_t iOffset = AddIndexData(indices.data(), indices.size() * sizeof(GLubyte));
 		const Primitive p = CreatePrimitive(indices.size(), GL_UNSIGNED_BYTE, iOffset, vOffset);
-		const Material m = CreateMaterial(glm::vec4(1) ,defaultTex);
+		const Material m = CreateMaterial(glm::vec4(1), defaultTex);
 		AddMesh(name, p, m);
 	}
 
@@ -603,7 +612,7 @@ namespace Mesh {
 	*
 	*	@param name	平面のメッシュ名
 	*/
-	FilePtr Buffer::AddPlane(const char* name){
+	FilePtr Buffer::AddPlane(const char* name) {
 
 		const Vertex v[] = {
 		{ {-1,-1, 0 }, { 0, 0 }, { 0, 0, 1 }},
@@ -631,8 +640,37 @@ namespace Mesh {
 		progStaticMesh->SetViewProjectionMatrix(matVP);
 		progSkeletalMesh->Use();
 		progSkeletalMesh->SetViewProjectionMatrix(matVP);
+		progTerrain->Use();
+		progTerrain->SetViewProjectionMatrix(matVP);
 		progWater->Use();
 		progWater->SetViewProjectionMatrix(matVP);
+		glUseProgram(0);
+	}
+
+	/**
+	*	シェーダに影用のビュー・プロジェクション行列を設定する
+	*
+	*	@param matVP	影用ビュー・プロジェクション行列
+	*/
+	void Buffer::SetShadowViewProjectionMatrix(const glm::mat4& matVP) const {
+
+		progStaticMesh->Use();
+		progStaticMesh->SetShadowViewProjectionMatrix(matVP);
+		progSkeletalMesh->Use();
+		progSkeletalMesh->SetShadowViewProjectionMatrix(matVP);
+		progTerrain->Use();
+		progTerrain->SetShadowViewProjectionMatrix(matVP);
+		progWater->Use();
+		progWater->SetShadowViewProjectionMatrix(matVP);
+
+		//影用シェーダには通常のビュー・プロジェクション行列を設定する
+		progShadow->Use();
+		progShadow->SetViewProjectionMatrix(matVP);
+		progNonTexturedShadow->Use();
+		progNonTexturedShadow->SetViewProjectionMatrix(matVP);
+		progSkeletalShadow->Use();
+		progSkeletalShadow->SetViewProjectionMatrix(matVP);
+
 		glUseProgram(0);
 	}
 
@@ -672,12 +710,39 @@ namespace Mesh {
 	}
 
 	/**
+	*	影用の深度テクスチャをGLコンテキストに割り当てる
+	*
+	*	@param tex	影用の深度テクスチャ
+	*/
+	void Buffer::BindShadowTexture(const Texture::InterfacePtr& texture) {
+
+		shadowTextureTarget = texture->Target();
+		glActiveTexture(GL_TEXTURE0 + Shader::Program::shadowTextureBindingPoint);
+		glBindTexture(shadowTextureTarget, texture->Get());
+	}
+
+	/**
+	*	影用テクスチャの割り当てを解除する
+	*/
+	void Buffer::UnbindSadowTexture() {
+
+		if (shadowTextureTarget != GL_NONE) {
+
+			glActiveTexture(GL_TEXTURE0 + Shader::Program::shadowTextureBindingPoint);
+			glBindTexture(shadowTextureTarget, 0);
+			shadowTextureTarget = GL_NONE;
+		}
+
+	}
+
+	/**
 	*	メッシュを描画する
 	*
 	*	@param file	描画するファイル	
 	*	@param matM	描画に使用するモデル行列
+	*	@param drawType 描画するデータの種類
 	*/
-	void Draw(const FilePtr& file, const glm::mat4& matM){
+	void Draw(const FilePtr& file, const glm::mat4& matM, DrawType drawType){
 
 		if (!file || file->meshes.empty() || file->materials.empty()) {
 			return;
@@ -690,8 +755,13 @@ namespace Mesh {
 
 				p.vao->Bind();
 				const Material& m = file->materials[p.material];
-				m.program->Use();
-				m.program->SetModelMatrix(matM);
+				Shader::ProgramPtr program = m.program;
+				if (drawType == DrawType::shadow) {
+					program = m.progShadow;
+				}
+
+				program->Use();
+				program->SetModelMatrix(matM);
 
 				//テクスチャがあるとkは、そのテクスチャIDを設定する、無いときは0を設定する
 				for (int i = 0; i < sizeof(m.texture) / sizeof(m.texture[0]); ++i) {

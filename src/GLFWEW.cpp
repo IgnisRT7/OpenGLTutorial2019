@@ -9,8 +9,10 @@ namespace GLFWEW {
 
 	void APIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
 
-		std::cout << "receive gl message. " << message << std::endl;
+		if (type == GL_DEBUG_TYPE_ERROR) {
 
+			std::cout << "receive gl message. " << message << std::endl;
+		}
 	}
 
 	/**

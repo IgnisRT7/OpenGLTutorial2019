@@ -82,8 +82,10 @@ void Actor::UpdateDrawData(float deltaTime) {
 
 /**
 *	ƒAƒNƒ^[‚Ì•`‰æ
+*
+*	@param drawType	
 */
-void Actor::Draw() {
+void Actor::Draw(Mesh::DrawType drawType) {
 }
 
 /**
@@ -106,7 +108,7 @@ Actor(name,hp,position,rotation,scale),mesh(m){
 /**
 *	•`‰æ
 */
-void StaticMeshActor::Draw() {
+void StaticMeshActor::Draw(Mesh::DrawType drawType) {
 
 	if (mesh) {
 
@@ -118,14 +120,16 @@ void StaticMeshActor::Draw() {
 		const glm::mat4 matModel = matT * matR_XZY*matS;
 
 		if (!mesh->materials.empty()) {
+			if (drawType == Mesh::DrawType::color) {
 
-			const Shader::ProgramPtr p = mesh->materials[0].program;
-			if (p) {
-				p->Use();
-				p->SetPointLightIndex(pointLightCount, pointLihgtIndex);
-				p->SetSpotLightIndex(spotLightCount, spotLightIndex);
+				const Shader::ProgramPtr p = mesh->materials[0].program;
+				if (p) {
+					p->Use();
+					p->SetPointLightIndex(pointLightCount, pointLihgtIndex);
+					p->SetSpotLightIndex(spotLightCount, spotLightIndex);
+				}
+				Mesh::Draw(mesh, matModel, drawType);
 			}
-			Mesh::Draw(mesh, matModel);
 		}
 	}
 }
@@ -245,12 +249,14 @@ void ActorList::UpdateDrawData(float deltaTime) {
 
 /**
 *	Actor‚ð•`‰æ‚·‚é
+*
+*	@param drawType	•`‰æ‚·‚éƒf[ƒ^‚ÌŽí—Þ
 */
-void ActorList::Draw() {
+void ActorList::Draw(Mesh::DrawType drawType) {
 
 	for (const ActorPtr& e : actors) {
 		if (e && e->health > 0) {
-			e->Draw();
+			e->Draw(drawType);
 		}
 	}
 }

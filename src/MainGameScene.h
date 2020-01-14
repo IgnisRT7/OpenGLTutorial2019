@@ -43,6 +43,7 @@ public:
 	void CreateStoneWall(glm::vec3 s);
 
 private:
+	void RenderMesh(Mesh::DrawType);
 
 	int jizoId = -1;					///< 現在戦闘中のお地蔵様のID
 	bool achivements[4] = { false,false,false,false };	///< 敵討伐状態
@@ -63,7 +64,8 @@ private:
 
 	FramebufferObjectPtr fboMain;			///< メインのフレームバッファオブジェクト
 	FramebufferObjectPtr fboDepthOfField;	
-	FramebufferObjectPtr fboBloom[6][2];	
+	FramebufferObjectPtr fboBloom[6][2];
+	FramebufferObjectPtr fboShadow;
 
 	Audio::SoundPtr bgm;				///< BGMデータ
 
