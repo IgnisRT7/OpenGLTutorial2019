@@ -137,6 +137,7 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainGameScene.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\PlayerActor.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="src\Light.h" />
     <ClInclude Include="src\MainGameScene.h" />
     <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\Particle.h" />
     <ClInclude Include="src\PlayerActor.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
@@ -187,6 +189,7 @@
     <None Include="res\font.fnt" />
     <None Include="res\NonTexturedShadow.frag" />
     <None Include="res\NormalBlur.frag" />
+    <None Include="res\Particle.vert" />
     <None Include="res\Shadow.frag" />
     <None Include="res\Simple.frag" />
     <None Include="res\Simple.vert" />
@@ -204,6 +207,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Text.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\DiskParticle.tga" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

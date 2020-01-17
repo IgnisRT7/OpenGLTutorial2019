@@ -47,7 +47,7 @@ namespace Shader {
 		void SetViewInfo(float w, float h, float near, float far);
 		void SetCameraInfo(float focalPlane, float focalLength, float aperture, float sensorSize);
 		void SetBlurDirection(float x, float y);
-
+		void SetInverseViewRotationMatrix(const glm::mat4& matView);
 		void SetShadowViewProjectionMatrix(const glm::mat4&);
 		static const GLint shadowTextureBindingPoint = 16;
 
@@ -71,6 +71,7 @@ namespace Shader {
 		GLint locCameraInfo = -1;
 		GLint locBlurDirection = -1;
 		GLint locMatShadow = -1;
+		GLint locMatInverseViewRotation = -1;
 
 		glm::mat4 matVP = glm::mat4(1);
 	};

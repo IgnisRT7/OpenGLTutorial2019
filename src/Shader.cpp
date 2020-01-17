@@ -215,6 +215,7 @@ namespace Shader {
 		locViewInfo = glGetUniformLocation(id, "viewInfo");
 		locCameraInfo = glGetUniformLocation(id, "cameraInfo");
 		locBlurDirection = glGetUniformLocation(id, "blurDirectoin");
+		locMatInverseViewRotation = glGetUniformLocation(id, "matInverseViewRotation");
 
 		glUseProgram(id);
 		const GLint texColorLoc = glGetUniformLocation(id, "texColor");
@@ -441,6 +442,19 @@ namespace Shader {
 
 		if (locBlurDirection >= 0) {
 			glUniform2f(locBlurDirection, x, y);
+		}
+	}
+
+	/**
+	*	描画に使われるビュー回転の逆行列を設定する
+	*
+	*	@param matView	もとになるビュー行列
+	*/
+	void Program::SetInverseViewRotationMatrix(const glm::mat4& matView) {
+
+		if (locMatInverseViewRotation >= 0) {
+			const glm::mat3 m = glm::inverse(glm::mat3(glm::transpose(glm::inverse(matView))));
+			glUniformMatrix3fv(locMatInverseViewRotation, 1, GL_FALSE, &m[0][0]);
 		}
 	}
 

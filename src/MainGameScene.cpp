@@ -40,6 +40,9 @@ bool MainGameScene::Initialize() {
 	meshBuffer.LoadSkeletalmesh("Res/bikuni.gltf");
 	meshBuffer.LoadSkeletalmesh("Res/ue4modeltest.gltf");
 
+	//パーティクル・システムを初期化する
+	particleSystem.Init(1000);
+
 	lightBuffer.Init(1);
 	lightBuffer.BindToShader(meshBuffer.GetStaticMeshShader());
 	lightBuffer.BindToShader(meshBuffer.GetTerrainShader());
@@ -184,6 +187,38 @@ bool MainGameScene::Initialize() {
 	SpawnTree(100);
 	CreateStoneWall(startPos);
 
+	//パーティクル・システムのテスト用にエミッターを追加
+	{
+		//エミッター1個目
+		ParticleEmitterParameter ep;
+		ep.imagePath = "Res/DiskParticle.tga";
+		ep.position = glm::vec3(96.5f, 0, 95);
+		ep.position.y = heightMap.Height(ep.position);
+		ep.emissionPerSecond = 20.0f;
+		ep.dstFactor = GL_ONE;	//加算合成
+		ep.gravity = 0;
+		ParticleParameter pp;
+		pp.scale = glm::vec2(0.5f);
+		pp.color = glm::vec4(0.9f, 0.3f, 0.1f, 1.0f);
+		particleSystem.Add(ep, pp);
+	}
+
+	//パーティクル・システムのテスト用にエミッターを追加
+	{
+		//エミッター1個目
+		ParticleEmitterParameter ep;
+		ep.imagePath = "Res/DiskParticle.tga";
+		ep.position = glm::vec3(97, 0, 100);
+		ep.position.y = heightMap.Height(ep.position);
+		ep.angle = glm::radians(30.0f);
+		ParticleParameter pp;
+		pp.lifeTime = 2;
+		pp.scale = glm::vec2(0.2f);
+		pp.velocity = glm::vec3(0, 3, 0);
+		pp.color = glm::vec4(0.1f, 0.3f, 0.8f, 1.0f);
+		particleSystem.Add(ep, pp);
+	}
+
 	bgm = Audio::Engine::Instance().Prepare("Res/Audio/mainScene.wav");
 	bgm->Play(Audio::Flag_Loop);
 
@@ -300,6 +335,7 @@ void MainGameScene::Update(float deltaTime) {
 		p->SetSpotLightList(spotLightIndex);
 	}
 
+	particleSystem.Update(deltaTime);
 
 	//敵を全滅させたら目的達成フラグをtrueにする
 	if (jizoId >= 0) {
@@ -394,6 +430,7 @@ void MainGameScene::Render() {
 	meshBuffer.BindShadowTexture(fboShadow->GetDepthTexture());
 
 	RenderMesh(Mesh::DrawType::color);
+	particleSystem.Draw(matProj, matView);
 
 	meshBuffer.UnbindSadowTexture();
 

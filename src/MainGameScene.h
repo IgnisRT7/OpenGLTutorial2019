@@ -15,6 +15,7 @@
 #include "Audio.h"
 #include "Light.h"
 #include "FramebufferObject.h"
+#include "Particle.h"
 #include <vector>
 #include <random>
 
@@ -61,6 +62,8 @@ private:
 	
 	LightBuffer lightBuffer;
 	ActorList lights;
+
+	ParticleSystem particleSystem;		
 
 	FramebufferObjectPtr fboMain;			///< メインのフレームバッファオブジェクト
 	FramebufferObjectPtr fboDepthOfField;	

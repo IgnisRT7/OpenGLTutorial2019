@@ -92,6 +92,9 @@
     <ClCompile Include="src\FramebufferObject.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Particle.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene.h">
@@ -175,6 +178,9 @@
     <ClInclude Include="src\FramebufferObject.h">
       <Filter>Src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Particle.h">
+      <Filter>Src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -238,10 +244,18 @@
     <None Include="res\NonTexturedShadow.frag">
       <Filter>Res</Filter>
     </None>
+    <None Include="res\Particle.vert">
+      <Filter>Res</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Text.txt">
       <Filter>Res</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\DiskParticle.tga">
+      <Filter>Res</Filter>
+    </Image>
   </ItemGroup>
 </Project>
